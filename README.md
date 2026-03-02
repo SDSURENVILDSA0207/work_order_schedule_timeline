@@ -1,10 +1,93 @@
-# Naologic FE Take-Home — Project Setup Guide
+# Naologic Work Order Schedule Timeline
 
-Complete walkthrough: Angular project scaffold → GitHub repo → README → first commit.
+A production scheduling UI built for the Naologic Frontend Engineer take-home challenge.
+Displays work orders across work centers on an interactive, zoomable timeline.
 
 ---
 
-## Prerequisites
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+ (LTS recommended)
+- Angular CLI 17+
+
+### Installation
+
+```bash
+git clone https://github.com/YOUR_USERNAME/naologic-timeline.git
+cd naologic-timeline
+npm install
+```
+
+### Run
+
+```bash
+ng serve
+```
+
+Open [http://localhost:4200](http://localhost:4200)
+
+---
+
+## Features
+
+- **Timeline grid** — Day, Week, and Month zoom levels with correct date headers
+- **Work order bars** — Positioned by date, colored by status (Open / In Progress / Complete / Blocked)
+- **Create work orders** — Click any empty timeline area to open a pre-filled create panel
+- **Edit work orders** — Three-dot menu on each bar opens Edit/Delete options
+- **Overlap detection** — Prevents scheduling two orders on the same work center at the same time
+- **Slide-out panel** — Smooth animation, closes on outside click or Cancel
+- **Today indicator** — Vertical line marking today's date on the grid
+- **Responsive** — Horizontal scroll on smaller screens
+
+---
+
+## Tech Stack
+
+| Library | Version | Purpose |
+|---------|---------|---------|
+| Angular | 21+ | Framework — standalone components |
+| TypeScript | 5.x strict | Type safety throughout |
+| SCSS | — | All styling via CSS custom properties |
+| @ng-select/ng-select | latest | Status dropdown with custom badge template |
+| @ng-bootstrap/ng-bootstrap | latest | ngb-datepicker for date fields |
+| Bootstrap | 5.x | Peer dependency for ng-bootstrap |
+
+---
+
+## Architecture
+
+```
+src/app/
+├── components/
+│   ├── timeline/             # Main grid: header + rows + today line
+│   ├── work-order-bar/       # Bar rendering + 3-dot dropdown
+│   ├── work-order-panel/     # Create/Edit slide panel with Reactive Form
+│   └── timescale-selector/   # Day/Week/Month dropdown
+├── services/
+│   ├── work-order.service.ts # State management + CRUD + overlap validation
+│   └── timeline.service.ts   # Date-to-pixel math, column generation
+├── models/
+│   └── work-order.model.ts   # WorkCenterDocument, WorkOrderDocument interfaces
+├── data/
+│   └── sample-data.ts        # 5 work centers, 8+ work orders, all 4 statuses
+└── utils/
+    └── date.utils.ts         # Pure date helpers
+```
+
+---
+
+## Sample Data
+
+5 work centers with 8+ work orders demonstrating:
+- All four statuses: `open`, `in-progress`, `complete`, `blocked`
+- Multiple non-overlapping orders on the same work center (Konsulting Inc)
+- Orders spanning different date ranges (past, current, future)
+
+---
+
+## Prerequisites (Setup Guide)
 
 Before starting, confirm these are installed:
 

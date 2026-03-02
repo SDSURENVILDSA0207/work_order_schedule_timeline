@@ -1,0 +1,84 @@
+<div class="panel-backdrop" (click)="onBackdropClick()">
+  <div class="panel" (click)="onPanelClick($event)">
+    <header class="panel-header">
+      <h2 class="panel-title">Work Order Details</h2>
+      <p class="panel-subtitle">Specify the dates, name and status for this order</p>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="save()" class="panel-form">
+      @if (overlapError()) {
+        <div class="error-message">{{ overlapError() }}</div>
+      }
+
+      <div class="form-group">
+        <label for="name">Work Order Name</label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          class="form-control"
+          placeholder="Acme Inc."
+        />
+        @if (form.get('name')?.invalid && form.get('name')?.touched) {
+          <span class="field-error">Required</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status</label>
+        <ng-select
+          id="status"
+          formControlName="status"
+          [items]="statusOptions"
+          bindLabel="label"
+          bindValue="value"
+          placeholder="Select status"
+          [searchable]="false"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="startDate">Start date</label>
+        <input
+          id="startDate"
+          class="form-control"
+          formControlName="startDate"
+          ngbDatepicker
+          #startDp="ngbDatepicker"
+        />
+        <button type="button" class="datepicker-toggle" (click)="startDp.toggle()">
+          📅
+        </button>
+        @if (form.get('startDate')?.invalid && form.get('startDate')?.touched) {
+          <span class="field-error">Required</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="endDate">End date</label>
+        <input
+          id="endDate"
+          class="form-control"
+          formControlName="endDate"
+          ngbDatepicker
+          #endDp="ngbDatepicker"
+        />
+        <button type="button" class="datepicker-toggle" (click)="endDp.toggle()">
+          📅
+        </button>
+        @if (form.get('endDate')?.invalid && form.get('endDate')?.touched) {
+          <span class="field-error">End date must be after start date</span>
+        }
+      </div>
+
+      <div class="panel-actions">
+        <button type="button" class="btn-cancel" (click)="cancel()">
+          Cancel
+        </button>
+        <button type="submit" class="btn-primary">
+          {{ isEditMode() ? 'Save' : 'Create' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

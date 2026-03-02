@@ -1,0 +1,96 @@
+<div class="timeline-container">
+  <header class="timeline-header">
+    <div class="logo">NAOLOGIC</div>
+    <h1 class="title">Work Orders</h1>
+    <div class="header-controls">
+      <app-timescale-selector
+        [value]="zoom()"
+        (valueChange)="setZoom($event)"
+      />
+      <button type="button" class="btn-today" (click)="scrollToToday()">
+        Today
+      </button>
+    </div>
+  </header>
+
+  <div class="timeline-body">
+    <div class="timeline-grid-wrapper">
+      <!-- Left panel: Work Center names (fixed) -->
+      <div class="timeline-left">
+        <div class="timeline-left-header">Work Center</div>
+        @for (wc of workCenters(); track wc.docId) {
+          <div
+            class="timeline-row-label"
+            [class.hovered]="hoveredRowId() === wc.docId"
+            (mouseenter)="hoveredRowId.set(wc.docId)"
+            (mouseleave)="hoveredRowId.set(null)"
+          >
+            {{ wc.data.name }}
+          </div>
+        }
+      </div>
+
+      <!-- Right panel: Scrollable timeline grid -->
+      <div class="timeline-grid-scroll" #gridScroll>
+        <div
+          class="timeline-grid"
+          [style.width.px]="totalWidth()"
+        >
+          <!-- Column headers -->
+          <div class="timeline-grid-header">
+            @for (col of columns(); track col.label) {
+              <div class="timeline-col-header" [style.width.px]="timelineService.getColumnWidth(zoom())">
+                {{ col.label }}
+              </div>
+            }
+          </div>
+
+          <!-- Current month/day indicator -->
+          @if (isTodayInRange()) {
+            <div
+              class="current-day-indicator"
+              [style.left.px]="todayPosition()"
+            >
+              <span class="current-day-label">{{ zoom() === 'day' ? 'Current day' : zoom() === 'week' ? 'Current week' : 'Current month' }}</span>
+            </div>
+          }
+
+          <!-- Work center rows -->
+          @for (wc of workCenters(); track wc.docId) {
+            <div
+              class="timeline-row"
+              [class.hovered]="hoveredRowId() === wc.docId"
+              [title]="'Click to add dates'"
+              (mouseenter)="hoveredRowId.set(wc.docId)"
+              (mouseleave)="hoveredRowId.set(null)"
+              (click)="onRowClick(wc.docId, $event)"
+            >
+              <div class="timeline-row-inner">
+                @for (order of workOrderService.getOrdersForWorkCenter(wc.docId); track order.docId) {
+                  <app-work-order-bar
+                    [order]="order"
+                    [left]="getBarPosition(order).left"
+                    [width]="getBarPosition(order).width"
+                    (edit)="onEdit($event)"
+                    (delete)="onDelete($event)"
+                  />
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (panelOpen(); as mode) {
+    <app-work-order-panel
+      [mode]="mode"
+      [workCenterId]="(createContext()?.workCenterId ?? editOrder()?.data?.workCenterId) ?? ''"
+      [startDatePrefill]="createContext()?.startDate ?? null"
+      [editOrder]="editOrder()"
+      (closed)="onPanelClosed()"
+      (saved)="onPanelClosed()"
+    />
+  }
+</div>

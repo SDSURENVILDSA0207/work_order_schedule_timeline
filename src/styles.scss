@@ -1,1 +1,67 @@
-/* You can add global styles to this file, and also import other style files */
+// ─── Design Tokens (Sketch: d56a77de-9753-45a8-af7a-d93a42276667) ────────────
+:root {
+  // Primary palette
+  --color-primary: #5659ff;
+  --color-primary-dark: #3e40db;
+  --color-primary-light: #aaafff;
+
+  // Status badge colors (solid)
+  --color-status-open: #4a90e2;
+  --color-status-in-progress: #7b61ff;
+  --color-status-complete: #4caf50;
+  --color-status-blocked: #ff9800;
+
+  // Status bar backgrounds (pastel, from design)
+  --color-bar-open: #e3f2fd;
+  --color-bar-in-progress: #e8e6fa;
+  --color-bar-complete: #e6fae6;
+  --color-bar-blocked: #fff3e0;
+
+  // Text
+  --color-text-primary: #030929;
+  --color-text-labels: #687196;
+  --color-text-disabled: #d8dceb;
+
+  // Stroke / Border
+  --color-stroke: #f0f1f5;
+
+  // Row hover (light purple from design)
+  --color-row-hover: #f4f5ff;
+
+  // Current day indicator
+  --color-current-day: #8b7fc7;
+
+  // Current month badge (pill in header)
+  --color-current-month-bg: #d9f7be;
+
+  // Typography
+  --font-heading: "Circular-Std", "Circular Std", system-ui, sans-serif;
+
+  // Shadows
+  --shadow-sm: 0 1px 0.8px 0 rgba(0, 0, 0, 0.5);
+  --shadow-panel: -4px 0 24px rgba(0, 0, 0, 0.15);
+  --shadow-dropdown: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  // Layout (px)
+  --timeline-left-width: 220px;
+  --timeline-row-height: 52px;
+  --timeline-header-height: 44px;
+  --panel-width: 400px;
+}
+
+// ─── Global Reset ────────────────────────────────────────────────────────────
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-heading);
+  color: var(--color-text-primary);
+  background: #f7f7f9;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

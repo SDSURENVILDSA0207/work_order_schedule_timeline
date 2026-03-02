@@ -1,11 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
+import { TimelineComponent } from './components/timeline/timeline.component';
 
 @Component({
   selector: 'app-root',
-  imports: [],
+  imports: [TimelineComponent],
   templateUrl: './app.html',
-  styleUrl: './app.scss'
+  styleUrl: './app.scss',
 })
-export class App {
-  protected readonly title = signal('naologic-timeline-app');
-}
+export class App {}
