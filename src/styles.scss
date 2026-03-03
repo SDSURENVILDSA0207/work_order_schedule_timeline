@@ -26,7 +26,7 @@
   --color-stroke: #f0f1f5;
 
   // Row hover (light purple from design)
-  --color-row-hover: #f4f5ff;
+  --color-row-hover: rgba(238, 240, 255, 1);
 
   // Current day indicator
   --color-current-day: #8b7fc7;
@@ -43,7 +43,7 @@
   --shadow-dropdown: 0 2px 8px rgba(0, 0, 0, 0.1);
 
   // Layout (px)
-  --timeline-left-width: 220px;
+  --timeline-left-width: 380px;
   --timeline-row-height: 52px;
   --timeline-header-height: 44px;
   --panel-width: 400px;

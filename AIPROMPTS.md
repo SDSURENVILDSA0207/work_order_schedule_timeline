@@ -531,5 +531,154 @@ Each entry includes:
 
 ---
 
+## Prompt 35 – Placeholder & Tooltip Visibility and Single Tooltip
+
+- **Date**: 2026-03-03  
+- **Context**: User reported placeholder and “Click to add dates” tooltip not visible; duplicate (native + custom) tooltips. Request: one tooltip only, smooth hover (box appears first, then tooltip with slight delay).
+
+**Prompt text (paraphrased):**
+
+> I don’t see anything applied, now I am not able to see tooltip as well. … I need only one tooltip and the hover effect should be smooth. First when I hover it should display the box smoothly with a millisecond less time of tooltip to pop up.
+
+**Changes made:**
+- **timeline.component.ts**: Added `colWidth` computed for reliable template binding; removed `hoveredPlaceholderRowId` and `onPlaceholderClick`.
+- **timeline.component.html**: Removed native `title="Click to add dates"` so only the custom dark tooltip shows; placeholder width bound to `colWidth()`.
+- **timeline.component.scss**: `.add-dates-placeholder-wrapper` given `min-width: 60px`, `z-index: 1`, `pointer-events: auto`; `.timeline-body` and `.timeline-container` set to `overflow: visible` so tooltip is not clipped; `.timeline-grid-scroll` `overflow-y: visible`. Added `@keyframes placeholder-box-in` (120ms) and `@keyframes tooltip-fade-in` (100ms, 80ms delay); tooltip uses `.visible` and animation so it pops up just after the box.
+
+---
+
+## Prompt 36 – “Click to add dates” on Any Cell
+
+- **Date**: 2026-03-03  
+- **Context**: Show the lavender placeholder box and “Click to add dates” tooltip when hovering any cell in the row, not only the first column.
+
+**Prompt text (paraphrased):**
+
+> When I hover on any cell it should show that click to add along with the cell box you created.
+
+**Changes made:**
+- **timeline.component.html**: Replaced the fixed first-column placeholder with a conditional block: when `getCellHighlight(wc.docId)` returns a cell, render the placeholder wrapper at that cell’s `left`/`width` with the tooltip; removed the separate cell-highlight div.
+- **timeline.component.ts**: Removed `hoveredPlaceholderRowId` and `onPlaceholderClick`; row click already opens create panel at click position.
+
+---
+
+## Prompt 37 – Grid Header and “Click to add dates” Alignment
+
+- **Date**: 2026-03-03  
+- **Context**: First date header row (week1, week2, …) should have the same white background as the WORK CENTER column; “Click to add dates” should match design (anchored tooltip, not floating).
+
+**Prompt text (paraphrased):**
+
+> I want the background color of that adjacent bar/grid area to be EXACTLY the same as the "WORK CENTER" column background (just the first bar eg week1, week2, …). … Verify "Click to add dates" behaves exactly like the design (anchored tooltip on placeholder slot).
+
+**Changes made:**
+- **timeline.component.scss**: `.timeline-grid-header` given `background-color: #ffffff` so the date header row matches the WORK CENTER column. Placeholder/tooltip already anchored to hovered cell; overflow and z-index kept so tooltip is not clipped.
+
+---
+
+## Prompt 38 – Timescale Dropdown Flat Design (No Checkmark)
+
+- **Date**: 2026-03-03  
+- **Context**: Timescale dropdown looked native with heavy rounding/shadow and a checkmark next to the selected option; user wanted flat panel style, no checkmark, blue text for selected only.
+
+**Prompt text (paraphrased):**
+
+> The Timescale dropdown UI does not match the expected design. Current: native/system-style, heavy rounding and shadow, checkmark next to selected option. Expected: flat panel style, minimal shadow, subtle border, no checkmark, selected option highlighted with blue text only.
+
+**Changes made:**
+- **timescale-selector.component.ts**: Replaced native `<select>` with a custom button trigger + dropdown panel. Template: trigger button showing current value + chevron; `@if (menuOpen())` a `.timescale-menu` with four option buttons (Hour, Day, Week, Month). Selected option uses class `.selected` (blue text via `var(--color-primary)`). No checkmark. Styles: `.timescale-menu` flat panel with border, light shadow, `border-radius: 5px`; `.timescale-option` and `.timescale-option.selected` for clean list and blue highlight. Added `menuOpen` signal, `valueLabel` computed, `toggleMenu()`, `select(zoom)`; same `value`/`valueChange` API.
+
+---
+
+## Prompt 39 – Timescale Dropdown Box Dimensions and Shadow
+
+- **Date**: 2026-03-03  
+- **Context**: Apply exact CSS for the dropdown panel: 200×136px, specific box-shadow, border-radius 5px, white background.
+
+**Prompt text (paraphrased):**
+
+> User provided exact CSS for the dropdown box: width 200px; height 136px; box-shadow: 0 0 0 1px rgba(104, 113, 150, 0.1), 0 2.5px 3px -1.5px rgba(200, 207, 233, 1), 0 4.5px 5px -1px rgba(216, 220, 235, 1); border-radius 5px; background-color rgba(255, 255, 255, 1).
+
+**Changes made:**
+- **timescale-selector.component.ts**: `.timescale-menu` updated to `width: 200px`, `height: 136px`, the given `box-shadow` and `border-radius: 5px`, `background-color: rgba(255, 255, 255, 1)`.
+
+---
+
+## Prompt 40 – Timescale Dropdown Start from Timescale Box
+
+- **Date**: 2026-03-03  
+- **Context**: Dropdown panel should start (left edge) from the full timescale control box, not only the trigger segment.
+
+**Prompt text (paraphrased):**
+
+> Expected box start, my box start is in second screenshot. … It should start from the timescale box.
+
+**Changes made:**
+- **timescale-selector.component.ts**: Moved `.timescale-menu` out of `.timescale-dropdown-wrap` so it is a direct child of `.timescale-control`. Added `position: relative` to `.timescale-control`. Menu kept `left: 0` and `top: calc(100% + 4px)` so its left edge aligns with the left edge of the entire timescale control (Timescale label + value).
+
+---
+
+## Prompt 41 – Work Center Column Width 380px
+
+- **Date**: 2026-03-03  
+- **Context**: Set the width of the Work Center (left) column to 380px.
+
+**Prompt text (paraphrased):**
+
+> Width of the work center bar should be 380px.
+
+**Changes made:**
+- **styles.scss**: `--timeline-left-width: 220px` changed to `--timeline-left-width: 380px`. All uses of `var(--timeline-left-width)` (e.g. `.timeline-left`) now render the Work Center column at 380px.
+
+---
+
+## Prompt 42 – Row Hover Background Color
+
+- **Date**: 2026-03-03  
+- **Context**: When hovering a timeline row, apply a specific light purple background to the full row (left label + grid row).
+
+**Prompt text (paraphrased):**
+
+> When I hover a row -> background-color: rgba(238, 240, 255, 1);
+
+**Changes made:**
+- **styles.scss**: `--color-row-hover: #f4f5ff` changed to `--color-row-hover: rgba(238, 240, 255, 1)` so the left Work Center label uses this when hovered.
+- **timeline.component.html**: Added `[class.hovered]="hoveredRowId() === wc.docId"` on the grid `.timeline-row` div.
+- **timeline.component.scss**: `.timeline-row` given `transition: background 0.15s ease` and `&.hovered { background-color: rgba(238, 240, 255, 1); }` so the full row (left + grid) shows the same hover background.
+
+---
+
+## Prompt 43 – Placeholder Not Overlapping Work Order Bars (Layering Fix)
+
+- **Date**: 2026-03-03  
+- **Context**: “Click to add dates” placeholder was rendering on top of work order bars, blocking the three-dot menu. Required: placeholder only in empty cells, bars above placeholder, three-dot always clickable.
+
+**Prompt text (paraphrased):**
+
+> There is a UI layering issue. The placeholder is rendering on top of existing work order bars; I cannot click the three-dot menu. Expected: placeholder only in empty areas, never on top of bars, no blocking; work order bars higher interaction priority.
+
+**Changes made:**
+- **timeline.component.ts**: Added `isCellEmpty(workCenterId, cellLeft, cellWidth)`: returns true only if no work order bar in that row overlaps the cell (pixel overlap check using `getBarPosition`).
+- **timeline.component.html**: Placeholder wrapper rendered only when `getCellHighlight(wc.docId)` returns a cell **and** `isCellEmpty(wc.docId, cell.left, cell.width)` is true.
+- **timeline.component.scss**: `.add-dates-placeholder-wrapper` z-index set to `0` so it stacks below bars.
+- **work-order-bar.component.ts**: `:host` given `z-index: 2` so bars and three-dot menu are always above the placeholder.
+
+---
+
+## Prompt 44 – Document All AI Assistance in AIPROMPTS and README
+
+- **Date**: 2026-03-03  
+- **Context**: Record all AI-assisted code and decisions in AIPROMPTS.md and README.md.
+
+**Prompt text (paraphrased):**
+
+> Write all the AI assistance code in AIPROMPTS.md and README.md.
+
+**Changes made:**
+- **AIPROMPTS.md**: Appended Prompts 35–44 with descriptions and changes (placeholder/tooltip visibility and single tooltip; “Click to add dates” on any cell; grid header white and design alignment; Timescale dropdown flat design and no checkmark; dropdown dimensions/shadow; dropdown start from timescale box; Work Center width 380px; row hover background; placeholder layering/isCellEmpty/z-index; this documentation request).
+- **README.md**: Updated “Implementation Status & Recent Changes” and “AI prompts” reference to include Prompts 35–44 and the listed behaviour (Work Center width 380px, row hover color, Timescale custom dropdown, placeholder only in empty cells, layering).
+
+---
+
 New prompts and significant AI-assisted decisions will continue to be appended here as the implementation progresses.
 

@@ -1,7 +1,7 @@
 .timeline-container {
   padding: 24px 24px 24px 102px;
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible; /* allow "Click to add dates" tooltip to show above first row */
 }
 
 .timeline-header {
@@ -30,10 +30,10 @@
 }
 
 .timeline-body {
-  background-color: rgba(247, 249, 252, 1); /* extend year-column tint all the way to the bottom */
+  background-color: rgba(244, 245, 255, 1); /* lavender tint – extends to bottom of card */
   border-radius: 0;
   border: 1px solid var(--color-stroke);
-  overflow: hidden;
+  overflow: visible; /* allow "Click to add dates" tooltip to show above first row */
 }
 
 .timeline-grid-wrapper {
@@ -79,19 +79,20 @@
 .timeline-grid-scroll {
   flex: 1;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: visible; /* allow tooltip above first row to show */
 }
 
 .timeline-grid {
   min-width: 100%;
   position: relative;
-  background-color: rgba(247, 249, 252, 1); /* subtle column-year/background tint */
+  background-color: rgba(244, 245, 255, 1); /* same lavender as rows – stretches to bottom */
 }
 
 .timeline-grid-header {
   display: flex;
   height: var(--timeline-header-height);
   border-bottom: 1px solid var(--color-stroke);
+  background-color: #ffffff; /* match WORK CENTER column – first bar (week1, week2, …) */
 }
 
 .timeline-col-header {
@@ -133,6 +134,12 @@
   border-bottom: 1px solid var(--color-stroke);
   position: relative;
   cursor: pointer;
+  background-color: rgba(244, 245, 255, 1); /* default row background */
+  transition: background 0.15s ease;
+
+  &.hovered {
+    background-color: rgba(238, 240, 255, 1); /* row hover from design */
+  }
 }
 
 .timeline-row-inner {
@@ -152,4 +159,79 @@
   pointer-events: none;
   z-index: 0;
   transition: left 0.05s ease, width 0.05s ease;
+}
+
+/* Add dates placeholder: smooth fade-in; single custom tooltip (no native title) */
+@keyframes placeholder-box-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tooltip-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.add-dates-placeholder-wrapper {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 0;
+  min-width: 60px;
+  z-index: 0; /* below work order bars (z-index 2) so bars stay clickable */
+  cursor: pointer;
+  pointer-events: auto;
+  animation: placeholder-box-in 0.12s ease-out forwards;
+}
+
+.add-dates-placeholder-slot {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 32px;
+  border-radius: 8px;
+  background-color: rgba(232, 231, 255, 1);
+  border: 1px solid rgba(195, 199, 255, 1);
+  box-sizing: border-box;
+}
+
+.add-dates-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 6px;
+  padding: 6px 10px;
+  background-color: rgba(47, 48, 89, 1);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: 20;
+  opacity: 0;
+  animation: tooltip-fade-in 0.1s ease-out 0.08s forwards; /* pops up ~80ms after box */
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(47, 48, 89, 1);
+  }
+
+  &.visible {
+    opacity: 1;
+  }
 }

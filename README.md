@@ -30,10 +30,14 @@ The following are **implemented** and aligned with the spec and design:
 - **Overlap detection** – Create/update validate no overlap on same work center; error in panel; create/update blocked when overlapping.
 - **Cell-based highlight** – Hover highlights only the **cell (time column)** under the pointer; left panel row labels highlight by row.
 - **Interactions** – Click empty timeline opens create with date from click; three-dot Edit/Delete; panel close on outside click, Cancel, Escape, or save.
+- **Work Center column** – Width **380px** (`--timeline-left-width` in `styles.scss`).
+- **Row hover** – Full row (left label + grid) uses **rgba(238, 240, 255, 1)** on hover (`--color-row-hover` and `.timeline-row.hovered`).
+- **Timescale dropdown** – Custom flat panel (no native select): 200×136px, design box-shadow and border-radius 5px; left edge aligned with full timescale box; selected option highlighted with blue text only (no checkmark); Hour, Day, Week, Month options.
+- **“Click to add dates”** – Shown only in **empty cells** (no overlap with work order bars); work order bars have higher z-index so the three-dot menu is always clickable; single custom tooltip, smooth box-in then tooltip fade-in.
 
 **How to run:** `npm install` then `ng serve`. See section 1 for setup details.
 
-**AI prompts:** All prompts used during implementation are logged in `AIPROMPTS.md` (Prompts 1–34), including pixel-perfect panel, separator, status/date styling, timescale control, work order bar/pill styling, background tint, current-indicator behaviour, and documentation updates.
+**AI prompts:** All prompts used during implementation are logged in `AIPROMPTS.md` (Prompts 1–44), including pixel-perfect panel, separator, status/date styling, timescale control, work order bar/pill styling, background tint, current-indicator behaviour, placeholder/tooltip visibility and single-tooltip behaviour, “Click to add dates” on any cell, grid header white, Timescale dropdown flat design and positioning, Work Center width 380px, row hover color, placeholder layering (empty cells only, bars above placeholder), and documentation updates.
 
 ---
 

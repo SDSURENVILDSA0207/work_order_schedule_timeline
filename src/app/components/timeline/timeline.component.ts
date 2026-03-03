@@ -26,7 +26,7 @@ export class TimelineComponent {
 
   zoom = signal<TimelineZoom>('day');
   hoveredRowId = signal<string | null>(null);
-  /** X position (px) of pointer in timeline content; used to highlight the cell under cursor. */
+  /** X position (px) of pointer in timeline content; used to show "Click to add dates" at hovered cell. */
   hoveredCellX = signal<number | null>(null);
   panelOpen = signal<'create' | 'edit' | null>(null);
   createContext = signal<{ workCenterId: string; startDate: string } | null>(null);
@@ -44,6 +44,9 @@ export class TimelineComponent {
     const colWidth = this.timelineService.getColumnWidth(this.zoom());
     return cols.length * colWidth;
   });
+
+  /** Column width in px for placeholder and layout (exposed to template). */
+  colWidth = computed(() => this.timelineService.getColumnWidth(this.zoom()));
   todayPosition = computed(() => {
     const range = this.range();
     const total = this.totalWidth();
@@ -167,6 +170,18 @@ export class TimelineComponent {
     const cellIndex = Math.floor(x / colWidth);
     const left = Math.max(0, Math.min(cellIndex * colWidth, total - colWidth));
     return { left, width: colWidth };
+  }
+
+  /** True if no work order bar overlaps this cell (placeholder should only show in empty cells). */
+  isCellEmpty(workCenterId: string, cellLeft: number, cellWidth: number): boolean {
+    const cellRight = cellLeft + cellWidth;
+    const orders = this.workOrderService.getOrdersForWorkCenter(workCenterId);
+    for (const order of orders) {
+      const bar = this.getBarPosition(order);
+      const barRight = bar.left + bar.width;
+      if (bar.left < cellRight && barRight > cellLeft) return false;
+    }
+    return true;
   }
 
   constructor() {

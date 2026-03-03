@@ -52,6 +52,7 @@ const STATUS_LABELS: Record<WorkOrderStatus, string> = {
       height: calc(100% - 12px);
       min-width: 80px;
       box-sizing: border-box;
+      z-index: 2; /* above placeholder so three-dot menu is always clickable */
     }
 
     .work-order-bar {
