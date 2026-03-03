@@ -59,13 +59,20 @@
           @for (wc of workCenters(); track wc.docId) {
             <div
               class="timeline-row"
-              [class.hovered]="hoveredRowId() === wc.docId"
               [title]="'Click to add dates'"
-              (mouseenter)="hoveredRowId.set(wc.docId)"
-              (mouseleave)="hoveredRowId.set(null)"
+              (mouseenter)="onRowMouseEnter(wc.docId, $event)"
+              (mousemove)="onRowMouseMove(wc.docId, $event)"
+              (mouseleave)="onRowMouseLeave()"
               (click)="onRowClick(wc.docId, $event)"
             >
               <div class="timeline-row-inner">
+                @if (getCellHighlight(wc.docId); as cell) {
+                  <div
+                    class="timeline-cell-highlight"
+                    [style.left.px]="cell.left"
+                    [style.width.px]="cell.width"
+                  ></div>
+                }
                 @for (order of workOrderService.getOrdersForWorkCenter(wc.docId); track order.docId) {
                   <app-work-order-bar
                     [order]="order"

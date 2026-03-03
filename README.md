@@ -1,16 +1,31 @@
 # Work Order Schedule Timeline – Implementation Guide
 
-This document describes **how this project will be implemented step by step**, based on the Naologic **Work Order Schedule Timeline – Frontend Technical Test** requirements.
+This document describes **how this project is implemented** and the **step-by-step plan** used, based on the Naologic **Work Order Schedule Timeline – Frontend Technical Test** requirements.
 
-It is intentionally **process-focused** and does **not contain application code**. The goal is to make it easy to:
+Goals:
 
-- Understand the planned architecture
+- Understand the planned and current architecture
 - Follow a clear sequence of implementation steps
 - Map Loom demo sections and git commits to concrete milestones
 
 For the original problem statement, see the provided `FE-technical-test...md` file in the repository.
 
 All AI prompts used during development are logged in `AIPROMPTS.md`.
+
+---
+
+## Implementation Status & Recent Changes
+
+The following are **implemented** and aligned with the spec:
+
+- **Timeline grid** – Day/Week/Month zoom, scrollable grid, fixed left work-center column, current day/week/month indicator.
+- **Work order bars** – Name, **status badge (pill/tag)**, three-dot menu (Edit/Delete); bar position from start/end dates; status colors per design.
+- **Create/Edit panel** – Single slide-out panel; Reactive Forms with Work Order Name, Status (ng-select), Start Date, End Date (ngb-datepicker). Labels: "Start Date", "End Date" per spec. Create: start date from **click position** on timeline, end date default **start + 7 days**. Edit: fields pre-filled; Save vs Create button. Cancel and backdrop close; **Escape** closes the panel. **End-date validator** ensures end date is after start date with immediate feedback.
+- **Overlap detection** – Create/update validate no overlap on same work center; error shown in panel; create/update blocked when overlapping.
+- **Cell-based highlight** – Hover on the timeline highlights only the **cell (time column)** under the pointer, not the entire row. Left panel row labels still highlight by row when the pointer is over that row.
+- **Interactions** – Click empty timeline area opens create with date from click; three-dot Edit/Delete; panel close on outside click, Cancel, Escape, or successful save.
+
+**How to run:** `npm install` then `ng serve`. See section 1 for setup details.
 
 ---
 
@@ -433,4 +448,44 @@ These can be implemented after the core features are complete:
      - Interactions and validation.
      - Bonus features and polish.
 
-This guide serves as the **implementation roadmap**. The next step, after your approval, will be to follow these sections and begin implementing the Angular code base accordingly.
+---
+
+## Suggested Git Commit Messages (Recent Changes)
+
+Use these when committing the Work Order Details and UX refinements described in AIPROMPTS.md (Prompts 16–18):
+
+```text
+feat(work-order-details): add status badge, panel labels, Escape close, end-date validator
+
+- Add visible status badge (pill/tag) on work order bars per design tokens
+- Align panel labels to spec: "Start Date", "End Date"
+- Add JSDoc that create opens only on empty timeline area
+- Close panel on Escape key (HostListener)
+- Add endDateAfterStartValidator and startDate valueChanges for immediate validation
+```
+
+```text
+fix(timeline): use click position for start date; end date remains start + 7 days
+
+- Fix row click X: use event.clientX - rect.left (rect already reflects scroll)
+- Add comment: start date from click position, end date pre-filled as start + 7
+```
+
+```text
+feat(timeline): highlight only the cell under pointer instead of full row
+
+- Add hoveredCellX signal and onRowMouseEnter/Move/Leave handlers
+- Add getCellHighlight(workCenterId) for column-aligned highlight geometry
+- Replace row .hovered with timeline-cell-highlight div per row
+- Left panel row labels still highlight by row when hovering that row
+```
+
+```text
+docs: update AIPROMPTS.md and README with recent implementation and commit messages
+
+- Log Prompts 16–18 (Work Order Details, click/end date, cell highlight)
+- Add Implementation Status & Recent Changes to README
+- Add suggested git commit messages for the above changes
+```
+
+This guide serves as the **implementation roadmap** and **status reference**. The codebase implements the core requirements; use the sections above to track what is done and how to commit changes.

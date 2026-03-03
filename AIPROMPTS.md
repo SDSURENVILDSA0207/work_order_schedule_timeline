@@ -230,5 +230,78 @@ Each entry includes:
 
 ---
 
+## Prompt 16 – Work Order Details Spec-Perfect Implementation
+
+- **Date**: 2026-03-03  
+- **Context**: Implement Work Order Details to match the problem statement exactly: create, update, delete, form validation, overlap detection, and correct reflection on the timeline. Plan included status badge on bars, panel label alignment, optional comment, Escape to close panel, and end-date validator.
+
+**Prompt text:**
+
+> @FE-technical-test (2) (4).md (1-482)  
+> Follow the instructions strictly and understand the current code.  
+> I want to implement Work Order Details perfectly as described in the problem statement. Should be able to create, update and delete. Follow all the rules in the problem statement for work order details. It should perfectly reflect in work order timeline based on the rules mentioned in the problem statement.
+
+**Changes made:**
+
+1. **Status badge on work order bars** – Added a visible pill/tag on each bar showing the status label (Open, In Progress, Complete, Blocked) with design-token styling (11px/600, padding 2px 8px, status-specific background colors from DESIGN_TOKENS).
+2. **Panel form labels** – Updated "Start date" and "End date" to "Start Date" and "End Date" to match the spec.
+3. **Timeline comment** – Added JSDoc comment that create panel opens only when clicking empty timeline area (bar stops propagation).
+4. **Escape to close panel** – Added `@HostListener('document:keydown.escape')` on the work-order-panel to call `cancel()` and close the panel.
+5. **End-date validator** – Added `endDateAfterStartValidator` so the end-date control is invalid when end is not after start; `startDate` valueChanges triggers `endDate.updateValueAndValidity()` for immediate feedback.
+
+---
+
+## Prompt 17 – Start Date from Click Position, End Date +7 Days
+
+- **Date**: 2026-03-03  
+- **Context**: Ensure the create panel’s start date is set from where the user clicks on the timeline, and the end date defaults to start + 7 days.
+
+**Prompt text:**
+
+> The start date should be where the pointer clicks on the work order timeline and the end date should be by default in +7 days
+
+**Changes made:**
+
+1. **Click position fix** – Corrected the timeline row click position calculation. Previously `clickX = event.clientX - rect.left + scrollLeft` double-counted scroll; the row’s `getBoundingClientRect()` already reflects scroll, so it was changed to `clickX = event.clientX - rect.left`. The start date now correctly matches the clicked cell on the timeline.
+2. **Panel behavior** – Confirmed the panel already pre-fills start from `startDatePrefill` (from click) and end as `addDays(new Date(startPrefill), 7)` in create mode; no change needed there.
+3. **Comment** – Added a short comment in the timeline component that start date comes from click position and end date is pre-filled as start + 7 days.
+
+---
+
+## Prompt 18 – Cell-Based Timeline Highlight (Not Full Row)
+
+- **Date**: 2026-03-03  
+- **Context**: Change timeline hover behavior so only the cell (time column) under the pointer is highlighted, not the entire row.
+
+**Prompt text:**
+
+> Every pointer pointing on the work order timeline should highlight the cell based on the timeline instead of highlighting entire row
+
+**Changes made:**
+
+1. **Signals and handlers** – Added `hoveredCellX` signal; `onRowMouseEnter`, `onRowMouseMove`, and `onRowMouseLeave` to set/clear `hoveredRowId` and `hoveredCellX` based on pointer position relative to the row.
+2. **Cell highlight geometry** – Added `getCellHighlight(workCenterId)` returning `{ left, width }` for the column under the cursor (using `getColumnWidth(zoom)`), or null when not hovering that row.
+3. **Template** – Replaced full-row `[class.hovered]` with a `timeline-cell-highlight` div inside each row, positioned at the computed cell left/width and shown only when that row is hovered with a valid `hoveredCellX`.
+4. **Styles** – Removed `.timeline-row &.hovered` background; added `.timeline-cell-highlight` (absolute, full height, `--color-row-hover` background, z-index 0, pointer-events none). Left panel row labels still highlight by row when the pointer is over that row.
+
+---
+
+## Prompt 19 – Update AIPROMPTS and README; Git Commit Messages
+
+- **Date**: 2026-03-03  
+- **Context**: Keep documentation in sync with implementation and provide ready-to-use git commit messages for the recent changes.
+
+**Prompt text:**
+
+> Kindly update the AIPROMPS.md and README.md file according to the changes and also write git commit comments for the changes made
+
+**Changes made:**
+
+1. **AIPROMPTS.md** – Appended Prompt 16 (Work Order Details spec-perfect: status badge, panel labels, Escape, end-date validator), Prompt 17 (start date from click position, end date +7 days, click position fix), Prompt 18 (cell-based timeline highlight), and this Prompt 19.
+2. **README.md** – Added “Implementation Status & Recent Changes” summarizing what is implemented (timeline, bars, panel, overlap, cell highlight, interactions) and how to run; added “Suggested Git Commit Messages (Recent Changes)” with four commit message blocks for the above feature/fix/docs commits.
+3. **Git commit messages** – Documented in README as suggested commits: (1) feat work-order-details, (2) fix timeline click position, (3) feat timeline cell highlight, (4) docs AIPROMPTS and README.
+
+---
+
 New prompts and significant AI-assisted decisions will be appended here as the implementation progresses.
 

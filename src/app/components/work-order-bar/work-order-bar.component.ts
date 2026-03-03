@@ -1,5 +1,12 @@
-import { Component, input, output, signal, HostListener } from '@angular/core';
-import type { WorkOrderDocument } from '../../models/work-order.model';
+import { Component, input, output, signal, HostListener, computed } from '@angular/core';
+import type { WorkOrderDocument, WorkOrderStatus } from '../../models/work-order.model';
+
+const STATUS_LABELS: Record<WorkOrderStatus, string> = {
+  open: 'Open',
+  'in-progress': 'In Progress',
+  complete: 'Complete',
+  blocked: 'Blocked',
+};
 
 @Component({
   selector: 'app-work-order-bar',
@@ -15,6 +22,10 @@ import type { WorkOrderDocument } from '../../models/work-order.model';
       [class]="'status-' + order().data.status"
     >
       <span class="bar-name">{{ order().data.name }}</span>
+      <span
+        class="status-badge"
+        [class]="'status-badge-' + order().data.status"
+      >{{ statusLabel() }}</span>
       <div class="actions">
         <button
           type="button"
@@ -88,6 +99,36 @@ import type { WorkOrderDocument } from '../../models/work-order.model';
       color: var(--color-text-primary);
     }
 
+    .status-badge {
+      flex-shrink: 0;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+      white-space: nowrap;
+      font-family: var(--font-heading);
+    }
+
+    .status-badge-open {
+      background: var(--color-status-open);
+      color: #ffffff;
+    }
+
+    .status-badge-in-progress {
+      background: var(--color-status-in-progress);
+      color: #ffffff;
+    }
+
+    .status-badge-complete {
+      background: var(--color-status-complete);
+      color: #ffffff;
+    }
+
+    .status-badge-blocked {
+      background: var(--color-status-blocked);
+      color: #333333;
+    }
+
     .actions {
       position: relative;
       flex-shrink: 0;
@@ -149,6 +190,8 @@ export class WorkOrderBarComponent {
   delete = output<WorkOrderDocument>();
 
   menuOpen = signal(false);
+
+  statusLabel = computed(() => STATUS_LABELS[this.order().data.status]);
 
   @HostListener('document:click')
   onDocumentClick(): void {

@@ -6,8 +6,9 @@ import {
   signal,
   effect,
   computed,
+  HostListener,
 } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { NgbInputDatepicker, NgbDatepicker, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import type { WorkOrderDocument, WorkOrderStatus } from '../../models/work-order.model';
@@ -30,6 +31,18 @@ function ngbToIso(d: NgbDateStruct): string {
   const m = String(d.month).padStart(2, '0');
   const day = String(d.day).padStart(2, '0');
   return `${d.year}-${m}-${day}`;
+}
+
+function endDateAfterStartValidator(getForm: () => FormGroup): (control: AbstractControl) => ValidationErrors | null {
+  return (control: AbstractControl) => {
+    const form = getForm();
+    const start = form?.get('startDate')?.value as NgbDateStruct | null;
+    const end = control.value as NgbDateStruct | null;
+    if (!start || !end) return null;
+    const startDate = new Date(ngbToIso(start));
+    const endDate = new Date(ngbToIso(end));
+    return endDate > startDate ? null : { afterStart: true };
+  };
 }
 
 @Component({
@@ -62,7 +75,11 @@ export class WorkOrderPanelComponent {
       name: ['', Validators.required],
       status: ['open' as WorkOrderStatus, Validators.required],
       startDate: [null as NgbDateStruct | null, Validators.required],
-      endDate: [null as NgbDateStruct | null, Validators.required],
+      endDate: [null as NgbDateStruct | null, [Validators.required, endDateAfterStartValidator(() => this.form)]],
+    });
+
+    this.form.get('startDate')?.valueChanges?.subscribe(() => {
+      this.form.get('endDate')?.updateValueAndValidity();
     });
 
     effect(() => {
@@ -139,6 +156,11 @@ export class WorkOrderPanelComponent {
         this.overlapError.set(result.error ?? 'Unknown error');
       }
     }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.cancel();
   }
 
   onBackdropClick(): void {

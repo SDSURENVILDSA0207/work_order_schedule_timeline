@@ -26,6 +26,8 @@ export class TimelineComponent {
 
   zoom = signal<TimelineZoom>('day');
   hoveredRowId = signal<string | null>(null);
+  /** X position (px) of pointer in timeline content; used to highlight the cell under cursor. */
+  hoveredCellX = signal<number | null>(null);
   panelOpen = signal<'create' | 'edit' | null>(null);
   createContext = signal<{ workCenterId: string; startDate: string } | null>(null);
   editOrder = signal<WorkOrderDocument | null>(null);
@@ -91,12 +93,13 @@ export class TimelineComponent {
     this.editOrder.set(null);
   }
 
+  /** Create panel opens only when clicking empty timeline area; work-order-bar stops propagation on bar click. */
+  /** Start date = date at click position on timeline; panel pre-fills end date = start + 7 days. */
   onRowClick(workCenterId: string, event: MouseEvent): void {
     const row = event.currentTarget as HTMLElement;
-    const scrollEl = row.closest('.timeline-grid-scroll') as HTMLElement;
     const rect = row.getBoundingClientRect();
-    const scrollLeft = scrollEl?.scrollLeft ?? 0;
-    const clickX = event.clientX - rect.left + scrollLeft;
+    // Pixel offset from timeline content left (rect already reflects scroll position)
+    const clickX = event.clientX - rect.left;
     this.openCreatePanel(workCenterId, clickX);
   }
 
@@ -133,6 +136,37 @@ export class TimelineComponent {
 
   onPanelClosed(): void {
     this.closePanel();
+  }
+
+  onRowMouseEnter(workCenterId: string, event: MouseEvent): void {
+    const row = event.currentTarget as HTMLElement;
+    const rect = row.getBoundingClientRect();
+    this.hoveredRowId.set(workCenterId);
+    this.hoveredCellX.set(event.clientX - rect.left);
+  }
+
+  onRowMouseMove(workCenterId: string, event: MouseEvent): void {
+    const row = event.currentTarget as HTMLElement;
+    const rect = row.getBoundingClientRect();
+    this.hoveredRowId.set(workCenterId);
+    this.hoveredCellX.set(event.clientX - rect.left);
+  }
+
+  onRowMouseLeave(): void {
+    this.hoveredRowId.set(null);
+    this.hoveredCellX.set(null);
+  }
+
+  /** Returns { left, width } for the cell under the pointer in this row, or null if not hovering this row. */
+  getCellHighlight(workCenterId: string): { left: number; width: number } | null {
+    if (this.hoveredRowId() !== workCenterId) return null;
+    const x = this.hoveredCellX();
+    if (x == null) return null;
+    const colWidth = this.timelineService.getColumnWidth(this.zoom());
+    const total = this.totalWidth();
+    const cellIndex = Math.floor(x / colWidth);
+    const left = Math.max(0, Math.min(cellIndex * colWidth, total - colWidth));
+    return { left, width: colWidth };
   }
 
   constructor() {
