@@ -1,5 +1,6 @@
 import {
   Component,
+  Injectable,
   input,
   output,
   inject,
@@ -10,7 +11,11 @@ import {
 } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { NgbInputDatepicker, NgbDatepicker, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbInputDatepicker,
+  NgbDateStruct,
+  NgbDateParserFormatter,
+} from '@ng-bootstrap/ng-bootstrap';
 import type { WorkOrderDocument, WorkOrderStatus } from '../../models/work-order.model';
 import { WorkOrderService } from '../../services/work-order.service';
 import { addDays, toISODate } from '../../utils/date.utils';
@@ -33,6 +38,30 @@ function ngbToIso(d: NgbDateStruct): string {
   return `${d.year}-${m}-${day}`;
 }
 
+/** Parser/formatter for date input: display and parse as dd.MM.yyyy with "." separator */
+function padNum(v: number | null): string {
+  if (v == null || isNaN(v)) return '';
+  return `0${v}`.slice(-2);
+}
+
+@Injectable()
+class DotDateParserFormatter extends NgbDateParserFormatter {
+  format(date: NgbDateStruct | null): string {
+    if (!date || date.day == null || date.month == null || date.year == null) return '';
+    return `${padNum(date.day)}.${padNum(date.month)}.${date.year}`;
+  }
+  parse(value: string): NgbDateStruct | null {
+    if (!value?.trim()) return null;
+    const parts = value.trim().split('.');
+    if (parts.length !== 3) return null;
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10);
+    const year = parseInt(parts[2], 10);
+    if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+    return { year, month, day };
+  }
+}
+
 function endDateAfterStartValidator(getForm: () => FormGroup): (control: AbstractControl) => ValidationErrors | null {
   return (control: AbstractControl) => {
     const form = getForm();
@@ -51,6 +80,7 @@ function endDateAfterStartValidator(getForm: () => FormGroup): (control: Abstrac
   imports: [ReactiveFormsModule, NgSelectModule, NgbInputDatepicker],
   templateUrl: './work-order-panel.component.html',
   styleUrl: './work-order-panel.component.scss',
+  providers: [{ provide: NgbDateParserFormatter, useClass: DotDateParserFormatter }],
 })
 export class WorkOrderPanelComponent {
   private fb = inject(FormBuilder);

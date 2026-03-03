@@ -51,7 +51,7 @@
               class="current-day-indicator"
               [style.left.px]="todayPosition()"
             >
-              <span class="current-day-label">{{ zoom() === 'day' ? 'Current day' : zoom() === 'week' ? 'Current week' : 'Current month' }}</span>
+              <span class="current-day-label">{{ zoom() === 'hour' ? 'Current hour' : zoom() === 'day' ? 'Current day' : zoom() === 'week' ? 'Current week' : 'Current month' }}</span>
             </div>
           }
 

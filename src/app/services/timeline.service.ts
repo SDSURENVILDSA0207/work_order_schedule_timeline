@@ -28,6 +28,11 @@ export class TimelineService {
     today.setHours(0, 0, 0, 0);
 
     switch (zoom) {
+      case 'hour':
+        return {
+          start: addDays(today, -7),
+          end: addDays(today, 7),
+        };
       case 'day':
         return {
           start: addDays(today, -365),
@@ -98,7 +103,21 @@ export class TimelineService {
     const end = new Date(range.end);
     end.setHours(0, 0, 0, 0);
 
-    if (zoom === 'day') {
+    if (zoom === 'hour') {
+      const current = new Date(start);
+      while (current <= end) {
+        columns.push({
+          label: current.toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            hour12: true,
+          }),
+          date: new Date(current),
+        });
+        current.setTime(current.getTime() + 60 * 60 * 1000);
+      }
+    } else if (zoom === 'day') {
       const current = new Date(start);
       while (current <= end) {
         columns.push({
@@ -149,11 +168,22 @@ export class TimelineService {
    * Calculate total pixel width for the timeline grid based on columns
    */
   getTotalWidth(columns: TimelineColumn[], zoom: TimelineZoom): number {
-    const colWidth = zoom === 'day' ? 80 : zoom === 'week' ? 120 : 160;
+    const colWidth = this.getColumnWidth(zoom);
     return columns.length * colWidth;
   }
 
   getColumnWidth(zoom: TimelineZoom): number {
-    return zoom === 'day' ? 80 : zoom === 'week' ? 120 : 160;
+    switch (zoom) {
+      case 'hour':
+        return 40;
+      case 'day':
+        return 80;
+      case 'week':
+        return 120;
+      case 'month':
+        return 160;
+      default:
+        return 80;
+    }
   }
 }

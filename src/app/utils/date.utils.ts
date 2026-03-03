@@ -12,6 +12,15 @@ export function addDays(date: Date, days: number): Date {
 }
 
 /**
+ * Add hours to a date
+ */
+export function addHours(date: Date, hours: number): Date {
+  const result = new Date(date);
+  result.setHours(result.getHours() + hours);
+  return result;
+}
+
+/**
  * Difference in days between two dates (can be fractional)
  */
 export function diffDays(start: Date, end: Date): number {

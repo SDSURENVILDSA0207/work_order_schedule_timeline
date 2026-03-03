@@ -303,5 +303,165 @@ Each entry includes:
 
 ---
 
+## Prompt 20 – Work Order Details Panel Pixel-Perfect Layout
+
+- **Date**: 2026-03-03  
+- **Context**: Match the right pane to design specs: panel 591×1024px, title/subtitle typography, Cancel/Create in header with exact size and shadow.
+
+**Prompt text:**
+
+> Kindly analyse the screenshot carefully for work order details right pane layout. I have provided the details for "Work Order Details", "Specify the dates, name and status for this order", "Create", "Cancel". Kindly make it pixel perfect based on the data  
+> (Rectangle panel 591×1024, border-radius 12px 0 0 12px, three box-shadows; Title 253×25, 20px Medium, #2F3059; Subtitle 352×20, 16px Book, rgba(104,113,150); Cancel/Create 66×32, 7px radius, exact shadows and typography.)
+
+**Changes made:** Panel 591×1024px, three box-shadows, border-radius 12px 0 0 12px; header with title + subtitle left, Cancel/Create top-right; title 20px/500 #2F3059, subtitle 16px/400; buttons 66×32px, 7px radius, exact shadows; form wrapper; removed bottom panel-actions.
+
+---
+
+## Prompt 21 – Separator Line Below Subtitle
+
+- **Date**: 2026-03-03  
+- **Context**: Add horizontal separator below "Specify the dates, name and status for this order" per design (Line 3 at 850X 82Y).
+
+**Prompt text:**
+
+> In the Work Order details below "Specify the dates, name and status for this order" based on the below data  
+> Line 3: 591×1px, border 1px solid rgba(230, 235, 240, 1), position 82Y.
+
+**Changes made:** Added `.panel-separator` div with 1px solid rgba(230,235,240,1), full panel width, margin-top 16px; 24px spacing between line and form (header padding-bottom 0, form padding 24px).
+
+---
+
+## Prompt 22 – Spacing: 24px Between Line and Work Order Name
+
+- **Date**: 2026-03-03  
+- **Context**: Set 24px gap between the separator line and the "Work Order Name" field.
+
+**Prompt text:**
+
+> Kindly adjust the spacing to 24 px between "line" and "Work Order Name"
+
+**Changes made:** Header padding-bottom set to 0; form top padding 24px provides the 24px gap.
+
+---
+
+## Prompt 23 – Status Dropdown: Selected Pill + Dropdown List Plain Text
+
+- **Date**: 2026-03-03  
+- **Context**: Status options in dropdown list: plain text on white; selected value in field: styled pill (background, border for Open) per design.
+
+**Prompt text:**
+
+> If the dropdown option in status { open, in progress, complete, blocked } is selected … (open/blocked/in progress/complete: width, height, color, font; Rectangle bg for each.)  
+> … it should look in this way when dropdown but when clicked any of it like open in the status field it should look like provided in second screenshot
+
+**Changes made:** ng-label-tmp keeps status-tag pill (backgrounds, borders, colors); ng-option-tmp uses plain `.status-option-label` (no pill in list). Added status-specific colors for dropdown options when not selected (Prompt 24).
+
+---
+
+## Prompt 24 – Status Dropdown Options: Colors When Not Selected
+
+- **Date**: 2026-03-03  
+- **Context**: Dropdown list items (when open) have status-specific text colors: open blue, in progress/complete dark grey, blocked very dark.
+
+**Prompt text:**
+
+> Note that dropdown items have specific colors when not selected  
+> open->color rgba(62,64,219,1); in progress/complete->rgba(47,48,89,1); blocked->rgba(3,9,41,1); 150×18px, 14px Book 400.
+
+**Changes made:** `.status-option-label.status-option-{{ value }}` with per-status colors; base 150×18px, 14px, 400.
+
+---
+
+## Prompt 25 – Remove Clear (X) Button from Status Field
+
+- **Date**: 2026-03-03  
+- **Context**: Hide the clear button next to the status dropdown.
+
+**Prompt text:**
+
+> kindly remove the X button from the status field next to dropdown
+
+**Changes made:** Added `[clearable]="false"` to the status ng-select.
+
+---
+
+## Prompt 26 – Date Fields: No Calendar Icon, Dot Separator (dd.MM.yyyy)
+
+- **Date**: 2026-03-03  
+- **Context**: Remove calendar icon below start/end date; display and parse dates with "." as separator (e.g. 01.01.2026).
+
+**Prompt text:**
+
+> kindly remove the calender icon below the start and the end date and in the field of start and end date write "." as a seperator and as show in screenshot
+
+**Changes made:** Removed calendar toggle buttons; added custom `DotDateParserFormatter` (NgbDateParserFormatter) with format dd.MM.yyyy and parse; provided in panel component.
+
+---
+
+## Prompt 27 – End date / Start date: Order, Labels, Section and Field Styling
+
+- **Date**: 2026-03-03  
+- **Context**: End date first, then Start date; label and date field sizes and colors; section 542×62px.
+
+**Prompt text:**
+
+> end date, start date field size -> (labels: 542×16, color rgba(104,113,150), 14px 500; date field: 513.7×16, color rgba(164,170,192), 14px 500) and change the order first the end date and then the start date
+
+**Changes made:** Reordered so End Date block first, Start Date second; added `.form-group-date` and `.form-control-date`; label 542×16, rgba(104,113,150), 14px 500; input 513.7×16, color rgba(164,170,192). Later: section 542×62 (Prompt 28); labels "End date"/"Start date" (Prompt 29); Rectangle 7 for inputs 542×38, box-shadow, 5px radius (Prompt 30).
+
+---
+
+## Prompt 28 – Date Section Size 542×62
+
+- **Date**: 2026-03-03  
+- **Context**: Each End date / Start date section fixed size.
+
+**Prompt text:**
+
+> section size of end date start date->width: 542px; height: 62px;
+
+**Changes made:** `.form-group-date` set to width 542px, height 62px, box-sizing border-box.
+
+---
+
+## Prompt 29 – End date / Start date Label Capitalization
+
+- **Date**: 2026-03-03  
+- **Context**: Match screenshot: "End date" and "Start date" (lowercase "date").
+
+**Prompt text:**
+
+> look at this ss and the expected result in second ss
+
+**Changes made:** Labels changed from "End Date"/"Start Date" to "End date"/"Start date".
+
+---
+
+## Prompt 30 – Date Input Rectangle 7 (542×38, Shadow, Radius)
+
+- **Date**: 2026-03-03  
+- **Context**: End/Start date input field: Rectangle 7 specs (542×38, border-radius 5px, three box-shadows, white bg).
+
+**Prompt text:**
+
+> end date, start date field size -> Rectangle 7 … width 542px; height 38px; box-shadow … border-radius 5px; background #FFFFFF
+
+**Changes made:** `.form-control-date` updated to width 542px, height 38px, border-radius 5px, white background, three box-shadows; focus state with 2px primary ring.
+
+---
+
+## Prompt 31 – Document All Prompts and Update README
+
+- **Date**: 2026-03-03  
+- **Context**: Record all prompts in AIPROMPTS.md and update README to reflect current implementation.
+
+**Prompt text:**
+
+> write all the prompts used in the AIPROMPS.md and Update README.md file accordingly
+
+**Changes made:** Appended Prompts 20–31 to AIPROMPTS.md (panel pixel-perfect, separator, spacing, status dropdown styling and clearable, date format and order, section/field sizes, Rectangle 7, label text, docs). README updated with current Work Order Details panel and date/status field behaviour.
+
+---
+
 New prompts and significant AI-assisted decisions will be appended here as the implementation progresses.
 

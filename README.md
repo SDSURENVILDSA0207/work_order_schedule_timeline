@@ -16,16 +16,20 @@ All AI prompts used during development are logged in `AIPROMPTS.md`.
 
 ## Implementation Status & Recent Changes
 
-The following are **implemented** and aligned with the spec:
+The following are **implemented** and aligned with the spec and design:
 
-- **Timeline grid** – Day/Week/Month zoom, scrollable grid, fixed left work-center column, current day/week/month indicator.
+- **Timeline grid** – **Hour**/Day/Week/Month zoom, scrollable grid, fixed left work-center column, current hour/day/week/month indicator.
 - **Work order bars** – Name, **status badge (pill/tag)**, three-dot menu (Edit/Delete); bar position from start/end dates; status colors per design.
-- **Create/Edit panel** – Single slide-out panel; Reactive Forms with Work Order Name, Status (ng-select), Start Date, End Date (ngb-datepicker). Labels: "Start Date", "End Date" per spec. Create: start date from **click position** on timeline, end date default **start + 7 days**. Edit: fields pre-filled; Save vs Create button. Cancel and backdrop close; **Escape** closes the panel. **End-date validator** ensures end date is after start date with immediate feedback.
-- **Overlap detection** – Create/update validate no overlap on same work center; error shown in panel; create/update blocked when overlapping.
-- **Cell-based highlight** – Hover on the timeline highlights only the **cell (time column)** under the pointer, not the entire row. Left panel row labels still highlight by row when the pointer is over that row.
-- **Interactions** – Click empty timeline area opens create with date from click; three-dot Edit/Delete; panel close on outside click, Cancel, Escape, or successful save.
+- **Create/Edit panel (pixel-perfect)** – Single slide-out panel **591×1024px**, border-radius 12px 0 0 12px, three box-shadows. **Header:** "Work Order Details" (20px Medium #2F3059), subtitle "Specify the dates, name and status for this order" (16px Book); **Cancel** and **Create/Save** in header top-right (66×32px, 7px radius, exact shadows). **Separator** line below subtitle (1px solid rgba(230,235,240)); 24px spacing to first field. Reactive Forms: Work Order Name, Status (ng-select), **End date** then **Start date** (order and labels). Create: start date from **click position**, end date **start + 7 days**. Cancel/backdrop/**Escape** close; end-date validator.
+- **Status dropdown** – **Selected value** in field: styled pill per status (open: teal bg + border; in progress/complete/blocked: status backgrounds). **Dropdown list** when open: plain text, status-specific colors (open blue, in progress/complete dark grey, blocked very dark). **No clear (X) button** (`clearable: false`).
+- **Date fields** – **End date** first, **Start date** second. Labels "End date"/"Start date" (542×16, rgba(104,113,150), 14px 500). Inputs **Rectangle 7**: 542×38px, border-radius 5px, three box-shadows, white bg; **no calendar icon**; display/parse **dd.MM.yyyy** with "." separator (e.g. 01.01.2026). Section size 542×62px per date block.
+- **Overlap detection** – Create/update validate no overlap on same work center; error in panel; create/update blocked when overlapping.
+- **Cell-based highlight** – Hover highlights only the **cell (time column)** under the pointer; left panel row labels highlight by row.
+- **Interactions** – Click empty timeline opens create with date from click; three-dot Edit/Delete; panel close on outside click, Cancel, Escape, or save.
 
 **How to run:** `npm install` then `ng serve`. See section 1 for setup details.
+
+**AI prompts:** All prompts used during implementation are logged in `AIPROMPTS.md` (Prompts 1–31), including pixel-perfect panel, separator, status/date styling, and documentation updates.
 
 ---
 

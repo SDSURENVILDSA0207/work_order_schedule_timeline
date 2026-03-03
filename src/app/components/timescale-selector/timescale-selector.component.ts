@@ -13,6 +13,7 @@ import type { TimelineZoom } from '../../models/work-order.model';
         (change)="onChange($event)"
         class="timescale-select"
       >
+        <option value="hour">Hour</option>
         <option value="day">Day</option>
         <option value="week">Week</option>
         <option value="month">Month</option>

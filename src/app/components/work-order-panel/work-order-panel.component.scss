@@ -9,10 +9,15 @@
 }
 
 .panel {
-  width: var(--panel-width);
+  width: 591px;
+  min-height: 1024px;
   max-width: 100%;
-  background: #fff;
-  box-shadow: var(--shadow-panel);
+  background: #ffffff;
+  border-radius: 12px 0 0 12px;
+  box-shadow:
+    0 5px 15px 0 rgba(216, 220, 235, 1),
+    0 2.5px 3px -1.5px rgba(200, 207, 233, 1),
+    0 4.5px 5px -1px rgba(216, 220, 235, 1);
   display: flex;
   flex-direction: column;
   animation: slideIn 0.25s ease;
@@ -36,26 +41,64 @@
   }
 }
 
+.panel-form-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
 .panel-header {
-  padding: 24px 24px 16px;
-  border-bottom: 1px solid var(--color-stroke);
+  padding: 16px 24px 0 24px;
+  flex-shrink: 0;
+}
+
+.panel-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
 .panel-title {
+  width: 253px;
   font-size: 20px;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin: 0 0 4px 0;
+  font-weight: 500;
+  line-height: 24px;
+  color: rgba(47, 48, 89, 1);
+  margin: 0;
+  font-family: var(--font-heading);
+}
+
+.panel-header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .panel-subtitle {
-  font-size: 14px;
-  color: var(--color-text-labels);
-  margin: 0;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 19px;
+  color: rgba(104, 113, 150, 1);
+  margin: 5px 0 0 0;
+  font-family: var(--font-heading);
 }
 
+/* Separator line below subtitle: 82px from panel top, full panel width 591px, 1px solid (design: Line 3 at 850X 82Y) */
+.panel-separator {
+  width: calc(100% + 48px);
+  height: 1px;
+  margin-top: 16px;
+  margin-left: -24px;
+  margin-right: -24px;
+  border: none;
+  border-top: 1px solid rgba(230, 235, 240, 1);
+  box-sizing: border-box;
+}
+
+/* 24px between separator line and first field (Work Order Name) */
 .panel-form {
-  padding: 24px;
+  padding: 24px 24px 24px 24px;
   flex: 1;
   overflow-y: auto;
 }
@@ -95,14 +138,128 @@
     border-color: var(--color-primary);
   }
 
-  .datepicker-toggle {
-    margin-left: 8px;
-    padding: 8px;
-    border: 1px solid var(--color-stroke);
-    border-radius: 8px;
-    background: white;
-    cursor: pointer;
+  /* End Date / Start Date: section and field specs */
+  &.form-group-date {
+    width: 542px;
+    height: 62px;
+    box-sizing: border-box;
   }
+
+  &.form-group-date label {
+    width: 542px;
+    height: 16px;
+    color: rgba(104, 113, 150, 1);
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  /* Rectangle 7: End date / Start date input field */
+  .form-control-date {
+    width: 542px;
+    height: 38px;
+    padding: 0 12px;
+    border: none;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 1);
+    box-shadow:
+      0 0 0 1px rgba(216, 220, 235, 1),
+      0 1.5px 3px -1.5px rgba(200, 207, 233, 1),
+      0 1px 0.5px -1px rgba(216, 220, 235, 1);
+    color: rgba(164, 170, 192, 1);
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 38px;
+    box-sizing: border-box;
+  }
+
+  .form-control-date:focus {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--color-primary-light),
+      0 1.5px 3px -1.5px rgba(200, 207, 233, 1),
+      0 1px 0.5px -1px rgba(216, 220, 235, 1);
+  }
+
+  /* Status dropdown: selected value and options styled per status (rectangle bg + border for open) */
+  .status-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-family: var(--font-heading);
+    box-sizing: border-box;
+    border-radius: 5px;
+    padding: 0 8px;
+  }
+
+  .status-tag-open {
+    min-width: 51px;
+    height: 22px;
+    color: rgba(0, 176, 191, 1);
+    font-weight: 500;
+    text-align: center;
+    background-color: rgba(228, 253, 255, 1);
+    border: 1px solid rgba(206, 251, 255, 1);
+  }
+
+  .status-tag-in-progress {
+    min-width: 87px;
+    height: 22px;
+    color: rgba(62, 64, 219, 1);
+    font-weight: 400;
+    text-align: center;
+    background-color: rgba(214, 216, 255, 1);
+  }
+
+  .status-tag-complete {
+    min-width: 79px;
+    height: 22px;
+    color: rgba(8, 162, 104, 1);
+    font-weight: 400;
+    text-align: center;
+    background-color: rgba(225, 255, 204, 1);
+  }
+
+  .status-tag-blocked {
+    min-width: 67px;
+    height: 22px;
+    color: rgba(177, 54, 0, 1);
+    font-weight: 400;
+    text-align: center;
+    background-color: rgba(252, 238, 181, 1);
+  }
+
+  /* Dropdown list options: plain text on white, status-specific colors when not selected */
+  .status-option-label {
+    display: inline-block;
+    width: 150px;
+    height: 18px;
+    font-family: var(--font-heading);
+    font-size: 14px;
+    font-weight: 400;
+    background: none;
+    border: none;
+    line-height: 18px;
+  }
+
+  .status-option-open {
+    color: rgba(62, 64, 219, 1);
+  }
+
+  .status-option-in-progress {
+    color: rgba(47, 48, 89, 1);
+  }
+
+  .status-option-complete {
+    color: rgba(47, 48, 89, 1);
+  }
+
+  .status-option-blocked {
+    color: rgba(3, 9, 41, 1);
+  }
+
 }
 
 .field-error {
@@ -112,25 +269,26 @@
   margin-top: 4px;
 }
 
-.panel-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid var(--color-stroke);
-}
-
 .btn-cancel {
-  padding: 10px 20px;
-  border: 1px solid var(--color-stroke);
-  border-radius: 8px;
-  background: white;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-primary);
-  cursor: pointer;
+  width: 66px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 7px;
+  background: #ffffff;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 1),
+    0 1px 3px 0 rgba(200, 207, 233, 1);
   font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0.33px;
+  line-height: 18px;
+  color: rgba(47, 48, 89, 1);
+  cursor: pointer;
 }
 
 .btn-cancel:hover {
@@ -138,15 +296,24 @@
 }
 
 .btn-primary {
-  padding: 10px 20px;
+  width: 66px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: none;
-  border-radius: 8px;
-  background: var(--color-primary);
-  font-size: 14px;
-  font-weight: 600;
-  color: white;
-  cursor: pointer;
+  border-radius: 7px;
+  background: rgba(86, 89, 255, 1);
+  box-shadow:
+    0 0 0 1px rgba(86, 89, 255, 1),
+    0 1px 3px 0 rgba(200, 207, 233, 1);
   font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 18px;
+  color: #ffffff;
+  cursor: pointer;
 }
 
 .btn-primary:hover {

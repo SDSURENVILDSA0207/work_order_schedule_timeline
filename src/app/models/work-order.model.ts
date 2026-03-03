@@ -25,4 +25,4 @@ export interface WorkOrderDocument {
   };
 }
 
-export type TimelineZoom = 'day' | 'week' | 'month';
+export type TimelineZoom = 'hour' | 'day' | 'week' | 'month';
