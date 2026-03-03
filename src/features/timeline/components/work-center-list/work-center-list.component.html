@@ -1,0 +1,8 @@
+<div class="work-center-list">
+  <h2 class="work-center-label">Work Center</h2>
+  <ul class="work-center-rows">
+    @for (wc of workCenters; track wc.docId) {
+      <li class="work-center-row">{{ wc.data.name }}</li>
+    }
+  </ul>
+</div>

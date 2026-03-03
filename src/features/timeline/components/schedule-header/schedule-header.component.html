@@ -1,0 +1,33 @@
+<header class="schedule-header">
+  <h1 class="work-orders-title">Work Orders</h1>
+  <div class="timescale-row">
+    <span class="timescale-label">Timescale</span>
+    <div class="timescale-dropdown-wrap">
+      <button
+        type="button"
+        class="timescale-dropdown"
+        [attr.aria-expanded]="timescaleOpen"
+        aria-haspopup="listbox"
+        (click)="toggleTimescale($event)"
+      >
+        <span class="timescale-value">{{ selectedTimescale }}</span>
+        <span class="timescale-chevron" aria-hidden="true">▼</span>
+      </button>
+      @if (timescaleOpen) {
+        <ul class="timescale-menu" role="listbox">
+          @for (opt of timescaleOptions; track opt) {
+            <li>
+              <button
+                type="button"
+                class="timescale-option"
+                [class.timescale-option--active]="opt === selectedTimescale"
+                role="option"
+                (click)="selectTimescale(opt)"
+              >{{ opt }}</button>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </div>
+</header>

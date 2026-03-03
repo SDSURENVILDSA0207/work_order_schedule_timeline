@@ -1,0 +1,15 @@
+<div class="work-order-bar-actions">
+  <button
+    type="button"
+    class="actions-trigger"
+    (click)="toggle($event)"
+    [attr.aria-expanded]="open"
+    aria-label="Actions"
+  >⋯</button>
+  @if (open) {
+    <div class="actions-dropdown" (click)="$event.stopPropagation()">
+      <button type="button" class="actions-item" (click)="onEdit()">Edit</button>
+      <button type="button" class="actions-item actions-item--delete" (click)="onDelete()">Delete</button>
+    </div>
+  }
+</div>

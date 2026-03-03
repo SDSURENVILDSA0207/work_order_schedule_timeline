@@ -1,0 +1,37 @@
+/* Axis row: aligns at 213Y; first label at 497 from viewport = 15px from grid left; column step 114px (611-497) */
+.timeline-axis {
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  min-height: 16px;
+  padding-left: 15px; /* 497 - 482 sidebar width */
+}
+
+/* Cell: 114px wide so each month left edge matches design (Sep at 611 = 129 from grid) */
+.timeline-axis-cell {
+  box-sizing: border-box;
+  width: 114px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0;
+}
+
+/* Month label: 86×16, center-aligned, #687196, Circular Std 14px (Aug 2024 / Sep 2024 spec) */
+.timeline-axis-month {
+  box-sizing: border-box;
+  width: 86px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  color: rgba(104, 113, 150, 1);
+  font-family: "Circular-Std", "CircularStd-Regular", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 17px;
+  letter-spacing: normal;
+  text-align: center;
+  vertical-align: top;
+  opacity: 1;
+}

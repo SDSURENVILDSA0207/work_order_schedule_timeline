@@ -1,0 +1,98 @@
+/* Form layout: labels and controls per panel design (874X 107Y, 873X 193Y, etc.) */
+.work-order-form {
+  padding: 0 24px 24px;
+}
+
+.form-field {
+  margin-bottom: 24px;
+}
+
+/* Label: 542×16, #687196, Circular Std Regular 14px 500, line-height 17px (Work Order Name / Status spec) */
+.form-label {
+  display: block;
+  box-sizing: border-box;
+  width: 542px;
+  max-width: 100%;
+  height: 16px;
+  margin: 0 0 8px;
+  padding: 0;
+  border: none;
+  color: rgba(104, 113, 150, 1);
+  font-family: "Circular-Std", "CircularStd-Regular", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 17px;
+  letter-spacing: normal;
+  opacity: 1;
+  text-align: left;
+  vertical-align: top;
+}
+
+/* Text/date input: 543×38, radius 5, 1px + shadows (Rectangle 7 at 389Y) */
+.form-input {
+  box-sizing: border-box;
+  width: 543px;
+  max-width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 1);
+  box-shadow:
+    0 0 0 1px rgba(216, 220, 235, 1),
+    0 1.5px 3px -1.5px rgba(200, 207, 233, 1),
+    0 1px 0.5px -1px rgba(216, 220, 235, 1);
+  font-family: "Circular-Std", sans-serif;
+  font-size: 14px;
+  color: rgba(3, 9, 41, 1);
+  opacity: 1;
+
+  &::placeholder {
+    color: rgba(104, 113, 150, 0.6);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(170, 175, 255, 1);
+  }
+}
+
+/* Status dropdown wrapper: 543×38, 2px primary border (Rectangle 7 at 217Y) */
+.form-select-wrap {
+  box-sizing: border-box;
+  width: 543px;
+  max-width: 100%;
+  height: 38px;
+  border-radius: 5px;
+  box-shadow: 0 0 0 2px rgba(170, 175, 255, 1);
+  background-color: rgba(255, 255, 255, 1);
+  opacity: 1;
+}
+
+.form-select {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 0 12px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  font-family: "Circular-Std", sans-serif;
+  font-size: 14px;
+  color: rgba(3, 9, 41, 1);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23687196' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+/* Dropdown options: 543×28, #F1F3F8 (Rectangle 2 – Open / In progress / complete / blocked) */
+.form-select option {
+  background-color: rgba(241, 243, 248, 1);
+  padding: 6px 12px;
+}

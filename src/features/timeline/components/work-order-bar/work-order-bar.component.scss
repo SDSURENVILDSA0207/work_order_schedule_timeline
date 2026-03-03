@@ -1,0 +1,36 @@
+/* Bar: 533×38 (min), radius 8; background/border set by status (light green/purple/orange from image) */
+.work-order-bar {
+  position: absolute;
+  box-sizing: border-box;
+  min-width: 120px;
+  height: 38px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+  opacity: 1;
+  flex-shrink: 0;
+}
+
+.work-order-name {
+  flex: 1;
+  min-width: 0;
+  font-family: "Circular-Std", sans-serif;
+  font-size: 14px;
+  color: rgba(3, 9, 41, 1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Status badge: 14px Circular Std Book, line-height 17px (Complete / In progress / Blocked spec) */
+.work-order-status {
+  flex-shrink: 0;
+  font-family: "Circular-Std", "CircularStd-Book", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 17px;
+  letter-spacing: normal;
+  opacity: 1;
+}

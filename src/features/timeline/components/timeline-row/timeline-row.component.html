@@ -1,0 +1,13 @@
+<div class="timeline-row">
+  <div class="timeline-row-track">
+    @for (order of orders; track order.docId) {
+      <app-work-order-bar
+        [order]="order"
+        [barStyle]="getBarStyle(order)"
+      />
+    }
+  </div>
+  <div class="timeline-row-empty" title="Click to add dates">
+    <span class="timeline-row-empty-pill">Click to add dates</span>
+  </div>
+</div>

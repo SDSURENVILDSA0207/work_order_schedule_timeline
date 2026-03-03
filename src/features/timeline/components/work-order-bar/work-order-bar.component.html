@@ -1,0 +1,16 @@
+@if (order) {
+  <div
+    class="work-order-bar"
+    [style.left]="barStyle.left"
+    [style.width]="barStyle.width"
+    [style.background-color]="statusBarBg[order.data.status]"
+    [style.box-shadow]="'0 0 0 1px ' + statusBarBorder[order.data.status]"
+  >
+    <span class="work-order-name">{{ order.data.name }}</span>
+    <span
+      class="work-order-status"
+      [style.color]="statusColors[order.data.status]"
+    >{{ statusLabels[order.data.status] }}</span>
+    <app-work-order-bar-actions [order]="order" />
+  </div>
+}

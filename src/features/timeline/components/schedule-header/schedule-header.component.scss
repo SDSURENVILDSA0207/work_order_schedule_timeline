@@ -1,0 +1,118 @@
+/* Schedule header: padding so "Work Orders" sits at 101px from left, 95px from viewport top (45px below 50px app header) */
+.schedule-header {
+  padding-left: 101px;
+  padding-top: 45px;
+}
+
+/* Work Orders title: design spec – position 101X 95Y, 142×34, H3 24 Style, Circular Std Medium */
+.work-orders-title {
+  box-sizing: border-box;
+  width: 142px;
+  height: 34px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  color: rgba(3, 9, 41, 1);
+  font-family: "Circular-Std", "CircularStd-Medium", sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  font-style: normal;
+  line-height: 34px;
+  letter-spacing: normal;
+  opacity: 1;
+  text-align: left;
+  vertical-align: top;
+}
+
+/* Timescale control: position 101X 155Y; two segments (Rectangle 2 + Month dropdown) */
+.timescale-row {
+  display: flex;
+  margin-top: 26px; /* 155 - (95 + 34) = 26px from title bottom to timescale top */
+}
+
+/* Left segment: 75×25, radius 5 0 0 5, #F1F3F8 75% */
+.timescale-label {
+  box-sizing: border-box;
+  width: 75px;
+  height: 25px;
+  border-radius: 5px 0 0 5px;
+  background-color: rgba(241, 243, 248, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-family: "Circular-Std", sans-serif;
+  font-size: 12px;
+  color: rgba(3, 9, 41, 1);
+  opacity: 1;
+}
+
+.timescale-dropdown-wrap {
+  position: relative;
+}
+
+/* Right segment: 71×25, radius 0 5 5 0, same fill (Nao Design System); image: light grey when open */
+.timescale-dropdown {
+  box-sizing: border-box;
+  width: 71px;
+  height: 25px;
+  border: none;
+  border-radius: 0 5px 5px 0;
+  background-color: rgba(241, 243, 248, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+  font-family: "Circular-Std", sans-serif;
+  font-size: 12px;
+  color: rgba(3, 9, 41, 1);
+  opacity: 1;
+  cursor: pointer;
+  text-align: left;
+
+  &:hover {
+    background-color: rgba(241, 243, 248, 1);
+  }
+}
+
+.timescale-value {
+  flex: 1;
+}
+
+.timescale-chevron {
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+/* Open menu: dark grey text, light grey background (image) */
+.timescale-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin: 2px 0 0;
+  padding: 4px 0;
+  min-width: 100%;
+  list-style: none;
+  background: #fff;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(3, 9, 41, 0.12);
+  z-index: 20;
+}
+
+.timescale-option {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  font-family: "Circular-Std", sans-serif;
+  font-size: 12px;
+  color: rgba(3, 9, 41, 1);
+  text-align: left;
+  cursor: pointer;
+
+  &:hover,
+  &--active {
+    background-color: rgba(241, 243, 248, 0.75);
+  }
+}

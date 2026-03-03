@@ -1,0 +1,12 @@
+<div class="timeline-grid">
+  <app-timeline-axis></app-timeline-axis>
+  <app-current-period-indicator></app-current-period-indicator>
+  <div class="timeline-rows">
+    @for (wc of workCenters; track wc.docId) {
+      <app-timeline-row
+        [workCenter]="wc"
+        [orders]="getOrdersFor(wc.docId)"
+      />
+    }
+  </div>
+</div>

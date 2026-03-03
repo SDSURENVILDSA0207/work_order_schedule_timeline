@@ -1,0 +1,56 @@
+.work-order-bar-actions {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.actions-trigger {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  line-height: 1;
+  color: rgba(104, 113, 150, 1);
+  cursor: pointer;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: rgba(241, 243, 248, 0.75);
+    color: rgba(3, 9, 41, 1);
+  }
+}
+
+.actions-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 2px;
+  min-width: 100px;
+  padding: 4px 0;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(3, 9, 41, 0.12);
+  z-index: 10;
+}
+
+.actions-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  font-family: "Circular-Std", sans-serif;
+  font-size: 14px;
+  color: rgba(3, 9, 41, 1);
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(241, 243, 248, 0.75);
+  }
+
+  &--delete:hover {
+    color: rgba(177, 54, 0, 1);
+  }
+}

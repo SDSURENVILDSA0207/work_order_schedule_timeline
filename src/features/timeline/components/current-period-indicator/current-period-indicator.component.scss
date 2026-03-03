@@ -1,0 +1,43 @@
+/* Position relative to timeline grid: line at 596 from viewport (114px from grid), label at 603,239; Group 5 height 747px */
+.current-period-indicator {
+  position: absolute;
+  left: 114px; /* 596 - 482 */
+  top: 188px; /* 238 - 50 from viewport */
+  width: 100px; /* enough for label at 7px + 93px */
+  height: 747px;
+  pointer-events: none;
+  opacity: 1;
+}
+
+/* Vertical line: 1px wide, full height of indicator, primary shade */
+.current-period-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 747px;
+  background-color: rgba(62, 64, 219, 1);
+  opacity: 1;
+}
+
+/* Label: 603X 239Y = 121px from grid left, 1px below line start; 93×18, Circular Std Book, #3E40DB */
+.current-period-label {
+  position: absolute;
+  left: 7px; /* 603 - 596 so label at 603 from viewport */
+  top: 1px; /* 239 - 238 */
+  box-sizing: border-box;
+  width: 93px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  color: rgba(62, 64, 219, 1);
+  font-family: "Circular-Std", "CircularStd-Book", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 17px;
+  letter-spacing: normal;
+  text-align: left;
+  vertical-align: top;
+  opacity: 1;
+}

@@ -1,0 +1,42 @@
+<form class="work-order-form">
+  <div class="form-field">
+    <label class="form-label" for="work-order-name">Work Order Name</label>
+    <input
+      id="work-order-name"
+      type="text"
+      class="form-input"
+      placeholder=""
+    />
+  </div>
+  <div class="form-field">
+    <label class="form-label" for="work-order-status">Status</label>
+    <div class="form-select-wrap">
+      <select id="work-order-status" class="form-select">
+        <option value="open">Open</option>
+        <option value="in-progress">In Progress</option>
+        <option value="complete">Complete</option>
+        <option value="blocked">Blocked</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-field">
+    <label class="form-label" for="work-order-start">Start Date</label>
+    <input
+      id="work-order-start"
+      type="text"
+      class="form-input"
+      placeholder=""
+      readonly
+    />
+  </div>
+  <div class="form-field">
+    <label class="form-label" for="work-order-end">End Date</label>
+    <input
+      id="work-order-end"
+      type="text"
+      class="form-input"
+      placeholder=""
+      readonly
+    />
+  </div>
+</form>

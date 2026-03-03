@@ -1,0 +1,22 @@
+.timeline-grid {
+  flex: 1;
+  overflow-x: auto;
+  padding-top: 163px; /* 213 - 50 so axis row aligns at 213px from viewport with Work Center label */
+  position: relative; /* so current-period-indicator can position absolute within grid */
+  background-color: #fff;
+}
+
+/* Vertical grid lines every 114px starting at 15px (match axis columns) */
+.timeline-rows {
+  min-width: 950px; /* ~8 months × 114px so horizontal scroll matches axis */
+  background: repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent 15px,
+    rgba(216, 220, 235, 0.4) 15px,
+    rgba(216, 220, 235, 0.4) 16px,
+    transparent 16px,
+    transparent 114px
+  );
+  background-position: 0 0;
+}

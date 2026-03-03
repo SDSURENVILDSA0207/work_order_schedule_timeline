@@ -1,0 +1,6 @@
+.schedule-sidebar {
+  flex-shrink: 0;
+  width: 482px; /* 102 + 380 so Work Center rows fit design width */
+  background-color: #fff;
+  box-shadow: 2px 0 8px rgba(216, 220, 235, 0.3); /* subtle separation from timeline */
+}

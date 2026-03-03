@@ -1,0 +1,49 @@
+/* List starts below schedule-header; padding so "Work Center" at 133×213, rows at 102×238 */
+.work-center-list {
+  box-sizing: border-box;
+  padding-left: 102px;
+  padding-top: 33px; /* 213 - 180 (list start from viewport) = 33px */
+  width: 482px;
+}
+
+/* "Work Center" label: position 133X 213Y, 138×16, Circular Std Regular, #687196 */
+.work-center-label {
+  box-sizing: border-box;
+  width: 138px;
+  height: 16px;
+  margin: 0 0 9px 31px; /* 31px = 133 - 102 so label at 133; 9px gap to first row (238 - 213 - 16) */
+  padding: 0;
+  border: none;
+  color: rgba(104, 113, 150, 1);
+  font-family: "Circular-Std", "CircularStd-Regular", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 17px;
+  letter-spacing: normal;
+  opacity: 1;
+  text-align: left;
+  vertical-align: top;
+}
+
+.work-center-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Row: 380×60, position 102X 238Y (first), #FFFFFF 100%; image: dark grey sans-serif */
+.work-center-row {
+  box-sizing: border-box;
+  width: 380px;
+  height: 60px;
+  background-color: rgba(255, 255, 255, 1);
+  margin: 0;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  font-family: "Circular-Std", "CircularStd-Book", sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(3, 9, 41, 1);
+  opacity: 1;
+}

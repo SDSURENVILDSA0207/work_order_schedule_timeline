@@ -1,586 +1,436 @@
-# Naologic Work Order Schedule Timeline
+# Work Order Schedule Timeline – Implementation Guide
 
-A production scheduling UI built for the Naologic Frontend Engineer take-home challenge.
-Displays work orders across work centers on an interactive, zoomable timeline.
+This document describes **how this project will be implemented step by step**, based on the Naologic **Work Order Schedule Timeline – Frontend Technical Test** requirements.
 
----
+It is intentionally **process-focused** and does **not contain application code**. The goal is to make it easy to:
 
-## Getting Started
+- Understand the planned architecture
+- Follow a clear sequence of implementation steps
+- Map Loom demo sections and git commits to concrete milestones
 
-### Prerequisites
+For the original problem statement, see the provided `FE-technical-test...md` file in the repository.
 
-- Node.js 18+ (LTS recommended)
-- Angular CLI 17+
-
-### Installation
-
-```bash
-git clone https://github.com/YOUR_USERNAME/naologic-timeline.git
-cd naologic-timeline
-npm install
-```
-
-### Run
-
-```bash
-ng serve
-```
-
-Open [http://localhost:4200](http://localhost:4200)
+All AI prompts used during development are logged in `AIPROMPTS.md`.
 
 ---
 
-## Features
+## 1. Project Setup & Tooling
 
-- **Timeline grid** — Day, Week, and Month zoom levels with correct date headers
-- **Work order bars** — Positioned by date, colored by status (Open / In Progress / Complete / Blocked)
-- **Create work orders** — Click any empty timeline area to open a pre-filled create panel
-- **Edit work orders** — Three-dot menu on each bar opens Edit/Delete options
-- **Overlap detection** — Prevents scheduling two orders on the same work center at the same time
-- **Slide-out panel** — Smooth animation, closes on outside click or Cancel
-- **Today indicator** — Vertical line marking today's date on the grid
-- **Responsive** — Horizontal scroll on smaller screens
+1. **Create Angular workspace**
+   - Initialize an Angular 17+ application with strict TypeScript and SCSS as the default stylesheet format.
+   - Use **standalone components** (no `NgModule`-based bootstrapping).
 
----
+2. **Configure base project settings**
+   - Set up strict TypeScript options if not already enabled.
+   - Ensure path aliases (if any) are clean and minimal, e.g. `@shared`, `@core`, `@features`.
 
-## Tech Stack
+3. **Install required libraries**
+   - `@ng-bootstrap/ng-bootstrap` – for `ngb-datepicker`.
+   - `@ng-select/ng-select` – for status dropdowns.
+   - Any optional utility libraries for date handling if desired (or use the Angular/JS `Date` APIs).
 
-| Library | Version | Purpose |
-|---------|---------|---------|
-| Angular | 21+ | Framework — standalone components |
-| TypeScript | 5.x strict | Type safety throughout |
-| SCSS | — | All styling via CSS custom properties |
-| @ng-select/ng-select | latest | Status dropdown with custom badge template |
-| @ng-bootstrap/ng-bootstrap | latest | ngb-datepicker for date fields |
-| Bootstrap | 5.x | Peer dependency for ng-bootstrap |
+4. **Global styles & fonts**
+   - Import the Circular Std font using the link from the spec into the global `index.html`.
+   - Set base typography and CSS variables (colors, spacing scale, z-indexes) in `styles.scss`.
+   - Configure a simple CSS reset / normalization and box-sizing rules.
 
----
-
-## Architecture
-
-```
-src/app/
-├── components/
-│   ├── timeline/             # Main grid: header + rows + today line
-│   ├── work-order-bar/       # Bar rendering + 3-dot dropdown
-│   ├── work-order-panel/     # Create/Edit slide panel with Reactive Form
-│   └── timescale-selector/   # Day/Week/Month dropdown
-├── services/
-│   ├── work-order.service.ts # State management + CRUD + overlap validation
-│   └── timeline.service.ts   # Date-to-pixel math, column generation
-├── models/
-│   └── work-order.model.ts   # WorkCenterDocument, WorkOrderDocument interfaces
-├── data/
-│   └── sample-data.ts        # 5 work centers, 8+ work orders, all 4 statuses
-└── utils/
-    └── date.utils.ts         # Pure date helpers
-```
+5. **Git & project hygiene**
+   - Ensure `.gitignore` is correct for Angular projects.
+   - Make an initial commit: “chore: bootstrap Angular workspace”.
 
 ---
 
-## Sample Data
+## 2. High-Level Architecture
 
-5 work centers with 8+ work orders demonstrating:
-- All four statuses: `open`, `in-progress`, `complete`, `blocked`
-- Multiple non-overlapping orders on the same work center (Konsulting Inc)
-- Orders spanning different date ranges (past, current, future)
+### 2.1 App shell and global header
 
----
+- **App root** (`app.component`): Renders the global layout (header + timeline page).
+- **App header**: Top bar matching design spec:
+  - **Header rectangle**: Full width (max-width 1440px), height 50px, background `#FFFFFF`, no border, no padding, `box-sizing: border-box`.
+  - **NAOLOGIC logo**: Position `101px` from left, `20px` from top; size `80px × 10px`; opacity 100%. Asset: `assets/logo.png` with `object-fit: contain` to preserve aspect ratio.
 
-## Prerequisites (Setup Guide)
+### 2.2 Schedule header and "Work Orders" title
 
-Before starting, confirm these are installed:
+- **Schedule header** (`schedule-header` component): Left sidebar top section; padding places the title at design coordinates.
+- **"Work Orders" title** (H3 – 24 Style):
+  - **Position**: `101px` from left, `95px` from viewport top (header padding: left `101px`, top `45px` below the 50px app header).
+  - **Size**: `142px × 34px`; `box-sizing: border-box`; no border, no padding.
+  - **Typography**: Circular Std Medium (500), 24px, line-height 34px, color `#030929` (rgba(3, 9, 41, 1)), opacity 100%, text align left, vertical align top.
+  - **Font**: Circular Std loaded from `naologic-com-assets.naologic.com` (see `index.html`).
 
-```bash
-node --version      # Must be 18.x or 20.x (LTS)
-npm --version       # 9.x or 10.x
-ng version          # Angular CLI 17+
-git --version       # Any recent version
-```
+### 2.3 Timescale dropdown
 
-### Install Angular CLI if not present
+- **Position**: Control at `101px` from left, `155px` from viewport top (same header padding; row margin places it 26px below the "Work Orders" title).
+- **Two segments** (Nao Design System – Modal Dropdown / Form Grid):
+  - **Timescale label**: `75px × 25px`; `border-radius: 5px 0 0 5px`; `background-color: rgba(241, 243, 248, 0.75)` (#F1F3F8 75%); box-sizing border-box; no padding; opacity 100%.
+  - **Month dropdown**: `71px × 25px`; `border-radius: 0 5px 5px 0`; same background; box-sizing border-box; no padding; opacity 100%. Visually one rounded control; dropdown shows "Month" and chevron (functional ng-select can be wired later).
 
-```bash
-npm install -g @angular/cli
-```
+### 2.4 Work Center list (left column)
 
-### Confirm you have Node 18+ (required for Angular 17)
+- **Sidebar width**: `482px` (102 + 380) so the list and rows fit the design.
+- **"Work Center" label**: Position `133px` from left, `213px` from viewport top (list padding-top 33px from header bottom; label margin-left 31px from list padding 102px). Size `138px × 16px`; color `#687196` (rgba(104, 113, 150, 1)); font Circular Std Regular, 14px, weight 500, line-height 17px; no border/padding; opacity 100%.
+- **Row rectangle**: Each list row `380px × 60px`; position starts at `102px` from left, first row at `238px` from viewport top; background `#FFFFFF` 100%; no border/padding; box-sizing border-box. Sample names: Genesis Hardware, Rodriques Electrics, Konsulting Inc, McMarrow Distribution, Spartan Manufacturing.
 
-```bash
-node --version
-# If below 18, install via: https://nodejs.org or use nvm
-nvm install 20 && nvm use 20
-```
+### 2.5 Timeline axis
 
----
+- **Position**: Axis row at `213px` from viewport top (grid `padding-top: 163px` so first row aligns with Work Center label). First month (Aug 2024) at `497px` from viewport left = `15px` from timeline grid left (grid starts after 482px sidebar).
+- **Month labels**: Each label `86px × 16px`; color `#687196` (rgba(104, 113, 150, 1)); font Circular Std Regular, 14px, weight 500, line-height 17px; text-align center; no border/padding; opacity 100%. Column step `114px` (Sep at 611, so 611 − 497 = 114). Labels: Aug 2024, Sep 2024, Oct 2024, Nov 2024, Dec 2024, Jan 2025, Feb 2025, Mar 2025.
 
-## Step 1 — Scaffold the Angular Project
+### 2.6 Current month indicator (vertical line + label)
 
-```bash
-ng new naologic-timeline \
-  --style=scss \
-  --routing=false \
-  --standalone \
-  --strict
-```
+- **Position**: Line at `596px` from viewport left = `114px` from timeline grid left; label at `603px`, `239px` from viewport (grid `position: relative`; indicator `position: absolute` at `left: 114px`, `top: 188px` = 238 − 50).
+- **Vertical line**: `2px` wide, `747px` tall (Group 5 height), `background-color: rgba(62, 64, 219, 1)` (Nao primary shade 2).
+- **Label**: `93px × 18px`; color `rgba(62, 64, 219, 1)`; font Circular Std Book, 14px, weight 400, line-height 17px; no border/padding; opacity 100%; content "Current month"; alignment left/top.
 
-When prompted:
-- **Which stylesheet format?** → SCSS *(already set via flag)*
-- **Enable SSR?** → **No**
+### 2.7 Scrollable grid, work order bars, three-dot menu
 
-```bash
-cd naologic-timeline
-```
+- **Scrollable grid**: One row per work center (60px height); rows from `WorkOrderDataService.getWorkCenters()`; `.timeline-rows` min-width 950px for horizontal scroll; row hover background.
+- **Work order bars**: One bar per order; position from dates (axis offset 15px, PX_PER_DAY from 114px column step). Bar: min-width 120px, height 38px; `border-radius: 8px`; `background-color: #FFFCF1`; `box-shadow: 0 0 0 1px #FFF5CF` (Rectangle 2 spec). Content: name, status badge, three-dot trigger.
+- **Status badges**: Complete `#08A268`, In progress / Open `#3E40DB`, Blocked `#B13600`; Circular Std Book 14px, line-height 17px (`STATUS_COLORS` in `timeline.constants`).
+- **Three-dot menu**: Trigger on bar; dropdown with Edit and Delete; document click closes; outputs `edit` and `delete` for wiring to panel later.
+- **Sample data**: Five work centers, five work orders (all statuses, multiple orders on one center) in `WorkOrderDataService`.
 
-Verify it runs:
+### 2.8 Empty row "Click to add dates" pill and slide-out panel
 
-```bash
-ng serve
-# Open http://localhost:4200 — should see default Angular page
-```
+- **Empty row pill**: Each timeline row shows a centered pill with "Click to add dates" (113×38 px; `border: 1px solid #C3C7FF`; `border-radius: 8px`; `background-color: rgba(101, 112, 255, 0.1)`; design ref 675×303). Pill is non-interactive (`pointer-events: none` on the empty overlay); click-to-create will be wired on the row or grid.
+- **Right slide-out panel**: `work-order-panel` fixed right (849 from left in design = right edge); `591px` width, `100vh` height (min 1024px); `border-radius: 12px 0 0 12px`; `background: #FFFFFF`; NDS shadows: `0 5px 15px 0 rgba(216, 220, 235, 1)`, `0 2.5px 3px -1.5px rgba(200, 207, 233, 1)`, `0 4.5px 5px -1px rgba(216, 220, 235, 1)`. Panel hosts "Work Order Details" heading and `work-order-form`; open/close state can be wired to create/edit actions.
 
----
+### 2.9 Work order form fields (panel)
 
-## Step 2 — Install Required Dependencies
+- **Labels**: "Work Order Name", "Status", "Start Date", "End Date" – 542/543×16 px; color `#687196`; Circular Std Regular, 14px, weight 500, line-height 17px (874×107, 873×193 spec).
+- **Status dropdown**: Wrapper 543×38; `border-radius: 5px`; `box-shadow: 0 0 0 2px rgba(170, 175, 255, 1)` (Rectangle 7 at 217Y); options styled with `#F1F3F8` (Open, In progress, Complete, Blocked).
+- **Text/date inputs**: 543×38; `border-radius: 5px`; `box-shadow: 0 0 0 1px rgba(216, 220, 235, 1), 0 1.5px 3px -1.5px rgba(200, 207, 233, 1), 0 1px 0.5px -1px rgba(216, 220, 235, 1)` (Rectangle 7 at 389Y); focus uses 2px primary border. Native `<select>` and `<input>` for now; ng-select and ngb-datepicker can be wired when adding Reactive Forms.
 
-These are **mandatory** per the spec:
+### 2.10 Pixel-perfect UI alignment (image + design data)
 
-```bash
-# ng-select — for all dropdown/select inputs
-npm install @ng-select/ng-select
+- **Global**: Circular Std as default font; body text color `rgba(3, 9, 41, 1)` (dark grey).
+- **Timeline grid**: Light grey vertical grid lines every 114px (match axis columns); white background.
+- **Sidebar**: Subtle right shadow for separation from main content.
+- **Work order bars**: Status-based light tint backgrounds and borders (green complete, purple in-progress/open, orange blocked) per reference image.
+- **Empty row**: "Click to add dates" pill with CSS tooltip on hover (dark grey bg, white text, arrow); row clickable (pointer-events, cursor).
+- **Timescale**: Dropdown with Hour, Day, Week, Month; open state with light grey option highlight.
+- **Panel**: Hidden by default (`panelOpen = false`) so initial view matches design image; wire to create/edit to open.
 
-# ng-bootstrap — for ngb-datepicker
-npm install @ng-bootstrap/ng-bootstrap
+The app will be structured into a few focused areas:
 
-# Bootstrap CSS (peer dependency for ng-bootstrap)
-npm install bootstrap
-```
+- **Core / shared types and utilities**
+  - TypeScript interfaces for `WorkCenterDocument`, `WorkOrderDocument`, and `WorkOrderStatus`.
+  - Date utility helpers for converting between dates, pixels, and zoom levels.
 
-Verify installations:
+- **Data layer**
+  - A simple **data service** responsible for:
+    - Holding in-memory arrays of work centers and work orders.
+    - Exposing CRUD operations (create/update/delete) for work orders.
+    - Optionally persisting to `localStorage` (bonus).
 
-```bash
-npm list @ng-select/ng-select @ng-bootstrap/ng-bootstrap bootstrap
-```
+- **Timeline feature**
+  - A main `TimelinePage` (or `TimelineComponent`) that:
+    - Renders the toolbar (title + timescale dropdown).
+    - Renders the split layout: fixed left work-center column + scrollable timeline grid.
+    - Coordinates the slide-out create/edit panel.
 
-### Wire bootstrap CSS into angular.json
-
-Open `angular.json` and add bootstrap to the `styles` array:
-
-```json
-"styles": [
-  "node_modules/bootstrap/dist/css/bootstrap.min.css",
-  "src/styles.scss"
-]
-```
-
-> **Note:** You'll override/strip most Bootstrap styles with custom SCSS. It's required only as a peer dependency for ng-bootstrap to function.
-
----
-
-## Step 3 — Project Folder Structure
-
-Create the following structure inside `src/app/`:
-
-```bash
-mkdir -p src/app/components/timeline
-mkdir -p src/app/components/work-order-bar
-mkdir -p src/app/components/work-order-panel
-mkdir -p src/app/components/timescale-selector
-mkdir -p src/app/services
-mkdir -p src/app/models
-mkdir -p src/app/data
-mkdir -p src/app/utils
-```
-
-Final structure:
-
-```
-src/
-├── app/
-│   ├── app.component.ts          ← root standalone component
-│   ├── app.component.html
-│   ├── app.component.scss
-│   ├── components/
-│   │   ├── timeline/             ← main grid component
-│   │   ├── work-order-bar/       ← individual bar + 3-dot menu
-│   │   ├── work-order-panel/     ← create/edit slide panel
-│   │   └── timescale-selector/   ← custom pill dropdown
-│   ├── services/
-│   │   ├── work-order.service.ts ← state + CRUD + overlap check
-│   │   └── timeline.service.ts   ← date math utilities
-│   ├── models/
-│   │   └── work-order.model.ts   ← TypeScript interfaces
-│   ├── data/
-│   │   └── sample-data.ts        ← hardcoded work centers + orders
-│   └── utils/
-│       └── date.utils.ts         ← pure date helper functions
-├── styles.scss                   ← global styles + CSS variables
-└── index.html                    ← add Circular Std font link here
-```
+- **Timeline subcomponents**
+  - **Header** (date/week/month labels + current day indicator).
+  - **Rows** for each work center, with hover states.
+  - **Work order bars** rendered in each row.
+  - **Three-dot actions menu** (edit/delete).
+  - **Create/Edit slide-out panel** built with Reactive Forms.
 
 ---
 
-## Step 4 — Add Font & Global CSS Variables
+## 3. Data Modeling & Sample Data
 
-### index.html — add Circular Std font
+1. **Define domain types**
+   - Implement TypeScript interfaces matching the problem statement:
+     - `WorkCenterDocument` with `docId`, `docType: 'workCenter'`, and `data.name`.
+     - `WorkOrderDocument` with `docId`, `docType: 'workOrder'`, and `data` containing:
+       `name`, `workCenterId`, `status`, `startDate`, `endDate`.
+     - `WorkOrderStatus` union type: `'open' | 'in-progress' | 'complete' | 'blocked'`.
 
-```html
-<!-- src/index.html -->
-<head>
-  <link rel="stylesheet"
-    href="https://naologic-com-assets.naologic.com/fonts/circular-std/circular-std.css">
-  <!-- Google Fonts for Nunito (label font) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap"
-    rel="stylesheet">
-</head>
-```
+2. **Create hardcoded sample data**
+   - At least **5 work centers** with realistic names:
+     - e.g. “Extrusion Line A”, “CNC Machine 1”, “Assembly Station”, “Quality Control”, “Packaging Line”.
+   - At least **8 work orders**:
+     - Spread across different work centers.
+     - Include all four statuses.
+     - Ensure at least one work center has multiple **non-overlapping** orders.
+     - Vary `startDate` / `endDate` so some span short windows and others are longer-range.
 
-### styles.scss — design tokens as CSS variables
+3. **Data service**
+   - Create a simple service that:
+     - Exposes `getWorkCenters()` and `getWorkOrders()` as observables or signals.
+     - Provides `createWorkOrder`, `updateWorkOrder`, and `deleteWorkOrder` methods.
+   - (Bonus) If implementing `localStorage`:
+     - On initialization, load data from `localStorage` if present; otherwise, use hardcoded defaults.
+     - Persist changes whenever work orders are modified.
 
-```scss
-// src/styles.scss
-
-// ─── Design Tokens (from fe-take-home-challenge.tokens.json) ──────────────────
-:root {
-  // Primary palette
-  --color-primary:        #5659FF;   // 3-Element primary / 3
-  --color-primary-dark:   #3E40DB;   // (1)-primary-shade2
-  --color-primary-light:  #AAAFFF;   // 3-Element primary / 6
-
-  // Text
-  --color-text-primary:   #030929;   // 5-H3 color + Text-Primary
-  --color-text-labels:    #687196;   // text-4-labels
-  --color-text-disabled:  #D8DCEB;   // text-6-disabled
-
-  // Stroke / Border
-  --color-stroke:         #F0F1F5;   // stroke-2
-
-  // Typography
-  --font-heading:         "Circular-Std", "Circular Std", system-ui, sans-serif;
-  --font-label:           "Nunito", system-ui, sans-serif;
-
-  // Shadow
-  --shadow-sm:            0px 1px 0.8px 0px rgba(0, 0, 0, 0.50);
-
-  // Layout
-  --timeline-left-width:  220px;
-  --timeline-row-height:  52px;
-  --timeline-header-height: 44px;
-}
-
-// ─── Global Reset ─────────────────────────────────────────────────────────────
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
-body {
-  font-family: var(--font-heading);
-  color: var(--color-text-primary);
-  background: #F7F7F9;
-  margin: 0;
-  padding: 0;
-}
-```
+4. **Wire data into the main timeline**
+   - Inject the data service into the main timeline page.
+   - Subscribe/access the data to render the initial static timeline (no interactions yet).
 
 ---
 
-## Step 5 — Initialize Git Repository
+## 4. Timeline Layout & Zoom Levels
 
-```bash
-# Inside naologic-timeline/
-git init
-git add .
-git commit -m "feat: initial Angular 17 project scaffold"
-```
+1. **Base layout**
+   - Create a layout with two main columns:
+     - **Left panel:** fixed-width column listing work center names.
+     - **Right panel:** horizontally scrollable timeline grid.
+   - Use CSS (e.g. `display: grid` or `flex`) to ensure the left panel remains fixed while the timeline scrolls horizontally.
 
----
+2. **Timescale controls**
+   - Add a toolbar at the top with:
+     - Page title (“Work Orders” or as per design).
+     - **Timescale dropdown** with options: Day (default), Week, Month.
+   - Maintain the current timescale in component state.
 
-## Step 6 — Create GitHub Repository
+3. **Visible date range**
+   - For each zoom level, define a default visible window centered on **today**:
+     - Day: e.g. today ± 14 days.
+     - Week: e.g. today’s week ± 2 months.
+     - Month: e.g. today’s month ± 6 months.
+   - Implement helpers to compute:
+     - A list of header “buckets” (days, weeks, months) for the visible range.
+     - The pixel width of each bucket, per zoom level.
 
-### Option A: GitHub CLI (recommended)
+4. **Header rendering**
+   - Render the timeline header row according to the active zoom:
+     - **Day view:** one column per day with date labels.
+     - **Week view:** one column per week (e.g. “W12”, “Mar 3–9”).
+     - **Month view:** one column per month (e.g. “Mar 2026”).
+   - Add a **current day indicator**:
+     - Calculate today’s x-position relative to the visible range.
+     - Render a vertical line crossing all rows at that x-position.
 
-```bash
-# Install gh CLI if needed: https://cli.github.com
-gh auth login
-gh repo create naologic-timeline \
-  --public \
-  --description "Naologic FE Take-Home: Work Order Schedule Timeline" \
-  --source=. \
-  --remote=origin \
-  --push
-```
-
-### Option B: Manual via GitHub.com
-
-1. Go to https://github.com/new
-2. Repository name: `naologic-timeline`
-3. Visibility: **Public**
-4. Do NOT initialize with README (you already have one)
-5. Click **Create repository**
-6. Run the commands shown under "push an existing repository":
-
-```bash
-git remote add origin https://github.com/YOUR_USERNAME/naologic-timeline.git
-git branch -M main
-git push -u origin main
-```
+5. **Scrolling behavior**
+   - Enable horizontal scrolling for the timeline grid only.
+   - Keep the initial scroll position so that today is roughly centered in the view.
+   - (Bonus) Consider infinite scroll later (prepend/append extra buckets as the user scrolls).
 
 ---
 
-## Step 7 — Create the README.md
+## 5. Work Order Bar Positioning & Styling
 
-Replace the default README with this:
+1. **Date-to-pixel calculations**
+   - Implement functions to:
+     - Convert a work order’s `startDate` and `endDate` to positions within the visible range.
+     - Calculate:
+       - `left` offset in pixels from the start of the visible range.
+       - `width` in pixels corresponding to the order duration.
+   - Ensure calculations adapt when the timescale (Day/Week/Month) changes.
 
-```markdown
-# Naologic Work Order Schedule Timeline
+2. **Rendering bars**
+   - For each work center row:
+     - Filter work orders by `workCenterId`.
+     - For each order, compute its `left` and `width` based on the active zoom and visible range.
+     - Render a **horizontal bar** positioned absolutely within the row.
 
-A production scheduling UI built for the Naologic Frontend Engineer take-home challenge.
-Displays work orders across work centers on an interactive, zoomable timeline.
+3. **Status appearance**
+   - Map statuses to colors from the design:
+     - `open`: blue.
+     - `in-progress`: blue/purple.
+     - `complete`: green.
+     - `blocked`: yellow/orange.
+   - Inside each bar, render:
+     - Work order name.
+     - Status badge (pill/tag style).
+     - Three-dot actions icon on the right.
 
----
+4. **Hover and focus states**
+   - Add row hover background highlights matching the design.
+   - Add bar hover/focus styles (e.g., subtle shadow or brightness adjustment).
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ (LTS recommended)
-- Angular CLI 17+
-
-### Installation
-
-```bash
-git clone https://github.com/YOUR_USERNAME/naologic-timeline.git
-cd naologic-timeline
-npm install
-```
-
-### Run
-
-```bash
-ng serve
-```
-
-Open [http://localhost:4200](http://localhost:4200)
-
----
-
-## Features
-
-- **Timeline grid** — Day, Week, and Month zoom levels with correct date headers
-- **Work order bars** — Positioned by date, colored by status (Open / In Progress / Complete / Blocked)
-- **Create work orders** — Click any empty timeline area to open a pre-filled create panel
-- **Edit work orders** — Three-dot (⋯) menu on each bar opens Edit/Delete options
-- **Overlap detection** — Prevents scheduling two orders on the same work center at the same time
-- **Slide-out panel** — Smooth animation, closes on outside click or Cancel
-- **Today indicator** — Vertical line marking today's date on the grid
-- **Today button** — Scrolls viewport to center on today
-- **localStorage persistence** — Work orders survive page refresh *(bonus)*
-- **Responsive** — Horizontal scroll on smaller screens
+5. **Responsiveness**
+   - Ensure that on smaller screens:
+     - The layout still works (timeline may require more horizontal scroll).
+     - Typography scales appropriately.
 
 ---
 
-## Tech Stack
+## 6. Create & Edit Slide-Out Panel
 
-| Library | Version | Purpose |
-|---|---|---|
-| Angular | 17+ | Framework — standalone components, OnPush CD |
-| TypeScript | 5.x strict | Type safety throughout |
-| SCSS | — | All styling via CSS custom properties |
-| @ng-select/ng-select | latest | Status dropdown with custom badge template |
-| @ng-bootstrap/ng-bootstrap | latest | ngb-datepicker for date fields |
-| Bootstrap | 5.x | Peer dependency for ng-bootstrap |
+1. **Panel container**
+   - Implement a slide-out panel that:
+     - Anchors to the right side of the viewport.
+     - Has fixed width as per design.
+     - Shows an overlay/backdrop over the main content.
+   - Configure it to open/close with a simple state flag.
 
----
+2. **Reactive Form setup**
+   - Define a `FormGroup` with controls:
+     - `name` (work order name) – required.
+     - `status` (`ng-select`) – default value “Open”.
+     - `startDate` (`ngb-datepicker`) – required.
+     - `endDate` (`ngb-datepicker`) – required.
+   - Implement validators:
+     - All fields required.
+     - `endDate` must be strictly after `startDate`.
 
-## Architecture
+3. **Create mode behavior**
+   - Opening flow:
+     - Triggered when user clicks **empty timeline area** in a row.
+     - Pre-fill `startDate` from click position’s date.
+     - Pre-fill `endDate` as `startDate + 7 days`.
+     - Set mode to `'create'`.
+   - UI:
+     - Header text “Work Order Details” (or per design).
+     - Primary button text “Create”.
 
-```
-src/app/
-├── components/
-│   ├── timeline/             # Main grid: header + rows + today line
-│   ├── work-order-bar/       # Bar rendering + 3-dot dropdown
-│   ├── work-order-panel/     # Create/Edit slide panel with Reactive Form
-│   └── timescale-selector/   # Custom pill control (Hour/Day/Week/Month)
-├── services/
-│   ├── work-order.service.ts # State management + CRUD + overlap validation
-│   └── timeline.service.ts   # Date-to-pixel math, column generation
-├── models/
-│   └── work-order.model.ts   # WorkCenterDocument, WorkOrderDocument interfaces
-├── data/
-│   └── sample-data.ts        # 5 work centers, 8+ work orders, all 4 statuses
-└── utils/
-    └── date.utils.ts         # Pure date helpers (addDays, diffDays, etc.)
-```
+4. **Edit mode behavior**
+   - Opening flow:
+     - Triggered from the three-dot menu > “Edit” on a work order bar.
+     - Populate form with existing work order data.
+     - Set mode to `'edit'`.
+   - UI:
+     - Same header text.
+     - Primary button text “Save”.
 
-### Key Design Decision: Date-to-Pixel Math
-
-The hardest part of a timeline component is correctly converting dates to pixel positions.
-The core formula lives in `TimelineService.dateToPixel()`:
-
-```typescript
-// Day view: each day = colWidth px
-left = diffDays(rangeStart, startDate) * colWidth
-
-// Week view: each 7 days = colWidth px
-left = (diffDays(rangeStart, startDate) / 7) * colWidth
-
-// Month view: fractional month offset
-left = (monthDiff + dayFraction) * colWidth
-```
-
-Bar width = `dateToPixel(endDate) - dateToPixel(startDate)`.
-
-### Overlap Detection
-
-```typescript
-// Two date ranges overlap when: startA < endB AND endA > startB
-orders
-  .filter(o => o.data.workCenterId === targetWcId && o.docId !== excludeId)
-  .some(o => newStart < parseDate(o.data.endDate) && newEnd > parseDate(o.data.startDate))
-```
+5. **Closing behavior**
+   - Close when:
+     - Clicking the backdrop outside the panel.
+     - Clicking a **Cancel** button.
+     - Successfully creating/saving a valid work order.
 
 ---
 
-## Sample Data
+## 7. Overlap Detection & Validation Rules
 
-5 work centers with 8+ work orders demonstrating:
-- All four statuses: `open`, `in-progress`, `complete`, `blocked`
-- Multiple non-overlapping orders on the same work center
-- Orders spanning different date ranges (past, current, future)
+1. **Basic form validation**
+   - Ensure standard validators are wired:
+     - Required for all fields.
+     - Custom validator enforcing `endDate > startDate`.
 
----
+2. **Overlap detection algorithm**
+   - When user attempts to **create** a new order:
+     - Convert `startDate` and `endDate` to a comparable range (e.g. JS `Date` or day indices).
+     - Find all existing work orders with the same `workCenterId`.
+     - Check for any interval overlap where:
+       - New `[start, end]` intersects existing `[start, end]`.
+   - When **editing** an existing order:
+     - Apply the same logic but ignore the order being edited.
 
-## AI Assistance
+3. **User feedback**
+   - If an overlap is detected:
+     - Prevent creation/save.
+     - Show a clear error message in the panel.
+     - Optionally highlight the conflicting order(s) on the timeline.
 
-This project used Claude (Anthropic) as an AI assistant for:
-- Prototyping the timeline math and pixel-positioning logic in React before porting to Angular
-- Validating overlap detection edge cases
-- Design token extraction from the Figma/Sketch file
-
-See [`AI_PROMPTS.md`](./AI_PROMPTS.md) for the full prompt log.
-
----
-
-## License
-
-Built for Naologic's Frontend Engineer take-home challenge — not for redistribution.
-```
-
----
-
-## Step 8 — Create Commit Strategy
-
-Use this commit structure to show clean progression:
-
-```
-feat: initial Angular 17 project scaffold
-feat: add models, interfaces, and sample data
-feat: implement timeline date utilities
-feat: build timeline grid with day/week/month zoom
-feat: add work order bar component with status colors
-feat: add 3-dot actions menu with edit/delete
-feat: implement create/edit slide panel with reactive forms
-feat: add overlap detection and form validation
-feat: wire work order service with full CRUD
-style: pixel-perfect design tokens and layout matching sketch
-feat(bonus): add localStorage persistence
-feat(bonus): add Today button and smooth animations
-docs: add README and AI prompts log
-```
-
-### Commit after each major feature:
-
-```bash
-git add .
-git commit -m "feat: add models, interfaces, and sample data"
-git push
-```
+4. **Integration with form state**
+   - Surface overlap errors either:
+     - As a form-level error (e.g. on the `FormGroup`).
+     - Or as a message displayed under the date fields.
 
 ---
 
-## Step 9 — Create AI_PROMPTS.md (Bonus — Easy Win)
+## 8. Interactions & User Experience
 
-```bash
-touch AI_PROMPTS.md
-```
+1. **Click empty timeline area**
+   - Detect clicks on a row where there is no bar.
+   - Determine the date corresponding to the click’s x-position.
+   - Open the panel in **create** mode, pre-filled with that date.
 
-Template to fill in as you build:
+2. **Three-dot actions menu**
+   - On each bar, render a three-dot button.
+   - When clicked, show a dropdown menu with:
+     - “Edit” – opens the panel in edit mode.
+     - “Delete” – deletes the work order after confirmation (or via direct action as per design).
 
-```markdown
-# AI Prompts Log
+3. **Delete behavior**
+   - Immediately remove the work order from the data store.
+   - Optionally show a brief toast/snackbar or status message.
 
-Documenting key prompts used during development as requested in the challenge spec.
+4. **Timescale dropdown changes**
+   - When the user selects Day/Week/Month:
+     - Recompute header buckets.
+     - Recalculate all bar positions and widths.
+     - Preserve the logical center around today if possible.
 
----
-
-## 1. Timeline Architecture
-
-**Prompt:**
-> "I'm building an Angular 17 Work Order Schedule Timeline. The main challenge is
-> converting dates to pixel positions across Day/Week/Month zoom levels.
-> What's the cleanest way to structure this math as a service?"
-
-**Decision made:** Created `TimelineService` with a single `dateToPixel(date, rangeStart, zoom, colWidth)` 
-pure function. This keeps all date math testable and out of components.
-
----
-
-## 2. Overlap Detection
-
-**Prompt:**
-> "Two work orders on the same work center overlap when their date ranges intersect.
-> What's the canonical overlap check formula?"
-
-**Answer used:** `startA < endB && endA > startB`
+5. **Keyboard and accessibility (bonus)**
+   - Allow Esc to close the panel.
+   - Make form fields keyboard-navigable.
+   - Add suitable ARIA labels for actions and status pills.
 
 ---
 
-## 3. Fixed Left Panel + Scrollable Grid
+## 9. Bonus Features (Optional)
 
-**Prompt:**
-> "In Angular with SCSS, how do I keep a fixed left panel while only the right
-> timeline grid scrolls horizontally, and sync hover states across both?"
+These can be implemented after the core features are complete:
 
-**Decision made:** CSS Grid layout with `position: sticky` on left panel...
-```
+1. **localStorage persistence**
+   - Persist work orders (and timeline configuration if desired).
+   - Restore state on page reload.
 
----
+2. **Smooth animations**
+   - Animate panel slide-in/out.
+   - Subtle animations for bar hover and focus states.
 
-## Step 10 — Final Pre-Submission Checklist
+3. **Infinite horizontal scroll**
+   - Detect near-left/right scroll edges.
+   - Dynamically prepend/append additional date buckets.
+   - Adjust scroll position when prepending to keep the viewport anchored.
 
-Before submitting, verify:
+4. **Today button**
+   - Add a toolbar button that scrolls/centers the timeline on today’s date.
 
-```bash
-# 1. Clean install works
-rm -rf node_modules && npm install && ng serve
+5. **Tooltips on bar hover**
+   - Show small tooltip with:
+     - Work order name.
+     - Status.
+     - Exact start and end dates.
 
-# 2. No TypeScript errors
-ng build --configuration=production
-
-# 3. Repo is public and has clean commits
-gh repo view --web
-
-# 4. README renders correctly on GitHub
-# Visit: https://github.com/YOUR_USERNAME/naologic-timeline
-```
-
-### Submission items:
-- [ ] GitHub repo URL (public)
-- [ ] Loom video URL (5–10 min)
-- [ ] AI_PROMPTS.md committed to repo
+6. **Performance optimizations**
+   - Use OnPush change detection where appropriate.
+   - Use `trackBy` functions for `*ngFor` loops.
 
 ---
 
-## Quick Reference: Token Values
+## 10. Testing Strategy
 
-| CSS Variable | Value | Used For |
-|---|---|---|
-| `--color-primary` | `#5659FF` | Buttons, active states, primary blue |
-| `--color-primary-dark` | `#3E40DB` | Hover states, bar text |
-| `--color-primary-light` | `#AAAFFF` | Bar borders, light accents |
-| `--color-text-primary` | `#030929` | All primary text |
-| `--color-text-labels` | `#687196` | Secondary labels, column headers |
-| `--color-text-disabled` | `#D8DCEB` | Placeholders, disabled |
-| `--color-stroke` | `#F0F1F5` | All borders and gridlines |
-| `--shadow-sm` | `0px 1px 0.8px rgba(0,0,0,0.50)` | Panel shadow |
+1. **Unit tests**
+   - Focus on:
+     - Date-to-pixel conversion utilities.
+     - Overlap detection logic (various edge cases).
+     - Data service CRUD behavior.
+
+2. **Component tests**
+   - Verify:
+     - Timeline renders correct number of columns per zoom level.
+     - Bars appear at expected positions given known input data.
+     - Create/Edit panel binds correctly to the Reactive Form.
+
+3. **E2E tests (optional)**
+   - Automate a few key flows:
+     - Creating a work order (including overlap error case).
+     - Editing and deleting orders.
+     - Switching between zoom levels.
+
+---
+
+## 11. Documentation & Loom Demo Mapping
+
+1. **README maintenance**
+   - Keep this README aligned with actual implementation.
+   - Document any deviations or trade-offs from the original spec.
+
+2. **AI prompt log**
+   - Maintain `AIPROMPTS.md` with:
+     - Each significant AI prompt.
+     - Short notes on which implementation decisions were influenced.
+
+3. **Loom demo checklist**
+   - When recording the Loom video, cover:
+     - All zoom levels: Day, Week, Month.
+     - Creating a new work order via click-to-create.
+     - Editing an existing order (show overlap handling).
+     - Deleting a work order.
+     - Basic architecture walkthrough (components, services, utilities).
+
+4. **Git history**
+   - Use small, meaningful commits corresponding to:
+     - Setup and configuration.
+     - Data layer.
+     - Timeline layout.
+     - Interactions and validation.
+     - Bonus features and polish.
+
+This guide serves as the **implementation roadmap**. The next step, after your approval, will be to follow these sections and begin implementing the Angular code base accordingly.
