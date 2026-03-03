@@ -69,23 +69,39 @@ const STATUS_LABELS: Record<WorkOrderStatus, string> = {
     }
 
     .work-order-bar.status-open {
-      background: var(--color-bar-open);
-      border: 1px solid color-mix(in srgb, var(--color-status-open) 40%, white);
+      min-width: 381px;
+      height: 38px;
+      box-shadow: 0 0 0 1px rgba(198, 226, 255, 1);
+      border-radius: 8px;
+      background-color: rgba(239, 246, 255, 1);
+      border: none;
     }
 
     .work-order-bar.status-in-progress {
-      background: var(--color-bar-in-progress);
-      border: 1px solid color-mix(in srgb, var(--color-status-in-progress) 40%, white);
+      min-width: 381px;
+      height: 38px;
+      box-shadow: 0 0 0 1px rgba(222, 224, 255, 1);
+      border-radius: 8px;
+      background-color: rgba(237, 238, 255, 1);
+      border: none;
     }
 
     .work-order-bar.status-complete {
-      background: var(--color-bar-complete);
-      border: 1px solid color-mix(in srgb, var(--color-status-complete) 40%, white);
+      min-width: 381px;
+      height: 38px;
+      box-shadow: 0 0 0 1px rgba(209, 250, 179, 1);
+      border-radius: 8px;
+      background-color: rgba(248, 255, 243, 1);
+      border: none;
     }
 
     .work-order-bar.status-blocked {
-      background: var(--color-bar-blocked);
-      border: 1px solid color-mix(in srgb, var(--color-status-blocked) 40%, white);
+      min-width: 533px;
+      height: 38px;
+      box-shadow: 0 0 0 1px rgba(255, 245, 207, 1);
+      border-radius: 8px;
+      background-color: rgba(255, 252, 241, 1);
+      border: none;
     }
 
     .bar-name {
@@ -101,32 +117,59 @@ const STATUS_LABELS: Record<WorkOrderStatus, string> = {
 
     .status-badge {
       flex-shrink: 0;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 2px 8px;
-      border-radius: 12px;
+      padding: 4px 12px;
+      border-radius: 999px;
       white-space: nowrap;
-      font-family: var(--font-heading);
+      font-family: 'Circular-Std', 'CircularStd-Book', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 17px;
+      letter-spacing: normal;
+      opacity: 1;
     }
 
     .status-badge-open {
-      background: var(--color-status-open);
-      color: #ffffff;
+      width: 87px;
+      height: 22px;
+      border-radius: 5px;
+      background-color: rgba(209, 242, 255, 1);
+      color: rgba(0, 176, 191, 1);
+      text-align: center;
+      line-height: 22px;
+      padding: 0;
     }
 
     .status-badge-in-progress {
-      background: var(--color-status-in-progress);
-      color: #ffffff;
+      width: 87px;
+      height: 22px;
+      border-radius: 5px;
+      background-color: rgba(214, 216, 255, 1);
+      color: rgba(62, 64, 219, 1);
+      text-align: center;
+      line-height: 22px;
+      padding: 0;
     }
 
     .status-badge-complete {
-      background: var(--color-status-complete);
-      color: #ffffff;
+      width: 87px;
+      height: 22px;
+      border-radius: 5px;
+      background-color: rgba(209, 250, 179, 1);
+      color: rgba(8, 162, 104, 1);
+      text-align: center;
+      line-height: 22px;
+      padding: 0;
     }
 
     .status-badge-blocked {
-      background: var(--color-status-blocked);
-      color: #333333;
+      width: 87px;
+      height: 22px;
+      border-radius: 5px;
+      background-color: rgba(255, 235, 207, 1);
+      color: rgba(177, 54, 0, 1);
+      text-align: center;
+      line-height: 22px;
+      padding: 0;
     }
 
     .actions {

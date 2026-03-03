@@ -9,12 +9,13 @@
   height: 100%;
 }
 
-/* App header bar: design spec 1440×50, white, no border/padding */
+/* App header bar (NAOLOGIC bar): 1440×50, white; 45px vertical gap to "Work Orders" via .schedule-header padding-top */
 .app-header {
   box-sizing: border-box;
   width: 100%;
   max-width: 1440px;
   height: 50px;
+  min-height: 50px;
   background-color: rgba(255, 255, 255, 1);
   flex-shrink: 0;
   position: relative;

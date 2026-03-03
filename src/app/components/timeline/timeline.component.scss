@@ -1,5 +1,5 @@
 .timeline-container {
-  padding: 24px;
+  padding: 24px 24px 24px 102px;
   max-width: 100%;
   overflow: hidden;
 }
@@ -14,27 +14,11 @@
     margin-top: 12px;
   }
 
-  .btn-today {
-    padding: 8px 16px;
-    border: 1px solid var(--color-stroke);
-    border-radius: 8px;
-    background: white;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--color-primary);
-    cursor: pointer;
-    font-family: var(--font-heading);
-  }
-
-  .btn-today:hover {
-    background: var(--color-row-hover);
-  }
-
   .logo {
     font-size: 14px;
     font-weight: 600;
     color: var(--color-primary);
-    margin-bottom: 8px;
+    margin-bottom: 45px; /* space between NAOLOGIC and Work Orders */
   }
 
   .title {
@@ -46,21 +30,22 @@
 }
 
 .timeline-body {
-  background: white;
-  border-radius: 12px;
+  background-color: rgba(247, 249, 252, 1); /* extend year-column tint all the way to the bottom */
+  border-radius: 0;
   border: 1px solid var(--color-stroke);
   overflow: hidden;
 }
 
 .timeline-grid-wrapper {
   display: flex;
-  min-height: 300px;
+  min-height: 640px; /* extend grid so Work Center column and rows reach further toward bottom, like expected design */
 }
 
 .timeline-left {
   width: var(--timeline-left-width);
   flex-shrink: 0;
   border-right: 1px solid var(--color-stroke);
+  background-color: #ffffff; /* keep Work Center column white against tinted grid background */
 }
 
 .timeline-left-header {
@@ -100,6 +85,7 @@
 .timeline-grid {
   min-width: 100%;
   position: relative;
+  background-color: rgba(247, 249, 252, 1); /* subtle column-year/background tint */
 }
 
 .timeline-grid-header {

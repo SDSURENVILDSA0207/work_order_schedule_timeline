@@ -463,5 +463,73 @@ Each entry includes:
 
 ---
 
-New prompts and significant AI-assisted decisions will be appended here as the implementation progresses.
+## Prompt 32 – Timescale Control Pixel-Perfect & Remove Today Button
+
+- **Date**: 2026-03-03  
+- **Context**: Match the Timescale + Month segmented control to design (Rectangle 2 specs, shadow, spacing), add Hour option, and remove the separate Today button so the control looks like the reference screenshots.
+
+**Prompt text (paraphrased):**
+
+> Make the Timescale control look exactly like the design: “Timescale” text in a left rectangle, “Day/Month/…” in a right rectangle, shared shadow, 75×25 and 71×25 sizes, specific colors, and remove the Today button beside it.
+
+**Changes made:**
+- Rebuilt `TimescaleSelectorComponent` as a single composite control with:
+  - Left label segment (`Timescale`) – 75×25px, radius `5 0 0 5`, `#F1F3F8` 75% background.
+  - Right dropdown segment (Hour/Day/Week/Month) – 71×25px, radius `0 5 5 0`, white background, blue value + chevron, hidden native arrow.
+  - Shared border + NDS shadow so it appears as one pill; vertical divider between the two segments.
+- Added Hour to the timescale options.
+- Removed the standalone Today button and its styles from the timeline header so only the Timescale control remains.
+
+---
+
+## Prompt 33 – Work Order Bars & Status Pills Pixel-Perfect
+
+- **Date**: 2026-03-03  
+- **Context**: Make the work order bars and status pills (Open, In Progress, Complete, Blocked) match the design screenshots, including bar sizes, shadows, and pastel backgrounds per status.
+
+**Prompt text (paraphrased):**
+
+> For each status, style the bar and the pill exactly like the screenshots with the given widths, heights, border radius, box-shadow, and RGBA colors for “In Progress”, “Complete”, and “Blocked”; then apply a similar approach for “Open”.
+
+**Changes made:**
+- Updated `WorkOrderBarComponent` inline styles so:
+  - In-progress bar: `min-width: 381px`, height `38px`, box-shadow `0 0 0 1px rgba(222, 224, 255, 1)`, radius `8px`, background `rgba(237, 238, 255, 1)`.
+  - Complete bar: `min-width: 381px`, height `38px`, box-shadow `0 0 0 1px rgba(209, 250, 179, 1)`, radius `8px`, background `rgba(248, 255, 243, 1)`.
+  - Blocked bar: `min-width: 533px`, height `38px`, box-shadow `0 0 0 1px rgba(255, 245, 207, 1)`, radius `8px`, background `rgba(255, 252, 241, 1)`.
+- Restyled status pills:
+  - Base `.status-badge` now uses Circular Std Book, 14px, regular weight.
+  - In-progress pill: 87×22px, radius 5px, background `rgba(214, 216, 255, 1)`, blue text, centered.
+  - Complete pill: 87×22px, radius 5px, background `rgba(209, 250, 179, 1)`, green text, centered.
+  - Blocked pill: 87×22px, radius 5px, background `rgba(255, 235, 207, 1)`, orange text, centered.
+  - Open pill: 87×22px, radius 5px, background `rgba(209, 242, 255, 1)`, teal/blue text, centered.
+
+---
+
+## Prompt 34 – Timeline Layout, Background Tint, Current Indicator, and Logo Assets
+
+- **Date**: 2026-03-03  
+- **Context**: Align the full timeline layout to the design: extend grid height, apply a light background tint to the date grid down to the bottom, square off container corners, add a hover-based “Current …” bubble above the year/month columns, and swap NAOLOGIC logos to use the provided PNG asset.
+
+**Prompt text (paraphrased):**
+
+> Make the timeline area reach further down like the reference image, tint the year/month grid with rgba(247,249,252,1) all the way, remove rounded corners, show a “Current month/day/hour” rectangle when hovering the column headers, and switch the NAOLOGIC logo to the supplied PNG with specific 80×10px dimensions.
+
+**Changes made:**
+- Layout and background:
+  - Increased `.timeline-grid-wrapper` min-height so the grid and Work Center column extend closer to the bottom of the viewport.
+  - Set `.timeline-body` background to `rgba(247, 249, 252, 1)` and removed border radius to match the flat card in the design.
+  - Kept `.timeline-left` (Work Center column) white while tinting the right-hand grid.
+  - Applied the same tint to `.timeline-grid` so the year/month columns have the light background.
+- Current indicator:
+  - Restyled `.current-day-label` to a 109×22px pill (`border-radius: 5px`, `background-color: rgba(212, 215, 255, 1)`) with centered Circular Std Book 12px text in primary blue.
+  - Kept the existing logic that shows “Current hour/day/week/month” when today is in range, but added hover behaviour:
+    - Track the hovered column index/signals.
+    - When hovering a column header, show the same “Current …” pill above that column using the configured width/height and colors.
+- Logos:
+  - Updated the global app header to use `assets/Group 3@10x.png` with 80×10px dimensions at (101px, 20px) in the 50px header.
+  - Replaced the text NAOLOGIC label in the timeline header with the same PNG, styled to 80×10px with 45px spacing above “Work Orders”.
+
+---
+
+New prompts and significant AI-assisted decisions will continue to be appended here as the implementation progresses.
 

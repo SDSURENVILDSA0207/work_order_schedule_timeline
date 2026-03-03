@@ -1,7 +1,7 @@
-/* Schedule header: padding so "Work Orders" sits at 101px from left, 95px from viewport top (45px below 50px app header) */
+/* Schedule header: 240px vertical spacing (3×80px) between NAOLOGIC logo bar and "Work Orders"; 101px from left */
 .schedule-header {
   padding-left: 101px;
-  padding-top: 45px;
+  padding-top: 240px;
 }
 
 /* Work Orders title: design spec – position 101X 95Y, 142×34, H3 24 Style, Circular Std Medium */
@@ -24,54 +24,89 @@
   vertical-align: top;
 }
 
-/* Timescale control: position 101X 155Y; two segments (Rectangle 2 + Month dropdown) */
+/* Timescale control: position 101X 155Y; two segments flush (Rectangle 2 + Month dropdown) */
 .timescale-row {
   display: flex;
-  margin-top: 26px; /* 155 - (95 + 34) = 26px from title bottom to timescale top */
+  margin-top: 26px; /* 155 - (95 + 34) = 26px so timescale top is at 155Y */
+  align-items: stretch;
+  gap: 0;
 }
 
-/* Left segment: 75×25, radius 5 0 0 5, #F1F3F8 75% */
-.timescale-label {
+/* Composite control (per second image): one rounded box, light gray border, subtle shadow, vertical divider between segments */
+.timescale-control {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  border-radius: 5px;
+  border: 1px solid rgba(216, 220, 235, 1);
+  opacity: 1;
+  box-shadow:
+    0 1.5px 3px -1.5px rgba(200, 207, 233, 1),
+    0 1px 0.5px -1px rgba(216, 220, 235, 1);
+}
+
+/* Rectangle 2 – background for Timescale: 75×25, radius 5 0 0 5, #F1F3F8 75% */
+.timescale-label-wrap {
   box-sizing: border-box;
   width: 75px;
   height: 25px;
   border-radius: 5px 0 0 5px;
   background-color: rgba(241, 243, 248, 0.75);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   padding: 0;
-  font-family: "Circular-Std", sans-serif;
-  font-size: 12px;
-  color: rgba(3, 9, 41, 1);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
   opacity: 1;
+}
+
+/* Timescale text: 109X 159Y (8px left, 4px top inside Rectangle 2), 59×16, Text-Primary #687196, Circular Std Book 13px */
+.timescale-label {
+  box-sizing: border-box;
+  width: 59px;
+  height: 16px;
+  margin: 4px 0 0 8px;
+  padding: 0;
+  border: none;
+  color: rgba(104, 113, 150, 1);
+  font-family: "Circular-Std", "CircularStd-Book", sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 16px;
+  letter-spacing: normal;
+  opacity: 1;
+  text-align: left;
+  vertical-align: top;
 }
 
 .timescale-dropdown-wrap {
   position: relative;
 }
 
-/* Right segment: 71×25, radius 0 5 5 0, same fill (Nao Design System); image: light grey when open */
+/* Right segment (Timescale dropdown – Day/Month): 71×25, radius 0 5px 5px 0, vertical divider on left */
 .timescale-dropdown {
   box-sizing: border-box;
   width: 71px;
+  min-width: 71px;
   height: 25px;
+  min-height: 25px;
   border: none;
+  border-left: 1px solid rgba(216, 220, 235, 1);
   border-radius: 0 5px 5px 0;
-  background-color: rgba(241, 243, 248, 0.75);
+  background-color: rgba(255, 255, 255, 1);
+  padding: 0 6px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 6px;
   font-family: "Circular-Std", sans-serif;
   font-size: 12px;
-  color: rgba(3, 9, 41, 1);
+  color: var(--color-primary);
   opacity: 1;
   cursor: pointer;
   text-align: left;
 
   &:hover {
-    background-color: rgba(241, 243, 248, 1);
+    background-color: rgba(241, 243, 248, 0.5);
   }
 }
 
@@ -81,7 +116,8 @@
 
 .timescale-chevron {
   font-size: 10px;
-  opacity: 0.8;
+  opacity: 1;
+  color: var(--color-primary);
 }
 
 /* Open menu: dark grey text, light grey background (image) */

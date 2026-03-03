@@ -18,8 +18,12 @@ All AI prompts used during development are logged in `AIPROMPTS.md`.
 
 The following are **implemented** and aligned with the spec and design:
 
-- **Timeline grid** – **Hour**/Day/Week/Month zoom, scrollable grid, fixed left work-center column, current hour/day/week/month indicator.
-- **Work order bars** – Name, **status badge (pill/tag)**, three-dot menu (Edit/Delete); bar position from start/end dates; status colors per design.
+- **Timeline grid** – **Hour**/Day/Week/Month zoom, scrollable grid, fixed left work-center column, current hour/day/week/month indicator, and a light year/month background tint (`rgba(247, 249, 252, 1)`) that extends down to the bottom of the timeline card.
+- **Work order bars** – Name, **status badge (pill/tag)**, three-dot menu (Edit/Delete); bar position from start/end dates. Bars and pills are styled per status to match the reference design:
+  - **Open**: bar ~381×38px with soft blue background and outline; pill 87×22px (radius 5), light aqua background, teal/blue text.
+  - **In progress**: bar 381×38px with periwinkle background and outline; pill 87×22px (radius 5), solid light purple background, blue text.
+  - **Complete**: bar 381×38px with pale green background and outline; pill 87×22px (radius 5), light green background, green text.
+  - **Blocked**: bar 533×38px with cream background and outline; pill 87×22px (radius 5), light peach background, orange text.
 - **Create/Edit panel (pixel-perfect)** – Single slide-out panel **591×1024px**, border-radius 12px 0 0 12px, three box-shadows. **Header:** "Work Order Details" (20px Medium #2F3059), subtitle "Specify the dates, name and status for this order" (16px Book); **Cancel** and **Create/Save** in header top-right (66×32px, 7px radius, exact shadows). **Separator** line below subtitle (1px solid rgba(230,235,240)); 24px spacing to first field. Reactive Forms: Work Order Name, Status (ng-select), **End date** then **Start date** (order and labels). Create: start date from **click position**, end date **start + 7 days**. Cancel/backdrop/**Escape** close; end-date validator.
 - **Status dropdown** – **Selected value** in field: styled pill per status (open: teal bg + border; in progress/complete/blocked: status backgrounds). **Dropdown list** when open: plain text, status-specific colors (open blue, in progress/complete dark grey, blocked very dark). **No clear (X) button** (`clearable: false`).
 - **Date fields** – **End date** first, **Start date** second. Labels "End date"/"Start date" (542×16, rgba(104,113,150), 14px 500). Inputs **Rectangle 7**: 542×38px, border-radius 5px, three box-shadows, white bg; **no calendar icon**; display/parse **dd.MM.yyyy** with "." separator (e.g. 01.01.2026). Section size 542×62px per date block.
@@ -29,7 +33,7 @@ The following are **implemented** and aligned with the spec and design:
 
 **How to run:** `npm install` then `ng serve`. See section 1 for setup details.
 
-**AI prompts:** All prompts used during implementation are logged in `AIPROMPTS.md` (Prompts 1–31), including pixel-perfect panel, separator, status/date styling, and documentation updates.
+**AI prompts:** All prompts used during implementation are logged in `AIPROMPTS.md` (Prompts 1–34), including pixel-perfect panel, separator, status/date styling, timescale control, work order bar/pill styling, background tint, current-indicator behaviour, and documentation updates.
 
 ---
 
@@ -63,10 +67,10 @@ The following are **implemented** and aligned with the spec and design:
 
 ### 2.1 App shell and global header
 
-- **App root** (`app.component`): Renders the global layout (header + timeline page).
+- **App root** (`app.component` / `App`): Renders the global layout (header + timeline page). The main implementation uses the standalone `TimelineComponent`, bootstrapped via `app.html`.
 - **App header**: Top bar matching design spec:
   - **Header rectangle**: Full width (max-width 1440px), height 50px, background `#FFFFFF`, no border, no padding, `box-sizing: border-box`.
-  - **NAOLOGIC logo**: Position `101px` from left, `20px` from top; size `80px × 10px`; opacity 100%. Asset: `assets/logo.png` with `object-fit: contain` to preserve aspect ratio.
+  - **NAOLOGIC logo**: Position `101px` from left, `20px` from top; size `80px × 10px`; opacity 100%. Asset: `assets/Group 3@10x.png` with `object-fit: contain` to preserve aspect ratio.
 
 ### 2.2 Schedule header and "Work Orders" title
 
