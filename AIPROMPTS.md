@@ -680,5 +680,108 @@ Each entry includes:
 
 ---
 
+## Prompt 45 – Current Month/Day/Week/Hour Badge (Design Spec)
+
+- **Date**: 2026-03-03  
+- **Context**: Add a badge showing "Current month", "Current day", "Current week", or "Current hour" based on timescale selection, with exact dimensions and typography.
+
+**Prompt text (paraphrased):**
+
+> Add a badge for Current month, day, week, hour based on the timescale selected from the dropdown. Badge: width 109px; height 22px; border-radius 5px; background rgba(212, 215, 255, 1). Inner text: 93×18px; color rgba(62, 64, 219, 1); font CircularStd-Book 14px weight 400.
+
+**Changes made:**
+- **timeline.component.html**: Badge row and badge div with text bound to zoom (Current hour/day/week/month). Badge positioned at `todayCellLeft()` (see Prompt 47).
+- **timeline.component.scss**: `.current-day-badge` styled to 109×22px, border-radius 5px, background rgba(212, 215, 255, 1), text color rgba(62, 64, 219, 1), Circular Std 14px 400. Badge row added below column headers; badge later moved to dedicated row (Prompt 46).
+
+---
+
+## Prompt 46 – Badge Below Column Head; Stick to Bottom-Left, No Space
+
+- **Date**: 2026-03-03  
+- **Context**: Badge should sit right below the column header row with no gap, and align to the bottom-left of the current date column.
+
+**Prompt text (paraphrased):**
+
+> The badge should be right below the column head. Badge should stick towards the bottom left of the column header without any space between the bottom and the badge top.
+
+**Changes made:**
+- **timeline.component.html**: Badge moved from inside header to a dedicated `.timeline-badge-row` below the column headers.
+- **timeline.component.scss**: `.timeline-badge-row` height 22px (then 27px in Prompt 49); `.current-day-badge` given `top: 0`, left from `todayCellLeft()` so badge left edge aligns with cell; no vertical centering so badge top touches header bottom.
+
+---
+
+## Prompt 47 – Vertical Line and Badge at Left Edge of Cell
+
+- **Date**: 2026-03-03  
+- **Context**: The vertical "current" line and badge should align to the left edge of the current date cell, not a fractional position.
+
+**Prompt text (paraphrased):**
+
+> The vertical line that represents the current month, day, week, hour should always stick from the left edge of the cell.
+
+**Changes made:**
+- **timeline.component.ts**: Added `todayCellLeft` computed: `Math.floor(todayPosition() / colWidth()) * colWidth()` so position snaps to the left edge of the cell containing today.
+- **timeline.component.html**: Badge and `.current-day-indicator` use `[style.left.px]="todayCellLeft()"` instead of `todayPosition()`.
+
+---
+
+## Prompt 48 – Vertical Line Color and Start Below Column Header
+
+- **Date**: 2026-03-03  
+- **Context**: Change line color; line must start below the column header and badge row and not overlap them.
+
+**Prompt text (paraphrased):**
+
+> Make the color of the line to background-color: rgba(237, 238, 255, 1). The vertical line should only start below the column header and should not overlap the column.
+
+**Changes made:**
+- **timeline.component.scss**: `.current-day-indicator` given `background-color: rgba(237, 238, 255, 1)` and `top: calc(var(--timeline-header-height) + 27px)` (updated to 27px when badge row height changed) so the line starts below the header and badge row; `bottom: 0` kept so it extends to the bottom of the grid.
+
+---
+
+## Prompt 49 – First Row 9px Gap, Badge 18px Overlap, Work Center Alignment
+
+- **Date**: 2026-03-03  
+- **Context**: First timeline row should have 9px gap from header/badge; badge row should overlap the first row by 18px; first work center label should have 9px gap so timeline and work center align.
+
+**Prompt text (paraphrased):**
+
+> The first row in the work order timeline should have a gap of 9px from the header and the badge. The badge which has the gap of 18px should overlap the first row timeline if exist. The first work center from the list should also have the gap of 9px so the timeline and work center is always align.
+
+**Changes made:**
+- **timeline.component.scss**: `.timeline-left-header` given `margin-bottom: 9px`. `.timeline-badge-row` height set to 27px (22 badge + 5px) so with first row `margin-top: -18px` the first row starts at 53px (aligns with left). `.timeline-row.first-row` given `margin-top: 9px` when no badge; `.timeline-grid.has-badge .timeline-row.first-row` given `margin-top: -18px` so badge row overlaps first row by 18px. `.current-day-indicator` top updated to `calc(var(--timeline-header-height) + 27px)`.
+- **timeline.component.html**: `[class.first-row]="$first"` on first timeline row; `[class.has-badge]="isTodayInRange()"` on `.timeline-grid`.
+
+---
+
+## Prompt 50 – Timeline Full Screen, Vertical Line to Bottom
+
+- **Date**: 2026-03-03  
+- **Context**: Work order timeline should cover the entire screen; vertical line for current month/day/week/hour should extend to the bottom of the screen.
+
+**Prompt text (paraphrased):**
+
+> The work order timeline should cover the entire screen and the vertical line for the current month, day, week, hour should extend the bottom of the screen.
+
+**Changes made:**
+- **timeline.component.scss**: `.timeline-container` given `display: flex`, `flex-direction: column`, `min-height: 100vh`. `.timeline-body` given `flex: 1`, `min-height: 0`, `display: flex`, `flex-direction: column`. `.timeline-grid-wrapper` given `flex: 1`, `min-height: 0` (replacing fixed min-height 640px). `.timeline-grid-scroll` given `min-height: 0`. `.timeline-grid` given `min-height: 100%` so the grid fills the scroll area and the vertical line (with `bottom: 0`) extends to the bottom of the viewport.
+
+---
+
+## Prompt 51 – Update AIPROMPTS and README
+
+- **Date**: 2026-03-03  
+- **Context**: Add recent AI assistance to AIPROMPTS.md and update README.md.
+
+**Prompt text (paraphrased):**
+
+> Add AIPROMPTS.md and update README.md.
+
+**Changes made:**
+- **AIPROMPTS.md**: Appended Prompts 45–51 (Current month/day/week/hour badge and placement; badge below column head and bottom-left; vertical line and badge at cell left edge; line color and start below header; first row 9px gap and 18px badge overlap and work center alignment; timeline full screen and line to bottom; this documentation update).
+- **README.md**: Updated “Implementation Status & Recent Changes” and “AI prompts” reference to include Prompts 45–51 and the corresponding behaviour (badge, line alignment, full-screen timeline).
+
+---
+
 New prompts and significant AI-assisted decisions will continue to be appended here as the implementation progresses.
 

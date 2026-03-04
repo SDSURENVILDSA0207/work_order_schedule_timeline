@@ -172,18 +172,7 @@ export class TimelineService {
     return columns.length * colWidth;
   }
 
-  getColumnWidth(zoom: TimelineZoom): number {
-    switch (zoom) {
-      case 'hour':
-        return 40;
-      case 'day':
-        return 80;
-      case 'week':
-        return 120;
-      case 'month':
-        return 160;
-      default:
-        return 80;
-    }
+  getColumnWidth(_zoom: TimelineZoom): number {
+    return 116;
   }
 }

@@ -24,7 +24,7 @@ export class TimelineComponent {
   protected workOrderService = inject(WorkOrderService);
   protected timelineService = inject(TimelineService);
 
-  zoom = signal<TimelineZoom>('day');
+  zoom = signal<TimelineZoom>('month');
   hoveredRowId = signal<string | null>(null);
   /** X position (px) of pointer in timeline content; used to show "Click to add dates" at hovered cell. */
   hoveredCellX = signal<number | null>(null);
@@ -58,6 +58,12 @@ export class TimelineComponent {
       this.zoom()
     );
     return pos;
+  });
+  /** Left edge of the cell containing today (so vertical line and badge stick to cell left). */
+  todayCellLeft = computed(() => {
+    const pos = this.todayPosition();
+    const cw = this.colWidth();
+    return Math.floor(pos / cw) * cw;
   });
   isTodayInRange = computed(() => {
     const today = new Date();

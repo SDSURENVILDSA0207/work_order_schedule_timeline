@@ -34,10 +34,14 @@ The following are **implemented** and aligned with the spec and design:
 - **Row hover** – Full row (left label + grid) uses **rgba(238, 240, 255, 1)** on hover (`--color-row-hover` and `.timeline-row.hovered`).
 - **Timescale dropdown** – Custom flat panel (no native select): 200×136px, design box-shadow and border-radius 5px; left edge aligned with full timescale box; selected option highlighted with blue text only (no checkmark); Hour, Day, Week, Month options.
 - **“Click to add dates”** – Shown only in **empty cells** (no overlap with work order bars); work order bars have higher z-index so the three-dot menu is always clickable; single custom tooltip, smooth box-in then tooltip fade-in.
+- **Current indicator badge** – Badge (“Current hour/day/week/month”) based on timescale: 109×22px, radius 5px, background rgba(212, 215, 255, 1), text rgba(62, 64, 219, 1), Circular Std 14px; placed in a row **below** the date column headers, left-aligned to the current date cell (`todayCellLeft`).
+- **Current vertical line** – Color rgba(237, 238, 255, 1); starts **below** the header and badge row; aligned to the **left edge** of the current date cell; extends to the bottom of the screen.
+- **First row spacing** – First timeline row has 9px gap from header; when “today” is in range, badge row overlaps the first row by 18px; first work center label has 9px gap so timeline and work center align.
+- **Full-screen timeline** – Timeline container uses `min-height: 100vh` and flex so the grid and vertical line extend to the bottom of the viewport.
 
 **How to run:** `npm install` then `ng serve`. See section 1 for setup details.
 
-**AI prompts:** All prompts used during implementation are logged in `AIPROMPTS.md` (Prompts 1–44), including pixel-perfect panel, separator, status/date styling, timescale control, work order bar/pill styling, background tint, current-indicator behaviour, placeholder/tooltip visibility and single-tooltip behaviour, “Click to add dates” on any cell, grid header white, Timescale dropdown flat design and positioning, Work Center width 380px, row hover color, placeholder layering (empty cells only, bars above placeholder), and documentation updates.
+**AI prompts:** All prompts used during implementation are logged in `AIPROMPTS.md` (Prompts 1–51), including pixel-perfect panel, separator, status/date styling, timescale control, work order bar/pill styling, background tint, current-indicator behaviour, placeholder/tooltip visibility and single-tooltip behaviour, “Click to add dates” on any cell, grid header white, Timescale dropdown flat design and positioning, Work Center width 380px, row hover color, placeholder layering (empty cells only, bars above placeholder), Current badge and placement, vertical line at cell left edge and below header, first-row gap and badge overlap, full-screen timeline and line to bottom, and documentation updates.
 
 ---
 

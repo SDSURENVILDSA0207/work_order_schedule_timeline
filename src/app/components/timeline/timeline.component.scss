@@ -1,4 +1,7 @@
 .timeline-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
   padding: 24px 24px 24px 102px;
   max-width: 100%;
   overflow: visible; /* allow "Click to add dates" tooltip to show above first row */
@@ -30,6 +33,10 @@
 }
 
 .timeline-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   background-color: rgba(244, 245, 255, 1); /* lavender tint – extends to bottom of card */
   border-radius: 0;
   border: 1px solid var(--color-stroke);
@@ -38,7 +45,8 @@
 
 .timeline-grid-wrapper {
   display: flex;
-  min-height: 640px; /* extend grid so Work Center column and rows reach further toward bottom, like expected design */
+  flex: 1;
+  min-height: 0; /* allow flex child to shrink so scroll works */
 }
 
 .timeline-left {
@@ -50,40 +58,43 @@
 
 .timeline-left-header {
   height: var(--timeline-header-height);
-  padding: 0 16px;
+  margin-bottom: 9px; /* gap so first work center aligns with first timeline row */
+  padding: 0 16px 0 31px;
   display: flex;
   align-items: center;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-text-labels);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 1px solid var(--color-stroke);
+  color: rgba(104, 113, 150, 1);
+  font-family: 'CircularStd-Regular', 'Circular Std', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 16px;
 }
 
 .timeline-row-label {
   height: var(--timeline-row-height);
-  padding: 0 16px;
+  padding: 0 16px 0 31px;
   display: flex;
   align-items: center;
+  color: rgba(3, 9, 41, 1);
+  font-family: 'CircularStd-Regular', 'Circular Std', sans-serif;
   font-size: 14px;
-  color: var(--color-text-primary);
-  border-bottom: 1px solid var(--color-stroke);
+  font-weight: 500;
   transition: background 0.15s ease;
 
   &.hovered {
-    background: var(--color-row-hover);
+    background: rgba(104, 113, 150, 0.06);
   }
 }
 
 .timeline-grid-scroll {
   flex: 1;
+  min-height: 0;
   overflow-x: auto;
   overflow-y: visible; /* allow tooltip above first row to show */
 }
 
 .timeline-grid {
   min-width: 100%;
+  min-height: 100%; /* fill scroll area so vertical line extends to bottom of screen */
   position: relative;
   background-color: rgba(244, 245, 255, 1); /* same lavender as rows – stretches to bottom */
 }
@@ -91,8 +102,38 @@
 .timeline-grid-header {
   display: flex;
   height: var(--timeline-header-height);
-  border-bottom: 1px solid var(--color-stroke);
   background-color: #ffffff; /* match WORK CENTER column – first bar (week1, week2, …) */
+}
+
+/* Row right below column head: badge 22px + 5px; total 27px so with first row margin-top -18px, first row starts at 44+27-18=53px (aligns with left) and 18px overlaps */
+.timeline-badge-row {
+  position: relative;
+  height: 27px;
+  flex-shrink: 0;
+  background-color: rgba(244, 245, 255, 1);
+}
+
+/* Badge: bottom-left of column header, no space between header bottom and badge top */
+.current-day-badge {
+  position: absolute;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 109px;
+  height: 22px;
+  border-radius: 5px;
+  background-color: rgba(212, 215, 255, 1);
+  white-space: nowrap;
+  color: rgba(62, 64, 219, 1);
+  font-family: 'Circular-Std', 'CircularStd-Book', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 18px;
+  z-index: 3;
+  pointer-events: none;
 }
 
 .timeline-col-header {
@@ -102,44 +143,60 @@
   align-items: center;
   font-size: 12px;
   color: var(--color-text-labels);
-  border-right: 1px solid var(--color-stroke);
+}
+
+/* Vertical column lines: from below header (and badge) to bottom of grid */
+.timeline-column-lines {
+  position: absolute;
+  top: var(--timeline-header-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.timeline-grid.has-badge .timeline-column-lines {
+  top: calc(var(--timeline-header-height) + 27px);
+}
+
+.timeline-col-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: rgba(0, 0, 0, 0.06);
 }
 
 .current-day-indicator {
   position: absolute;
-  top: 0;
+  top: calc(var(--timeline-header-height) + 27px); /* start below column header + badge row */
   bottom: 0;
   width: 2px;
-  background: var(--color-current-day);
+  background-color: rgba(101, 112, 255, 0.2);
   z-index: 2;
   pointer-events: none;
-
-  .current-day-label {
-    position: absolute;
-    top: -22px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 10px;
-    font-weight: 500;
-    color: var(--color-text-labels);
-    white-space: nowrap;
-    padding: 2px 8px;
-    border-radius: 10px;
-    background: var(--color-current-month-bg);
-  }
 }
 
 .timeline-row {
   height: var(--timeline-row-height);
-  border-bottom: 1px solid var(--color-stroke);
   position: relative;
   cursor: pointer;
   background-color: rgba(244, 245, 255, 1); /* default row background */
   transition: background 0.15s ease;
 
+  &.first-row {
+    margin-top: 9px; /* gap from header when no badge */
+  }
+
   &.hovered {
     background-color: rgba(238, 240, 255, 1); /* row hover from design */
   }
+}
+
+/* When badge row is shown, first row overlaps it by 18px so first row starts at 53px (aligns with left) */
+.timeline-grid.has-badge .timeline-row.first-row {
+  margin-top: -18px;
 }
 
 .timeline-row-inner {
@@ -201,6 +258,7 @@
   background-color: rgba(232, 231, 255, 1);
   border: 1px solid rgba(195, 199, 255, 1);
   box-sizing: border-box;
+  opacity: 1;
 }
 
 .add-dates-tooltip {
@@ -208,7 +266,7 @@
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   padding: 6px 10px;
   background-color: rgba(47, 48, 89, 1);
   color: #fff;
@@ -219,8 +277,9 @@
   pointer-events: none;
   z-index: 20;
   opacity: 0;
-  animation: tooltip-fade-in 0.1s ease-out 0.08s forwards; /* pops up ~80ms after box */
+  transition: opacity 0.1s ease-out 0.08s;
 
+  /* Arrow points down to the placeholder bar below */
   &::after {
     content: '';
     position: absolute;
@@ -230,8 +289,12 @@
     border: 5px solid transparent;
     border-top-color: rgba(47, 48, 89, 1);
   }
+}
 
-  &.visible {
-    opacity: 1;
-  }
+.add-dates-placeholder-wrapper:hover {
+  z-index: 10; /* tooltip and placeholder over work order bars when hovered */
+}
+
+.add-dates-placeholder-wrapper:hover .add-dates-tooltip {
+  opacity: 1;
 }

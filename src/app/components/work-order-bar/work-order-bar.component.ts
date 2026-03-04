@@ -15,11 +15,13 @@ const STATUS_LABELS: Record<WorkOrderStatus, string> = {
     '(click)': 'onBarClick($event)',
     '[style.left.px]': 'left()',
     '[style.width.px]': 'width()',
+    '[class.dropdown-open]': 'menuOpen()',
   },
   template: `
     <div
       class="work-order-bar"
       [class]="'status-' + order().data.status"
+      [class.menu-open]="menuOpen()"
     >
       <span class="bar-name">{{ order().data.name }}</span>
       <span
@@ -32,13 +34,14 @@ const STATUS_LABELS: Record<WorkOrderStatus, string> = {
           class="actions-btn"
           (click)="toggleMenu($event)"
           aria-label="Actions"
+          [attr.aria-expanded]="menuOpen()"
         >
-          ⋮
+          ⋯
         </button>
         @if (menuOpen()) {
           <div class="actions-dropdown" (click)="$event.stopPropagation()">
-            <button type="button" (click)="onEdit()">Edit</button>
-            <button type="button" (click)="onDelete()">Delete</button>
+            <button type="button" class="actions-dropdown-edit" (click)="onEdit()">Edit</button>
+            <button type="button" class="actions-dropdown-delete" (click)="onDelete()">Delete</button>
           </div>
         }
       </div>
@@ -55,6 +58,10 @@ const STATUS_LABELS: Record<WorkOrderStatus, string> = {
       z-index: 2; /* above placeholder so three-dot menu is always clickable */
     }
 
+    :host.dropdown-open {
+      z-index: 100;
+    }
+
     .work-order-bar {
       position: relative;
       width: 100%;
@@ -67,6 +74,7 @@ const STATUS_LABELS: Record<WorkOrderStatus, string> = {
       padding: 0 8px 0 12px;
       box-sizing: border-box;
       cursor: default;
+      opacity: 1;
     }
 
     .work-order-bar.status-open {
@@ -176,42 +184,61 @@ const STATUS_LABELS: Record<WorkOrderStatus, string> = {
     .actions {
       position: relative;
       flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    .work-order-bar:hover .actions,
+    .work-order-bar.menu-open .actions {
+      opacity: 1;
     }
 
     .actions-btn {
-      background: none;
+      width: 24px;
+      height: 22px;
+      border-radius: 5px;
+      background-color: rgba(241, 243, 248, 1);
       border: none;
-      padding: 4px;
+      padding: 0;
       cursor: pointer;
       font-size: 16px;
       line-height: 1;
       color: var(--color-text-labels);
-      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .actions-btn:hover {
-      background: rgba(0, 0, 0, 0.06);
+      background-color: rgba(228, 230, 238, 1);
       color: var(--color-text-primary);
     }
 
     .actions-dropdown {
       position: absolute;
       top: 100%;
-      right: 0;
+      left: 0;
       margin-top: 4px;
-      background: white;
-      border: 1px solid var(--color-stroke);
-      border-radius: 8px;
-      box-shadow: var(--shadow-dropdown);
-      min-width: 100px;
-      z-index: 10;
+      width: 200px;
+      height: 80px;
+      box-shadow: 0 0 0 1px rgba(104, 113, 150, 0.1),
+        0 2.5px 3px -1.5px rgba(200, 207, 233, 1),
+        0 4.5px 5px -1px rgba(216, 220, 235, 1);
+      border-radius: 5px;
+      background-color: rgba(255, 255, 255, 1);
+      border: none;
+      z-index: 100;
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
 
     .actions-dropdown button {
-      display: block;
+      flex: 1;
+      display: flex;
+      align-items: center;
       width: 100%;
-      padding: 8px 12px;
+      padding: 0 12px;
       border: none;
       background: none;
       text-align: left;
@@ -220,8 +247,20 @@ const STATUS_LABELS: Record<WorkOrderStatus, string> = {
       font-family: var(--font-heading);
     }
 
-    .actions-dropdown button:hover {
-      background: #f5f5f5;
+    .actions-dropdown-edit {
+      color: rgba(47, 48, 89, 1);
+    }
+
+    .actions-dropdown-edit:hover {
+      background: rgba(241, 243, 248, 1);
+    }
+
+    .actions-dropdown-delete {
+      color: rgba(62, 64, 219, 1);
+    }
+
+    .actions-dropdown-delete:hover {
+      background: rgba(241, 243, 248, 1);
     }
   `,
 })

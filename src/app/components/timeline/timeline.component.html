@@ -31,6 +31,7 @@
       <div class="timeline-grid-scroll" #gridScroll>
         <div
           class="timeline-grid"
+          [class.has-badge]="isTodayInRange()"
           [style.width.px]="totalWidth()"
         >
           <!-- Column headers -->
@@ -42,20 +43,41 @@
             }
           </div>
 
-          <!-- Current month/day indicator -->
+          <!-- Badge row: right below column head, badge at left edge of current date cell -->
+          @if (isTodayInRange()) {
+            <div class="timeline-badge-row">
+              <div
+                class="current-day-badge"
+                [style.left.px]="todayCellLeft()"
+              >
+                {{ zoom() === 'hour' ? 'Current hour' : zoom() === 'day' ? 'Current day' : zoom() === 'week' ? 'Current week' : 'Current month' }}
+              </div>
+            </div>
+          }
+
+          <!-- Vertical column lines: from below header/badge to bottom of grid -->
+          <div class="timeline-column-lines">
+            @for (col of columns(); track col.label; let i = $index) {
+              <div
+                class="timeline-col-line"
+                [style.left.px]="i * colWidth()"
+              ></div>
+            }
+          </div>
+
+          <!-- Current day vertical line: at left edge of current date cell -->
           @if (isTodayInRange()) {
             <div
               class="current-day-indicator"
-              [style.left.px]="todayPosition()"
-            >
-              <span class="current-day-label">{{ zoom() === 'hour' ? 'Current hour' : zoom() === 'day' ? 'Current day' : zoom() === 'week' ? 'Current week' : 'Current month' }}</span>
-            </div>
+              [style.left.px]="todayCellLeft()"
+            ></div>
           }
 
           <!-- Work center rows -->
           @for (wc of workCenters(); track wc.docId) {
             <div
               class="timeline-row"
+              [class.first-row]="$first"
               [class.hovered]="hoveredRowId() === wc.docId"
               (mouseenter)="onRowMouseEnter(wc.docId, $event)"
               (mousemove)="onRowMouseMove(wc.docId, $event)"
@@ -72,7 +94,7 @@
                       [style.width.px]="cell.width"
                       aria-label="Click to add dates"
                     >
-                      <div class="add-dates-tooltip visible">Click to add dates</div>
+                      <div class="add-dates-tooltip">Click to add dates</div>
                       <div class="add-dates-placeholder-slot" aria-label="Click to add dates"></div>
                     </div>
                   }
