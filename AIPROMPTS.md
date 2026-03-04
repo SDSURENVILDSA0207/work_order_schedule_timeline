@@ -931,5 +931,133 @@ Each entry includes:
 
 ---
 
+## Prompt 62 – Status Dropdown Option Spacing
+
+- **Date**: 2026-03-04  
+- **Context**: Reduce vertical space between status options in the Work Order Details panel dropdown.
+
+**Prompt text (paraphrased):**
+
+> In work order detail panel, I want the space between status options in dropdown to be less.
+
+**Changes made:**
+- **work-order-panel.component.html**: Added `class="status-select"` to the status `ng-select`.
+- **work-order-panel.component.scss**: `::ng-deep .status-select .ng-dropdown-panel .ng-dropdown-panel-items .ng-option` – reduced padding-top/bottom from default 8px to 4px.
+
+---
+
+## Prompt 63 – Status Dropdown Box Shadow
+
+- **Date**: 2026-03-04  
+- **Context**: Apply custom box-shadow to the status dropdown panel.
+
+**Prompt text (paraphrased):**
+
+> Add box shadow for status dropdown: 0 0 0 1px rgba(104, 113, 150, 0.1), 0 2.5px 3px -1.5px rgba(200, 207, 233, 1), 0 4.5px 5px -1px rgba(216, 220, 235, 1).
+
+**Changes made:**
+- **work-order-panel.component.scss**: Added box-shadow to `.status-select .ng-dropdown-panel` (later updated in Prompt 64).
+
+---
+
+## Prompt 64 – Status Dropdown Panel: Box Shadow, Border-Radius, Background
+
+- **Date**: 2026-03-04  
+- **Context**: Update status dropdown panel with specific box-shadow, border-radius, and background.
+
+**Prompt text (paraphrased):**
+
+> Update based on this CSS: box-shadow 0 5px 15px 0 rgba(216, 220, 235, 1), 0 2.5px 3px -1.5px rgba(200, 207, 233, 1), 0 4.5px 5px -1px rgba(216, 220, 235, 1); border-radius: 12px 0 0 12px; background-color: rgba(255, 255, 255, 1).
+
+**Changes made:**
+- **work-order-panel.component.scss**: Replaced dropdown panel box-shadow; set `border-radius: 12px 0 0 12px`; set `background-color: rgba(255, 255, 255, 1)`.
+
+---
+
+## Prompt 65 – Remove Default Highlight on Selected Status Option
+
+- **Date**: 2026-03-04  
+- **Context**: Remove the default ng-select background highlight on the selected option in the status dropdown.
+
+**Prompt text (paraphrased):**
+
+> Remove default highlight in the background of selected option in status dropdown.
+
+**Changes made:**
+- **work-order-panel.component.scss**: `.ng-option.ng-option-selected` and `.ng-option-selected.ng-option-marked` set to `background-color: transparent`.
+
+---
+
+## Prompt 66 – Selected Status Option in Primary Color
+
+- **Date**: 2026-03-04  
+- **Context**: The selected option in the dropdown should use the primary (open) font color.
+
+**Prompt text (paraphrased):**
+
+> In status dropdown the font highlight for "open" should be for the selected status option. Right now the default color of open should be for the selected option (primary).
+
+**Changes made:**
+- **work-order-panel.component.scss**: Added rule so `.ng-option.ng-option-selected .status-option-label` uses primary blue `rgba(62, 64, 219, 1)` (with exception for Blocked, later relaxed in Prompt 69).
+
+---
+
+## Prompt 67 – Primary Only for Selected; Blocked Exception Then Removed
+
+- **Date**: 2026-03-04  
+- **Context**: Primary color only for the selected option; keep rest default; Blocked when selected was first kept as-is, then (Prompt 69) also use primary.
+
+**Prompt text (paraphrased):**
+
+> The primary color are only for selected and keep rest as default (in progress, complete). Keep block as it is. / When click in progress the color of in progress should be changed and rest back to normal – similar logic for others.
+
+**Changes made:**
+- Explicit rules for non-selected options (default dark) and selected option (primary); initially selected Blocked excluded from primary (`:not(.status-option-blocked)`), then (Prompt 69) included so all selected options use primary.
+
+---
+
+## Prompt 68 – Non-Selected Open Same as Others; Blocked Default Color
+
+- **Date**: 2026-03-04  
+- **Context**: When another option is selected, "Open" should not stay blue; non-selected Blocked should use a specific default color.
+
+**Prompt text (paraphrased):**
+
+> When I click in progress, the color of open is still same as in progress and not default black. / Set default color for Blocked when not selected: rgba(3, 9, 41, 1). / Set the default color for open, in progress, complete to color: rgba(47, 48, 89, 1).
+
+**Changes made:**
+- Non-selected Open, In progress, Complete all use `rgba(47, 48, 89, 1)`; non-selected Blocked uses `rgba(3, 9, 41, 1)`. Base `.status-option-open`, `.status-option-in-progress`, `.status-option-complete` set to `rgba(47, 48, 89, 1)`.
+
+---
+
+## Prompt 69 – Blocked When Selected Same as Other Selected Options
+
+- **Date**: 2026-03-04  
+- **Context**: When Blocked is selected, it should use the same primary color as other selected options.
+
+**Prompt text (paraphrased):**
+
+> When selected blocked it should be the color above when selected.
+
+**Changes made:**
+- **work-order-panel.component.scss**: Removed `:not(.status-option-blocked)` from the selected-option rule so `.ng-option.ng-option-selected .status-option-label` always uses primary blue, including Blocked.
+
+---
+
+## Prompt 70 – Write AIPROMPTS.md and README.md
+
+- **Date**: 2026-03-04  
+- **Context**: Create/update project documentation: AIPROMPTS.md and README.md.
+
+**Prompt text:**
+
+> Write AIPROMPS.md and README.md
+
+**Changes made:**
+- **README.md**: Rewritten as project README (overview, features, quick start, scripts, tech stack, structure, implementation summary, link to AIPROMPTS.md).
+- **AIPROMPTS.md**: Appended Prompts 62–70 (status dropdown spacing, box-shadow, panel styling, remove selected highlight, selected option primary color, non-selected defaults, Blocked default and selected color, documentation update).
+
+---
+
 New prompts and significant AI-assisted decisions will continue to be appended here as the implementation progresses.
 

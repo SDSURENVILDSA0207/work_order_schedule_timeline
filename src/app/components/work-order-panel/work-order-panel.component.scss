@@ -1,9 +1,9 @@
 .panel-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(247, 249, 252, 0.5);
+  backdrop-filter: blur(0.4px);
+  -webkit-backdrop-filter: blur(0.4px);
   z-index: 1000;
   display: flex;
   justify-content: flex-end;
@@ -246,11 +246,35 @@
     background-color: rgba(252, 238, 181, 1);
   }
 
+  /* Status dropdown open panel: styled via panelClass="status-dropdown-panel" in global styles.scss (panel is appended to body) */
+
+  /* Status dropdown panel: custom box shadow, radius, background */
+  ::ng-deep .status-select .ng-dropdown-panel {
+    box-shadow:
+      0 5px 15px 0 rgba(216, 220, 235, 1),
+      0 2.5px 3px -1.5px rgba(200, 207, 233, 1),
+      0 4.5px 5px -1px rgba(216, 220, 235, 1);
+    border-radius: 5px 5px 5px 5px;
+    background-color: rgba(255, 255, 255, 1);
+    margin-top:3px;
+  }
+
+  /* Tighter spacing between status options in dropdown (default theme uses 8px 10px) */
+  ::ng-deep .status-select .ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+
+  /* No highlight background on selected option */
+  ::ng-deep .status-select .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected,
+  ::ng-deep .status-select .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected.ng-option-marked {
+    background-color: transparent;
+  }
+
   /* Dropdown list options: plain text on white, status-specific colors when not selected */
   .status-option-label {
     display: inline-block;
     width: 150px;
-    height: 18px;
     font-family: var(--font-heading);
     font-size: 14px;
     font-weight: 400;
@@ -259,20 +283,29 @@
     line-height: 18px;
   }
 
-  .status-option-open {
-    color: rgba(62, 64, 219, 1);
-  }
-
-  .status-option-in-progress {
-    color: rgba(47, 48, 89, 1);
-  }
-
+  .status-option-open,
+  .status-option-in-progress,
   .status-option-complete {
     color: rgba(47, 48, 89, 1);
   }
 
   .status-option-blocked {
     color: rgba(3, 9, 41, 1);
+  }
+
+  /* In dropdown: non-selected options use default dark color (only selected option gets primary blue) */
+  ::ng-deep .status-select .ng-dropdown-panel .ng-dropdown-panel-items .ng-option:not(.ng-option-selected) .status-option-open,
+  ::ng-deep .status-select .ng-dropdown-panel .ng-dropdown-panel-items .ng-option:not(.ng-option-selected) .status-option-in-progress,
+  ::ng-deep .status-select .ng-dropdown-panel .ng-dropdown-panel-items .ng-option:not(.ng-option-selected) .status-option-complete {
+    color: rgba(47, 48, 89, 1);
+  }
+  ::ng-deep .status-select .ng-dropdown-panel .ng-dropdown-panel-items .ng-option:not(.ng-option-selected) .status-option-blocked {
+    color: rgba(3, 9, 41, 1);
+  }
+
+  /* Selected option in dropdown: primary color for all (including Blocked) */
+  ::ng-deep .status-select .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected .status-option-label {
+    color: rgba(62, 64, 219, 1) !important;
   }
 
 }
