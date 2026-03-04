@@ -1,4 +1,7 @@
 <aside class="schedule-sidebar">
-  <app-schedule-header></app-schedule-header>
+  <app-schedule-header
+    [selectedTimescale]="zoom"
+    (timescaleChange)="zoomChange.emit($any($event))"
+  />
   <app-work-center-list></app-work-center-list>
 </aside>

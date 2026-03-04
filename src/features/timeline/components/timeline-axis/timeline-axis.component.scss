@@ -7,10 +7,9 @@
   padding-left: 15px; /* 497 - 482 sidebar width */
 }
 
-/* Cell: 114px wide so each month left edge matches design (Sep at 611 = 129 from grid) */
+/* Cell width driven by colWidth (zoom: hour/day/week/month) */
 .timeline-axis-cell {
   box-sizing: border-box;
-  width: 114px;
   flex-shrink: 0;
   display: flex;
   justify-content: center;

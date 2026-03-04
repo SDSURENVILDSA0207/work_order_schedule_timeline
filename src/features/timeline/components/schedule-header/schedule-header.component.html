@@ -13,7 +13,7 @@
         aria-haspopup="listbox"
         (click)="toggleTimescale($event)"
       >
-        <span class="timescale-value">{{ selectedTimescale }}</span>
+        <span class="timescale-value">{{ timescaleLabel }}</span>
         <span class="timescale-chevron" aria-hidden="true">▼</span>
       </button>
       @if (timescaleOpen) {
@@ -23,7 +23,7 @@
               <button
                 type="button"
                 class="timescale-option"
-                [class.timescale-option--active]="opt === selectedTimescale"
+                [class.timescale-option--active]="opt === timescaleLabel"
                 role="option"
                 (click)="selectTimescale(opt)"
               >{{ opt }}</button>

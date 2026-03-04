@@ -21,14 +21,13 @@
   position: relative;
 }
 
-/* NAOLOGIC logo: position 101px X, 20px Y; size 80×10; opacity 100% */
+/* NAOLOGIC logo image: 160×30 */
 .app-logo {
   position: absolute;
   left: 101px;
   top: 20px;
-  width: 80px;
-  height: 10px;
-  opacity: 1;
+  width: 92px;
+  height: 15px;
   object-fit: contain;
   object-position: left top;
 }

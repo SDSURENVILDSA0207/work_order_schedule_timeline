@@ -5,7 +5,16 @@
 
 import { Injectable } from '@angular/core';
 import type { TimelineZoom } from '../models/work-order.model';
-import { addDays, diffDays, parseDate } from '../utils/date.utils';
+import {
+  addDays,
+  addHours,
+  diffDays,
+  parseDate,
+  startOfDay,
+  startOfHour,
+  startOfMonth,
+  startOfWeek,
+} from '../utils/date.utils';
 
 export interface TimelineRange {
   start: Date;
@@ -17,41 +26,42 @@ export interface TimelineColumn {
   date: Date;
 }
 
+/** Fixed timeline range: Jan 2023 through Dec 2026 (all columns in this span). */
+const TIMELINE_RANGE_START = new Date(2023, 0, 1, 0, 0, 0, 0);   // Jan 1, 2023
+const TIMELINE_RANGE_END = new Date(2027, 0, 1, 0, 0, 0, 0);     // Jan 1, 2027 (exclusive, so Dec 2026 included)
+
 @Injectable({ providedIn: 'root' })
 export class TimelineService {
   /**
-   * Get visible date range centered on today.
-   * Extended range for infinite horizontal scrolling - users can scroll to see all dates.
+   * Get visible date range: fixed Jan 2023 – Dec 2026 for all zoom levels.
+   * Month view shows 48 columns (Jan 2023 … Dec 2026).
    */
   getVisibleRange(zoom: TimelineZoom): TimelineRange {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
     switch (zoom) {
       case 'hour':
         return {
-          start: addDays(today, -7),
-          end: addDays(today, 7),
+          start: startOfHour(new Date(TIMELINE_RANGE_START)),
+          end: startOfHour(new Date(TIMELINE_RANGE_END)),
         };
       case 'day':
         return {
-          start: addDays(today, -365),
-          end: addDays(today, 365),
+          start: startOfDay(new Date(TIMELINE_RANGE_START)),
+          end: startOfDay(new Date(TIMELINE_RANGE_END)),
         };
       case 'week':
         return {
-          start: addDays(today, -730),
-          end: addDays(today, 730),
+          start: startOfWeek(new Date(TIMELINE_RANGE_START)),
+          end: startOfWeek(new Date(TIMELINE_RANGE_END)),
         };
       case 'month':
         return {
-          start: addDays(today, -1095),
-          end: addDays(today, 1095),
+          start: startOfMonth(new Date(TIMELINE_RANGE_START)),
+          end: startOfMonth(new Date(TIMELINE_RANGE_END)),
         };
       default:
         return {
-          start: addDays(today, -365),
-          end: addDays(today, 365),
+          start: startOfDay(new Date(TIMELINE_RANGE_START)),
+          end: startOfDay(new Date(TIMELINE_RANGE_END)),
         };
     }
   }
@@ -78,6 +88,74 @@ export class TimelineService {
   }
 
   /**
+   * Get the column index for a date so bar positions snap to grid cell boundaries.
+   * Returns the index of the column that contains this date (start of that period).
+   */
+  getColumnIndexForDate(
+    date: Date,
+    range: TimelineRange,
+    zoom: TimelineZoom
+  ): number {
+    const totalDays = diffDays(range.start, range.end);
+    if (totalDays <= 0) return 0;
+
+    switch (zoom) {
+      case 'hour': {
+        const hoursFromStart = diffDays(range.start, date) * 24;
+        return Math.max(0, Math.floor(hoursFromStart));
+      }
+      case 'day': {
+        const daysFromStart = diffDays(range.start, date);
+        return Math.max(0, Math.floor(daysFromStart));
+      }
+      case 'week': {
+        const daysFromStart = diffDays(range.start, date);
+        return Math.max(0, Math.floor(daysFromStart / 7));
+      }
+      case 'month': {
+        const monthsFromStart =
+          (date.getFullYear() - range.start.getFullYear()) * 12 +
+          (date.getMonth() - range.start.getMonth());
+        return Math.max(0, Math.floor(monthsFromStart));
+      }
+      default: {
+        const daysFromStart = diffDays(range.start, date);
+        return Math.max(0, Math.floor(daysFromStart));
+      }
+    }
+  }
+
+  /**
+   * Get the column index of the period boundary *after* the end date.
+   * Bar width = (this - startCol) * colWidth so the bar ends at the right edge of the end date's period.
+   */
+  getExclusiveEndColumnIndex(
+    endDate: Date,
+    range: TimelineRange,
+    zoom: TimelineZoom
+  ): number {
+    switch (zoom) {
+      case 'hour':
+      case 'day':
+        return this.getColumnIndexForDate(addDays(endDate, 1), range, zoom);
+      case 'week':
+        return this.getColumnIndexForDate(
+          addDays(startOfWeek(endDate), 7),
+          range,
+          zoom
+        );
+      case 'month':
+        return this.getColumnIndexForDate(
+          new Date(endDate.getFullYear(), endDate.getMonth() + 1, 1),
+          range,
+          zoom
+        );
+      default:
+        return this.getColumnIndexForDate(addDays(endDate, 1), range, zoom);
+    }
+  }
+
+  /**
    * Convert pixel position to date (for click-to-create)
    */
   pixelToDate(
@@ -98,14 +176,12 @@ export class TimelineService {
   getColumns(range: TimelineRange, zoom: TimelineZoom): TimelineColumn[] {
     const columns: TimelineColumn[] = [];
     const start = new Date(range.start);
-    start.setHours(0, 0, 0, 0);
-
     const end = new Date(range.end);
-    end.setHours(0, 0, 0, 0);
 
     if (zoom === 'hour') {
-      const current = new Date(start);
-      while (current <= end) {
+      const current = startOfHour(new Date(start));
+      const endHour = startOfHour(new Date(end));
+      while (current <= endHour) {
         columns.push({
           label: current.toLocaleString('en-US', {
             month: 'short',
@@ -117,7 +193,13 @@ export class TimelineService {
         });
         current.setTime(current.getTime() + 60 * 60 * 1000);
       }
-    } else if (zoom === 'day') {
+      return columns;
+    }
+
+    start.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
+
+    if (zoom === 'day') {
       const current = new Date(start);
       while (current <= end) {
         columns.push({
@@ -132,11 +214,7 @@ export class TimelineService {
       }
     } else if (zoom === 'week') {
       const current = new Date(start);
-      // Align to week start (Sunday)
-      const day = current.getDay();
-      current.setDate(current.getDate() - day);
       while (current <= end) {
-        const weekEnd = addDays(current, 6);
         columns.push({
           label: `Week of ${current.toLocaleDateString('en-US', {
             month: 'short',
@@ -147,9 +225,9 @@ export class TimelineService {
         current.setDate(current.getDate() + 7);
       }
     } else {
-      // month
+      // month: Jan 2023 through Dec 2026 (exclude Jan 2027)
       const current = new Date(start.getFullYear(), start.getMonth(), 1);
-      while (current <= end) {
+      while (current < end) {
         columns.push({
           label: current.toLocaleDateString('en-US', {
             month: 'short',
@@ -172,7 +250,19 @@ export class TimelineService {
     return columns.length * colWidth;
   }
 
-  getColumnWidth(_zoom: TimelineZoom): number {
-    return 116;
+  /** Column width per zoom so labels (month/week/day/hour) are readable and not shrunk. */
+  getColumnWidth(zoom: TimelineZoom): number {
+    switch (zoom) {
+      case 'hour':
+        return 100;  // "Jan 1, 10 AM"
+      case 'day':
+        return 120;  // "Mar 1, 2026"
+      case 'week':
+        return 160;  // "Week of Jan 5"
+      case 'month':
+        return 130;  // "Dec 2024"
+      default:
+        return 120;
+    }
   }
 }

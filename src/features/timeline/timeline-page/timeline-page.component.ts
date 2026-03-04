@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { ScheduleSidebarComponent } from '../components/schedule-sidebar/schedule-sidebar.component';
 import { TimelineGridComponent } from '../components/timeline-grid/timeline-grid.component';
 import { WorkOrderPanelComponent } from '../work-order-panel/work-order-panel.component';
+
+export type TimelineZoom = 'hour' | 'day' | 'week' | 'month';
 
 @Component({
   selector: 'app-timeline-page',
@@ -17,4 +19,6 @@ import { WorkOrderPanelComponent } from '../work-order-panel/work-order-panel.co
 export class TimelinePageComponent {
   /** Panel hidden by default so initial view matches design image */
   panelOpen = false;
+  /** Timescale zoom; drives axis columns and bar positioning */
+  zoom = signal<TimelineZoom>('month');
 }

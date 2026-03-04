@@ -1,4 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+
+export interface TimelineAxisColumn {
+  label: string;
+  date: Date;
+}
 
 @Component({
   selector: 'app-timeline-axis',
@@ -8,15 +13,7 @@ import { Component } from '@angular/core';
   styleUrl: './timeline-axis.component.scss',
 })
 export class TimelineAxisComponent {
-  /** Month labels for the axis (Aug 2024 … Mar 2025) */
-  months = [
-    'Aug 2024',
-    'Sep 2024',
-    'Oct 2024',
-    'Nov 2024',
-    'Dec 2024',
-    'Jan 2025',
-    'Feb 2025',
-    'Mar 2025',
-  ];
+  /** Column headers from timeline service (depends on zoom: hour/day/week/month) */
+  @Input() columns: TimelineAxisColumn[] = [];
+  @Input() colWidth = 116;
 }

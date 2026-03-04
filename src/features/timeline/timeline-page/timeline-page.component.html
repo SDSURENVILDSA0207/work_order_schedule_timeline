@@ -1,6 +1,9 @@
 <div class="timeline-page">
-  <app-schedule-sidebar></app-schedule-sidebar>
-  <app-timeline-grid></app-timeline-grid>
+  <app-schedule-sidebar
+    [zoom]="zoom()"
+    (zoomChange)="zoom.set($event)"
+  />
+  <app-timeline-grid [zoom]="zoom()" />
   @if (panelOpen) {
     <app-work-order-panel></app-work-order-panel>
   }

@@ -19,11 +19,11 @@ All AI prompts used during development are logged in `AIPROMPTS.md`.
 The following are **implemented** and aligned with the spec and design:
 
 - **Timeline grid** – **Hour**/Day/Week/Month zoom, scrollable grid, fixed left work-center column, current hour/day/week/month indicator, and a light year/month background tint (`rgba(247, 249, 252, 1)`) that extends down to the bottom of the timeline card.
-- **Work order bars** – Name, **status badge (pill/tag)**, three-dot menu (Edit/Delete); bar position from start/end dates. Bars and pills are styled per status to match the reference design:
-  - **Open**: bar ~381×38px with soft blue background and outline; pill 87×22px (radius 5), light aqua background, teal/blue text.
-  - **In progress**: bar 381×38px with periwinkle background and outline; pill 87×22px (radius 5), solid light purple background, blue text.
-  - **Complete**: bar 381×38px with pale green background and outline; pill 87×22px (radius 5), light green background, green text.
-  - **Blocked**: bar 533×38px with cream background and outline; pill 87×22px (radius 5), light peach background, orange text.
+- **Work order bars** – Name, **status badge (pill/tag)**, three-dot menu (Edit/Delete); **bar position and length driven only by start/end dates** (same rule for Hour/Day/Week/Month via `dateToPixel`). Bar is **flexible** (min-width 24px, no fixed max) so it shrinks/grows with the date range. Bars and pills are styled per status to match the reference design:
+  - **Open**: soft blue background and outline; pill 87×22px (radius 5), light aqua background, teal/blue text.
+  - **In progress**: periwinkle background and outline; pill (radius 5), solid light purple background, blue text.
+  - **Complete**: pale green background and outline; pill (radius 5), light green background, green text.
+  - **Blocked**: cream background and outline; pill (radius 5), light peach background, orange text.
 - **Create/Edit panel (pixel-perfect)** – Single slide-out panel **591×1024px**, border-radius 12px 0 0 12px, three box-shadows. **Header:** "Work Order Details" (20px Medium #2F3059), subtitle "Specify the dates, name and status for this order" (16px Book); **Cancel** and **Create/Save** in header top-right (66×32px, 7px radius, exact shadows). **Separator** line below subtitle (1px solid rgba(230,235,240)); 24px spacing to first field. Reactive Forms: Work Order Name, Status (ng-select), **End date** then **Start date** (order and labels). Create: start date from **click position**, end date **start + 7 days**. Cancel/backdrop/**Escape** close; end-date validator.
 - **Status dropdown** – **Selected value** in field: styled pill per status (open: teal bg + border; in progress/complete/blocked: status backgrounds). **Dropdown list** when open: plain text, status-specific colors (open blue, in progress/complete dark grey, blocked very dark). **No clear (X) button** (`clearable: false`).
 - **Date fields** – **End date** first, **Start date** second. Labels "End date"/"Start date" (542×16, rgba(104,113,150), 14px 500). Inputs **Rectangle 7**: 542×38px, border-radius 5px, three box-shadows, white bg; **no calendar icon**; display/parse **dd.MM.yyyy** with "." separator (e.g. 01.01.2026). Section size 542×62px per date block.
@@ -38,10 +38,12 @@ The following are **implemented** and aligned with the spec and design:
 - **Current vertical line** – Color rgba(237, 238, 255, 1); starts **below** the header and badge row; aligned to the **left edge** of the current date cell; extends to the bottom of the screen.
 - **First row spacing** – First timeline row has 9px gap from header; when “today” is in range, badge row overlaps the first row by 18px; first work center label has 9px gap so timeline and work center align.
 - **Full-screen timeline** – Timeline container uses `min-height: 100vh` and flex so the grid and vertical line extend to the bottom of the viewport.
+- **Bar date-fitting** – Bar start = `dateToPixel(startDate)`, bar end = `dateToPixel(addDays(endDate, 1))`; length matches the calendar span for all zooms. Click-to-create uses content X (including scroll) and sets start date from the clicked cell so the new bar aligns with the grid. Edit panel emits `datesChange` for **live bar preview** while editing dates.
+- **Default timescale** – **Day** is the default zoom on load (spec: “Day (default)”).
 
 **How to run:** `npm install` then `ng serve`. See section 1 for setup details.
 
-**AI prompts:** All prompts used during implementation are logged in `AIPROMPTS.md` (Prompts 1–51), including pixel-perfect panel, separator, status/date styling, timescale control, work order bar/pill styling, background tint, current-indicator behaviour, placeholder/tooltip visibility and single-tooltip behaviour, “Click to add dates” on any cell, grid header white, Timescale dropdown flat design and positioning, Work Center width 380px, row hover color, placeholder layering (empty cells only, bars above placeholder), Current badge and placement, vertical line at cell left edge and below header, first-row gap and badge overlap, full-screen timeline and line to bottom, and documentation updates.
+**AI prompts:** All prompts used during implementation are logged in `AIPROMPTS.md` (Prompts 1–61). Recent entries (52–61) cover bar alignment to cell borders, month zoom not extending into next month, create-panel scroll and cell-based start date, live bar preview on date change, bar length from start/end for all timescales, end-date proportional positioning, exact dateToPixel bar with flexible min-width, robust date parsing and sync for all bars, default zoom Day per spec, and this documentation update.
 
 ---
 

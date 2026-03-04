@@ -3,6 +3,7 @@
   flex-shrink: 0;
   position: relative;
   border-bottom: 1px solid rgba(241, 243, 248, 0.75);
+  overflow: visible; /* let Edit/Delete dropdown show below row */
 
   &:hover {
     background-color: rgba(241, 243, 248, 0.3);
@@ -16,6 +17,7 @@
   right: 0;
   bottom: 0;
   min-width: 100%;
+  overflow: visible;
 }
 
 .timeline-row-empty {
@@ -31,7 +33,7 @@
   cursor: pointer;
 }
 
-/* Pill: 113×38, radius 8, #6570FF 10% fill, 1px #C3C7FF border; tooltip on hover (image: dark grey tooltip, white text, arrow) */
+/* Translucent light purple bar; tooltip on hover with dark gray text, white arrow */
 .timeline-row-empty-pill {
   position: relative;
   box-sizing: border-box;
@@ -41,9 +43,9 @@
   align-items: center;
   justify-content: center;
   padding: 0;
-  border: 1px solid rgba(195, 199, 255, 1);
+  border: 1px solid rgba(195, 199, 255, 0.8);
   border-radius: 8px;
-  background-color: rgba(101, 112, 255, 0.1);
+  background-color: rgba(237, 238, 255, 0.5);
   font-family: "Circular-Std", sans-serif;
   font-size: 12px;
   color: rgba(62, 64, 219, 1);
@@ -59,24 +61,25 @@
     transition: opacity 0.15s ease, visibility 0.15s ease;
   }
 
-  /* Tooltip: dark grey bg, white text, above pill */
+  /* Tooltip above pill: light bg, dark gray text */
   &::after {
     content: "Click to add dates";
     bottom: calc(100% + 8px);
     padding: 6px 10px;
-    background-color: rgba(3, 9, 41, 0.9);
-    color: #fff;
+    background-color: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    color: rgba(47, 48, 89, 1);
     font-size: 12px;
     white-space: nowrap;
     border-radius: 4px;
   }
 
-  /* Arrow pointing down (below tooltip) */
+  /* White upward-pointing triangle (arrow below tooltip) */
   &::before {
     content: "";
     bottom: calc(100% + 3px);
     border: 5px solid transparent;
-    border-top-color: rgba(3, 9, 41, 0.9);
+    border-top-color: #fff;
   }
 
   &:hover::before,

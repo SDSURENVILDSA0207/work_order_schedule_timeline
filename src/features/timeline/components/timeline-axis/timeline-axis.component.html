@@ -1,7 +1,7 @@
 <div class="timeline-axis">
-  @for (month of months; track month) {
-    <div class="timeline-axis-cell">
-      <span class="timeline-axis-month">{{ month }}</span>
+  @for (col of columns; track col.label) {
+    <div class="timeline-axis-cell" [style.width.px]="colWidth">
+      <span class="timeline-axis-month">{{ col.label }}</span>
     </div>
   }
 </div>

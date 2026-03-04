@@ -783,5 +783,153 @@ Each entry includes:
 
 ---
 
+## Prompt 52 – Bar Start/End at Cell Borders
+
+- **Date**: 2026-03-03  
+- **Context**: Work order bar should start at the left edge of the start date cell and end at the right edge of the end date cell (not mid-cell).
+
+**Prompt text (paraphrased):**
+
+> The end date bar ends at the next date half for day and start at the mid of the start date. Make it start at start border of the start cell to end border of the end cell.
+
+**Changes made:**
+- **timeline.service.ts**: Added `getColumnIndexForDate(date, range, zoom)` to map a date to the column index for each zoom (hour/day/week/month). Bar position uses column indices so it snaps to grid boundaries.
+- **timeline.component.ts**: `getBarPosition` now uses `startCol` and `endCol` (with inclusive end): `left = startCol * colWidth`, `width = (endCol - startCol + 1) * colWidth`.
+
+---
+
+## Prompt 53 – Month Zoom: Bar Should Not Extend Into Next Month
+
+- **Date**: 2026-03-03  
+- **Context**: For end date Feb 26, the bar was visually extending into March; it should end at the end of February.
+
+**Prompt text (paraphrased):**
+
+> The bar should not go till March; something wrong with the logic.
+
+**Changes made:**
+- **timeline.component.ts**: For month zoom, `getBarPosition` uses the columns array to find start/end column by matching the column’s month/year to the order’s start/end date, so the bar never extends into the next month.
+
+---
+
+## Prompt 54 – Create Panel: Click Position and Start Date From Cell
+
+- **Date**: 2026-03-03  
+- **Context**: New work order bar created from click was not matching the dates; click position was wrong when timeline was scrolled.
+
+**Prompt text (paraphrased):**
+
+> The work center bar which is being created does not match with the dates provided; please fix the logic.
+
+**Changes made:**
+- **timeline.component.ts**: Added `@ViewChild('gridScroll')` and `contentXFromEvent(rect, clientX)` so click/hover use content X = `clientX - rect.left + scrollLeft`. Create panel receives content X; start date is taken from the **clicked cell** (column date) so the new bar aligns with that cell. `onRowMouseEnter`/`onRowMouseMove` use content X for correct “Click to add dates” highlight when scrolled.
+
+---
+
+## Prompt 55 – Bar Length Should Change With Date Edit (Live Preview)
+
+- **Date**: 2026-03-03  
+- **Context**: When editing start/end dates in the panel, the bar should grow or shrink in real time before saving.
+
+**Prompt text (paraphrased):**
+
+> The bar should increase or decrease based on the date change; can you fix that if possible?
+
+**Changes made:**
+- **work-order-panel.component.ts**: Added `datesChange` output; on start/end date form value changes, emit `{ startDate, endDate }` (ISO) when both are valid.
+- **timeline.component.ts**: Added `draftOrderDates` signal; `onPanelDatesChange` sets it; `getBarPosition` uses draft dates when the panel is open in edit mode for that order. Draft cleared on panel close/save so the bar reflects saved data after save.
+
+---
+
+## Prompt 56 – Bar Length From Start/End Date Only, All Timescales
+
+- **Date**: 2026-03-03  
+- **Context**: Bar length should be driven only by start and end dates, same rule for hour/day/week/month; some bars were not syncing.
+
+**Prompt text (paraphrased):**
+
+> Based on the start date and end date create the length of the bar. Not just randomly. Do the same for the different timescale (day, week, month, hour).
+
+**Changes made:**
+- **timeline.service.ts**: Added `getExclusiveEndColumnIndex(endDate, range, zoom)` for hour/day (addDays 1), week (start of next week), month (first of next month). Bar width = (endColExclusive - startCol) * colWidth for non-month; month used column-based start/end.
+- **timeline.component.ts**: Unified logic: for month, proportional day-within-month; for others, startCol and endColExclusive from service.
+
+---
+
+## Prompt 57 – End Date Matching (e.g. Oct 15 = Middle of October), Dynamic Bar
+
+- **Date**: 2026-03-03  
+- **Context**: End date Oct 15 should make the bar end roughly in the middle of October, not at the end of the month; bar should be dynamic.
+
+**Prompt text (paraphrased):**
+
+> If you see the start and the end date in the second screenshot, end date is 15 and the bar should be somewhat middle of October. Make the bar dynamic.
+
+**Changes made:**
+- **date.utils.ts**: Added `getDaysInMonth(date)`.
+- **timeline.component.ts**: Month zoom uses proportional positioning: `fractionIntoStart = (startDay - 1) / daysInStartMonth`, `fractionThroughEnd = endDay / daysInEndMonth`; `left` and `right` in pixels so bar ends at the correct day within the month. Later (Prompt 58) bar position was switched to pure `dateToPixel` for all zooms so length always matches the date range.
+
+---
+
+## Prompt 58 – Bar Length Exact to Dates; Flexible Bar (No Fixed Min)
+
+- **Date**: 2026-03-03  
+- **Context**: Start date was correct but end date and bar length should match exactly; bar size should not be fixed so it can shrink for short ranges.
+
+**Prompt text (paraphrased):**
+
+> Everything looks good; the reason is only the start and end date are not matching the bar length. Please fit it.
+
+**Changes made:**
+- **timeline.component.ts**: `getBarPosition` now uses only `dateToPixel`: `left = dateToPixel(startDate)`, `right = dateToPixel(addDays(endDate, 1))`, `width = right - left` (min 24px). Same rule for all zooms; bar length exactly matches the calendar span.
+- **work-order-bar.component.ts**: Removed large fixed min-widths: `:host` min-width 80px → 24px; `.work-order-bar` min-width 381px → 0. Bar size is driven by the timeline `width` input. `.work-order-bar` overflow set to `hidden` for narrow bars.
+- **timeline.component.ts**: Min bar width 40px → 24px so short ranges can shrink.
+
+---
+
+## Prompt 59 – Sync All Bars to Dates; Flexible Bar for 5 Work Centers
+
+- **Date**: 2026-03-03  
+- **Context**: Some bars were syncing and some not; bar size should be flexible and fit the date for all 5 default work centers.
+
+**Prompt text (paraphrased):**
+
+> You are almost right; some dates are syncing and some are not. Kindly sync dates with the work center bars. The bar should not be fixed because it will not shrink; it should be flexible.
+
+**Changes made:**
+- **date.utils.ts**: `parseDate` made robust: accepts optional string, uses first 10 chars (YYYY-MM-DD), validates numbers and range, returns valid Date or fallback so no Invalid Date in bar math.
+- **timeline.component.ts**: In `getBarPosition`, if `endDate < startDate` then set `endDate = startDate`; month view clamps `right` to `totalWidth` and guards division by zero for `getDaysInMonth`. (Proportional month logic was later replaced by dateToPixel-only in Prompt 58.)
+
+---
+
+## Prompt 60 – Spec Compliance: Default Timescale Day
+
+- **Date**: 2026-03-03  
+- **Context**: Requirements audit; spec says “Day (default)” for timescale; app was defaulting to Month.
+
+**Prompt text (paraphrased):**
+
+> I again pasted all the requirements. Only update what’s necessary; we are almost done. Don’t change unnecessarily. Just check all the necessities are satisfied.
+
+**Changes made:**
+- **timeline.component.ts**: Default zoom changed from `'month'` to `'day'` so the app loads with Day as the default timescale per spec. All other behaviour left unchanged.
+
+---
+
+## Prompt 61 – Document Prompts and README
+
+- **Date**: 2026-03-03  
+- **Context**: Add the recent bar-positioning, flexible bar, and spec-compliance work to AIPROMPTS and README.
+
+**Prompt text:**
+
+> Add to AIPROMPTS and README.md
+
+**Changes made:**
+- **AIPROMPTS.md**: Appended Prompts 52–61 (bar at cell borders; month bar not into next month; create panel scroll + cell start date; live bar preview on date change; bar length from start/end for all timescales; end date proportional in month; exact dateToPixel bar + flexible min-width; sync all bars + robust parseDate; default zoom Day; this documentation update).
+- **README.md**: Updated “Implementation Status & Recent Changes” to include bar date-fitting, flexible bar size, default zoom Day, and reference to Prompts 52–61.
+
+---
+
 New prompts and significant AI-assisted decisions will continue to be appended here as the implementation progresses.
 

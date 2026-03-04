@@ -31,3 +31,11 @@ export const STATUS_BAR_BORDER: Record<string, string> = {
   complete: 'rgba(8, 162, 104, 0.35)',
   blocked: 'rgba(177, 54, 0, 0.3)',
 };
+
+/** Muted background for status pill inside the bar */
+export const STATUS_PILL_BG: Record<string, string> = {
+  open: 'rgba(209, 242, 255, 1)',
+  'in-progress': 'rgba(214, 216, 255, 1)',
+  complete: 'rgba(209, 250, 179, 1)',
+  blocked: 'rgba(255, 235, 207, 1)',
+};

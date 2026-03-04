@@ -2,6 +2,8 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 1000;
   display: flex;
   justify-content: flex-end;
@@ -10,16 +12,22 @@
 
 .panel {
   width: 591px;
-  min-height: 1024px;
+  height: 1024px;
+  max-height: 100vh;
   max-width: 100%;
-  background: #ffffff;
-  border-radius: 12px 0 0 12px;
+  background-color: rgba(255, 255, 255, 1);
+  border-top-left-radius: 12px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 12px;
+  border-bottom-left-radius: 12px;
   box-shadow:
     0 5px 15px 0 rgba(216, 220, 235, 1),
     0 2.5px 3px -1.5px rgba(200, 207, 233, 1),
     0 4.5px 5px -1px rgba(216, 220, 235, 1);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  isolation: isolate;
   animation: slideIn 0.25s ease;
 }
 
@@ -46,6 +54,9 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  border-bottom-left-radius: 12px; /* match panel so content doesn’t cover bottom-left curve */
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 1);
 }
 
 .panel-header {
@@ -100,7 +111,11 @@
 .panel-form {
   padding: 24px 24px 24px 24px;
   flex: 1;
+  overflow-x: hidden;
   overflow-y: auto;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  background-color: rgba(255, 255, 255, 1); /* clip scroll content to curved corners */
 }
 
 .error-message {

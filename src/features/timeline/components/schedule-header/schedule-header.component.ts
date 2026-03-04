@@ -1,4 +1,4 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-schedule-header',
@@ -9,16 +9,26 @@ import { Component, HostListener } from '@angular/core';
 })
 export class ScheduleHeaderComponent {
   timescaleOpen = false;
-  selectedTimescale = 'Month';
+  /** Current zoom value: 'hour' | 'day' | 'week' | 'month' */
+  @Input() selectedTimescale = 'month';
+  @Output() timescaleChange = new EventEmitter<string>();
+
   readonly timescaleOptions = ['Hour', 'Day', 'Week', 'Month'];
+
+  /** Display label for the current timescale (e.g. 'month' -> 'Month') */
+  get timescaleLabel(): string {
+    const s = this.selectedTimescale;
+    return s ? s.charAt(0).toUpperCase() + s.slice(1) : 'Month';
+  }
 
   toggleTimescale(event: Event) {
     event.stopPropagation();
     this.timescaleOpen = !this.timescaleOpen;
   }
 
-  selectTimescale(value: string) {
-    this.selectedTimescale = value;
+  selectTimescale(optionLabel: string) {
+    const zoom = optionLabel.toLowerCase() as 'hour' | 'day' | 'week' | 'month';
+    this.timescaleChange.emit(zoom);
     this.timescaleOpen = false;
   }
 

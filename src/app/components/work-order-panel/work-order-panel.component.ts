@@ -93,6 +93,8 @@ export class WorkOrderPanelComponent {
 
   closed = output<void>();
   saved = output<void>();
+  /** Emits when start or end date form value changes (for live bar preview). */
+  datesChange = output<{ startDate: string; endDate: string }>();
 
   form!: FormGroup;
   overlapError = signal<string | null>(null);
@@ -111,6 +113,20 @@ export class WorkOrderPanelComponent {
     this.form.get('startDate')?.valueChanges?.subscribe(() => {
       this.form.get('endDate')?.updateValueAndValidity();
     });
+
+    const emitDates = () => {
+      const start = this.form.get('startDate')?.value as NgbDateStruct | null;
+      const end = this.form.get('endDate')?.value as NgbDateStruct | null;
+      if (start?.year != null && start?.month != null && start?.day != null &&
+          end?.year != null && end?.month != null && end?.day != null) {
+        this.datesChange.emit({
+          startDate: ngbToIso(start),
+          endDate: ngbToIso(end),
+        });
+      }
+    };
+    this.form.get('startDate')?.valueChanges?.subscribe(emitDates);
+    this.form.get('endDate')?.valueChanges?.subscribe(emitDates);
 
     effect(() => {
       const mode = this.mode();

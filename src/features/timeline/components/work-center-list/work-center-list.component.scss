@@ -31,7 +31,7 @@
   padding: 0;
 }
 
-/* Row: 380×60, position 102X 238Y (first), #FFFFFF 100%; image: dark grey sans-serif */
+/* Row: 380×60; light blue background on hover/selection to match expected */
 .work-center-row {
   box-sizing: border-box;
   width: 380px;
@@ -46,4 +46,9 @@
   font-weight: 400;
   color: rgba(3, 9, 41, 1);
   opacity: 1;
+  transition: background-color 0.15s ease;
+}
+
+.work-center-row:hover {
+  background-color: rgba(237, 238, 255, 0.4);
 }

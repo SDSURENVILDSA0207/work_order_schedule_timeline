@@ -9,35 +9,37 @@
   opacity: 1;
 }
 
-/* Vertical line: 1px wide, full height of indicator, primary shade */
+/* Vertical line: light purple, full height of indicator */
 .current-period-line {
   position: absolute;
   left: 0;
   top: 0;
   width: 2px;
   height: 747px;
-  background-color: rgba(62, 64, 219, 1);
+  background-color: rgba(195, 199, 255, 0.9);
   opacity: 1;
 }
 
-/* Label: 603X 239Y = 121px from grid left, 1px below line start; 93×18, Circular Std Book, #3E40DB */
+/* Label on light blue rounded bar; Circular Std Book */
 .current-period-label {
   position: absolute;
-  left: 7px; /* 603 - 596 so label at 603 from viewport */
-  top: 1px; /* 239 - 238 */
+  left: 7px;
+  top: 1px;
   box-sizing: border-box;
-  width: 93px;
-  height: 18px;
-  padding: 0;
+  min-width: 93px;
+  height: 22px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
   border: none;
+  border-radius: 6px;
+  background-color: rgba(237, 238, 255, 0.95);
   color: rgba(62, 64, 219, 1);
   font-family: "Circular-Std", "CircularStd-Book", sans-serif;
   font-size: 14px;
   font-weight: 400;
-  font-style: normal;
   line-height: 17px;
   letter-spacing: normal;
   text-align: left;
-  vertical-align: top;
   opacity: 1;
 }

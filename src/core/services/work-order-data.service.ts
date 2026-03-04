@@ -11,11 +11,19 @@ const SAMPLE_WORK_CENTERS: WorkCenterDocument[] = [
 ];
 
 const SAMPLE_WORK_ORDERS: WorkOrderDocument[] = [
-  { docId: 'wo1', docType: 'workOrder', data: { name: 'entrix Ltd', workCenterId: 'wc1', status: 'complete', startDate: '2024-08-01', endDate: '2024-09-15' } },
-  { docId: 'wo2', docType: 'workOrder', data: { name: 'Konsulting Inc', workCenterId: 'wc3', status: 'in-progress', startDate: '2024-09-10', endDate: '2024-10-20' } },
-  { docId: 'wo3', docType: 'workOrder', data: { name: 'Compleks Systems', workCenterId: 'wc3', status: 'in-progress', startDate: '2025-01-05', endDate: '2025-02-15' } },
-  { docId: 'wo4', docType: 'workOrder', data: { name: 'McMarrow Distribution', workCenterId: 'wc4', status: 'blocked', startDate: '2024-09-01', endDate: '2025-01-20' } },
-  { docId: 'wo5', docType: 'workOrder', data: { name: 'Order A', workCenterId: 'wc2', status: 'open', startDate: '2024-10-01', endDate: '2024-10-15' } },
+  // 1. Genesis Hardware (wc1) – no overlap, gap between orders
+  { docId: 'wo1', docType: 'workOrder', data: { name: 'entrix Ltd', workCenterId: 'wc1', status: 'complete', startDate: '2024-08-01', endDate: '2024-09-30' } },
+  { docId: 'wo6', docType: 'workOrder', data: { name: 'TechFlow Solutions', workCenterId: 'wc1', status: 'open', startDate: '2024-11-15', endDate: '2025-01-15' } },
+  // 2. Rodriques Electrics (wc2) – no overlap, gap between orders
+  { docId: 'wo7', docType: 'workOrder', data: { name: 'Precision Parts Co', workCenterId: 'wc2', status: 'complete', startDate: '2024-08-01', endDate: '2024-10-15' } },
+  { docId: 'wo5', docType: 'workOrder', data: { name: 'Rodriques Electrics', workCenterId: 'wc2', status: 'in-progress', startDate: '2024-12-01', endDate: '2025-01-31' } },
+  // 3. Konsulting Inc (wc3) – no overlap, gap between orders
+  { docId: 'wo2', docType: 'workOrder', data: { name: 'Konsulting Inc', workCenterId: 'wc3', status: 'in-progress', startDate: '2024-09-01', endDate: '2024-10-31' } },
+  { docId: 'wo3', docType: 'workOrder', data: { name: 'Compleks Systems', workCenterId: 'wc3', status: 'in-progress', startDate: '2024-12-15', endDate: '2025-01-31' } },
+  // 4. McMarrow Distribution (wc4) – single order
+  { docId: 'wo4', docType: 'workOrder', data: { name: 'McMarrow Distribution', workCenterId: 'wc4', status: 'blocked', startDate: '2024-10-01', endDate: '2024-12-15' } },
+  // 5. Spartan Manufacturing (wc5) – single order
+  { docId: 'wo8', docType: 'workOrder', data: { name: 'Acme Inc', workCenterId: 'wc5', status: 'open', startDate: '2025-01-15', endDate: '2025-02-28' } },
 ];
 
 @Injectable({

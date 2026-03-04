@@ -17,7 +17,7 @@ export const SAMPLE_WORK_CENTERS: WorkCenterDocument[] = [
 ];
 
 export const SAMPLE_WORK_ORDERS: WorkOrderDocument[] = [
-  // Genesis Hardware - Complete
+  // 1. Genesis Hardware (wc-1) – no overlap, gap between orders
   {
     docId: 'wo-1',
     docType: 'workOrder',
@@ -25,11 +25,33 @@ export const SAMPLE_WORK_ORDERS: WorkOrderDocument[] = [
       name: 'entrix Ltd',
       workCenterId: 'wc-1',
       status: 'complete',
-      startDate: '2024-08-15',
-      endDate: '2024-10-05',
+      startDate: '2024-08-01',
+      endDate: '2024-09-30',
     },
   },
-  // Rodriques Electrics - In progress
+  {
+    docId: 'wo-7',
+    docType: 'workOrder',
+    data: {
+      name: 'TechFlow Solutions',
+      workCenterId: 'wc-1',
+      status: 'open',
+      startDate: '2024-11-15',
+      endDate: '2025-01-15',
+    },
+  },
+  // 2. Rodriques Electrics (wc-2) – no overlap, gap between orders
+  {
+    docId: 'wo-8',
+    docType: 'workOrder',
+    data: {
+      name: 'Precision Parts Co',
+      workCenterId: 'wc-2',
+      status: 'complete',
+      startDate: '2024-08-01',
+      endDate: '2024-10-15',
+    },
+  },
   {
     docId: 'wo-2',
     docType: 'workOrder',
@@ -37,11 +59,11 @@ export const SAMPLE_WORK_ORDERS: WorkOrderDocument[] = [
       name: 'Rodriques Electrics',
       workCenterId: 'wc-2',
       status: 'in-progress',
-      startDate: '2024-09-01',
-      endDate: '2024-12-15',
+      startDate: '2024-12-01',
+      endDate: '2025-01-31',
     },
   },
-  // Konsulting Inc - Multiple non-overlapping orders
+  // 3. Konsulting Inc (wc-3) – no overlap, gap between orders
   {
     docId: 'wo-3',
     docType: 'workOrder',
@@ -49,8 +71,8 @@ export const SAMPLE_WORK_ORDERS: WorkOrderDocument[] = [
       name: 'Konsulting Inc',
       workCenterId: 'wc-3',
       status: 'in-progress',
-      startDate: '2024-09-15',
-      endDate: '2024-10-10',
+      startDate: '2024-09-01',
+      endDate: '2024-10-31',
     },
   },
   {
@@ -60,11 +82,11 @@ export const SAMPLE_WORK_ORDERS: WorkOrderDocument[] = [
       name: 'Compleks Systems',
       workCenterId: 'wc-3',
       status: 'in-progress',
-      startDate: '2024-11-20',
-      endDate: '2025-02-15',
+      startDate: '2024-12-15',
+      endDate: '2025-01-31',
     },
   },
-  // McMarrow Distribution - Blocked
+  // 4. McMarrow Distribution (wc-4) – single order
   {
     docId: 'wo-5',
     docType: 'workOrder',
@@ -73,10 +95,10 @@ export const SAMPLE_WORK_ORDERS: WorkOrderDocument[] = [
       workCenterId: 'wc-4',
       status: 'blocked',
       startDate: '2024-10-01',
-      endDate: '2024-12-20',
+      endDate: '2024-12-15',
     },
   },
-  // Spartan Manufacturing - Open
+  // 5. Spartan Manufacturing (wc-5) – single order
   {
     docId: 'wo-6',
     docType: 'workOrder',
@@ -84,31 +106,8 @@ export const SAMPLE_WORK_ORDERS: WorkOrderDocument[] = [
       name: 'Acme Inc',
       workCenterId: 'wc-5',
       status: 'open',
-      startDate: '2025-01-10',
-      endDate: '2025-01-24',
-    },
-  },
-  // Additional orders for variety
-  {
-    docId: 'wo-7',
-    docType: 'workOrder',
-    data: {
-      name: 'TechFlow Solutions',
-      workCenterId: 'wc-1',
-      status: 'open',
-      startDate: '2025-02-01',
-      endDate: '2025-02-15',
-    },
-  },
-  {
-    docId: 'wo-8',
-    docType: 'workOrder',
-    data: {
-      name: 'Precision Parts Co',
-      workCenterId: 'wc-2',
-      status: 'complete',
-      startDate: '2024-07-01',
-      endDate: '2024-08-15',
+      startDate: '2025-01-15',
+      endDate: '2025-02-28',
     },
   },
 ];

@@ -28,17 +28,31 @@ export function diffDays(start: Date, end: Date): number {
 }
 
 /**
- * Parse ISO date string to Date (start of day UTC)
+ * Parse ISO date string (YYYY-MM-DD) to Date at local midnight.
+ * Accepts YYYY-MM-DD only; if string has more (e.g. YYYY-MM-DDTHH:mm:ss), uses first 10 chars.
+ * Returns invalid-date-safe: if parsing fails, returns a fallback date so bar logic never breaks.
  */
-export function parseDate(iso: string): Date {
-  return new Date(iso + 'T00:00:00.000Z');
+export function parseDate(iso: string | null | undefined): Date {
+  const s = typeof iso === 'string' ? iso.trim().slice(0, 10) : '';
+  const parts = s.split('-');
+  if (parts.length !== 3) return new Date();
+  const y = parseInt(parts[0], 10);
+  const m = parseInt(parts[1], 10);
+  const d = parseInt(parts[2], 10);
+  if (isNaN(y) || isNaN(m) || isNaN(d) || m < 1 || m > 12 || d < 1 || d > 31) return new Date();
+  const date = new Date(y, m - 1, d);
+  if (isNaN(date.getTime())) return new Date();
+  return date;
 }
 
 /**
- * Format date to ISO YYYY-MM-DD
+ * Format date to ISO YYYY-MM-DD in local time (so saved dates match what the user picked).
  */
 export function toISODate(date: Date): string {
-  return date.toISOString().slice(0, 10);
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 }
 
 /**
@@ -48,4 +62,38 @@ export function startOfDay(date: Date): Date {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
   return d;
+}
+
+/**
+ * Get start of hour for a date (minutes, seconds, ms zeroed)
+ */
+export function startOfHour(date: Date): Date {
+  const d = new Date(date);
+  d.setMinutes(0, 0, 0);
+  return d;
+}
+
+/**
+ * Get start of week (Sunday 00:00) for a date
+ */
+export function startOfWeek(date: Date): Date {
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  const day = d.getDay();
+  d.setDate(d.getDate() - day);
+  return d;
+}
+
+/**
+ * Get first day of month at 00:00 for a date
+ */
+export function startOfMonth(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), 1, 0, 0, 0, 0);
+}
+
+/**
+ * Number of days in the month of the given date (28–31)
+ */
+export function getDaysInMonth(date: Date): number {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 }
