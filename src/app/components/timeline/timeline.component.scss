@@ -98,6 +98,9 @@
   min-height: 0;
   overflow-x: auto;
   overflow-y: visible; /* allow tooltip above first row to show */
+  scroll-snap-type: none; /* continuous scroll, no column/cell snapping */
+  scroll-behavior: auto;
+  -webkit-overflow-scrolling: touch; /* smooth momentum on iOS */
 }
 
 .timeline-grid {
@@ -126,7 +129,8 @@
   background-color: rgba(244, 245, 255, 1);
 }
 
-/* Badge: bottom-left of column header, no space between header bottom and badge top */
+/* Badge: bottom-left of column header, no space between header bottom and badge top.
+   z-index above hovered row (10) so current day/week/hour is always visible. */
 .current-day-badge {
   position: absolute;
   top: 0;
@@ -145,7 +149,7 @@
   font-weight: 400;
   font-style: normal;
   line-height: 18px;
-  z-index: 3;
+  z-index: 15;
   pointer-events: none;
 }
 
@@ -184,13 +188,14 @@
   background-color: rgba(0, 0, 0, 0.06);
 }
 
+/* Vertical line for current day/week/hour; above hovered row so it's always visible. */
 .current-day-indicator {
   position: absolute;
   top: calc(var(--timeline-header-height) + 27px); /* start below column header + badge row */
   bottom: 0;
   width: 2px;
   background-color: rgba(101, 112, 255, 0.2);
-  z-index: 2;
+  z-index: 15;
   pointer-events: none;
 }
 
@@ -212,6 +217,7 @@
   }
 
   &.hovered {
+    z-index: 5; /* below current-day badge/indicator (15) so row highlight stays behind them */
     background-color: rgba(238, 240, 255, 0.85); /* row hover; semi-transparent so vertical lines still pass under */
   }
 }
@@ -230,18 +236,19 @@
   overflow: visible;
 }
 
-.timeline-cell-highlight {
+/* One cell per column; placeholder lives inside so it moves with row on scroll */
+.timeline-cell {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 0;
-  background: var(--color-row-hover);
-  pointer-events: none;
-  z-index: 0;
-  transition: left 0.05s ease, width 0.05s ease;
+  z-index: 0; /* below work order bars so bars and three-dot menu stay clickable */
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Add dates placeholder: smooth fade-in; single custom tooltip (no native title) */
+/* Add dates placeholder: inside cell, position relative so tooltip anchors to it */
 @keyframes placeholder-box-in {
   from {
     opacity: 0;
@@ -261,15 +268,17 @@
 }
 
 .add-dates-placeholder-wrapper {
-  position: absolute;
-  top: 6px;
-  bottom: 6px;
-  left: 0;
-  min-width: 60px;
-  z-index: 0; /* below work order bars so placeholder/tooltip never display over bars */
+  position: relative; /* tooltip is absolute relative to this, so it stays anchored on scroll */
+  width: fit-content;
+  height: fit-content;
+  z-index: 100; /* above work order bars and current period badge so tooltip is always visible */
   cursor: pointer;
   pointer-events: auto;
   animation: placeholder-box-in 0.12s ease-out forwards;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .add-dates-placeholder-slot {
@@ -281,25 +290,37 @@
   background-color: rgba(101, 112, 255, 0.1);
   box-sizing: border-box;
   opacity: 1;
+  flex-shrink: 0;
 }
 
+/* Tooltip anchored to placeholder (above it); moves with the placeholder. */
 .add-dates-tooltip {
   position: absolute;
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
   margin-bottom: 4px;
-  padding: 6px 10px;
-  background-color: rgba(47, 48, 89, 1);
+  width: 130px;
+  height: 26px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background-color: rgba(104, 113, 150, 1);
   color: #fff;
   font-size: 12px;
   font-weight: 500;
   white-space: nowrap;
-  border-radius: 6px;
+  border-radius: 8px;
+  box-shadow:
+    0 2px 4px -2px rgba(200, 207, 233, 1),
+    0 0 16px -8px rgba(230, 235, 240, 1);
   pointer-events: none;
-  z-index: 0; /* pass under work order bars so tooltip never covers them */
+  z-index: 1; /* above placeholder slot within wrapper */
   opacity: 0;
-  transition: opacity 0.1s ease-out 0.08s;
+  visibility: hidden;
+  transition: opacity 0.15s ease-out, visibility 0.15s ease-out;
 
   /* Arrow points down to the placeholder bar below */
   &::after {
@@ -309,14 +330,11 @@
     left: 50%;
     transform: translateX(-50%);
     border: 5px solid transparent;
-    border-top-color: rgba(47, 48, 89, 1);
+    border-top-color: rgba(104, 113, 150, 1);
   }
-}
-
-.add-dates-placeholder-wrapper:hover {
-  z-index: 0; /* keep under work order bars so "Click to add dates" never displays over bars */
 }
 
 .add-dates-placeholder-wrapper:hover .add-dates-tooltip {
   opacity: 1;
+  visibility: visible;
 }

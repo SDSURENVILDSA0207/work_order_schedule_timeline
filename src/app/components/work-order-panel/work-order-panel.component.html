@@ -1,12 +1,12 @@
-<div class="panel-backdrop" (click)="onBackdropClick()">
-  <div class="panel" (click)="onPanelClick($event)">
+<div class="panel-backdrop" [class.panel-closing]="closing()" (click)="onBackdropClick()">
+  <div class="panel" #panelRef [class.panel-closing]="closing()" (click)="onPanelClick($event)">
     <form [formGroup]="form" (ngSubmit)="save()" class="panel-form-wrapper">
       <header class="panel-header">
         <div class="panel-header-row">
           <h2 class="panel-title">Work Order Details</h2>
           <div class="panel-header-actions">
-            <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
-            <button type="submit" class="btn-primary">{{ isEditMode() ? 'Save' : 'Create' }}</button>
+            <button type="button" class="btn-cancel" (click)="cancel()" tabindex="5">Cancel</button>
+            <button type="submit" class="btn-primary" tabindex="6">{{ isEditMode() ? 'Save' : 'Create' }}</button>
           </div>
         </div>
         <p class="panel-subtitle">Specify the dates, name and status for this order</p>
@@ -26,6 +26,8 @@
           formControlName="name"
           class="form-control"
           placeholder="Acme Inc."
+          tabindex="1"
+          #firstFocusable
         />
         @if (form.get('name')?.invalid && form.get('name')?.touched) {
           <span class="field-error">Required</span>
@@ -38,6 +40,7 @@
           class="status-select"
           id="status"
           formControlName="status"
+          tabindex="2"
           [items]="statusOptions"
           bindLabel="label"
           bindValue="value"
@@ -61,6 +64,7 @@
           class="form-control form-control-date"
           formControlName="endDate"
           ngbDatepicker
+          tabindex="4"
         />
         @if (form.get('endDate')?.invalid && form.get('endDate')?.touched) {
           <span class="field-error">End date must be after start date</span>
@@ -74,6 +78,7 @@
           class="form-control form-control-date"
           formControlName="startDate"
           ngbDatepicker
+          tabindex="3"
         />
         @if (form.get('startDate')?.invalid && form.get('startDate')?.touched) {
           <span class="field-error">Required</span>

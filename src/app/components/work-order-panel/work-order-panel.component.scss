@@ -1,3 +1,5 @@
+$panel-close-duration: 0.25s;
+
 .panel-backdrop {
   position: fixed;
   inset: 0;
@@ -8,6 +10,11 @@
   display: flex;
   justify-content: flex-end;
   animation: fadeIn 0.2s ease;
+  transition: opacity $panel-close-duration ease;
+
+  &.panel-closing {
+    opacity: 0;
+  }
 }
 
 .panel {
@@ -29,6 +36,11 @@
   overflow: hidden;
   isolation: isolate;
   animation: slideIn 0.25s ease;
+  transition: transform $panel-close-duration ease;
+
+  &.panel-closing {
+    transform: translateX(100%);
+  }
 }
 
 @keyframes fadeIn {

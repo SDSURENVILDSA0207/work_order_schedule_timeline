@@ -1,87 +1,108 @@
 # Work Order Schedule Timeline
 
-Angular application for managing work orders on a visual timeline. Built for the Naologic Frontend Technical Test.
+A single-page Angular application for viewing and managing work orders on a timeline. Work centers are shown as rows; each work order appears as a horizontal bar between start and end dates. You can create, edit, and delete work orders, change the time scale (hour / day / week / month), and scroll the timeline. **Infinite scroll** loads more date columns as you scroll left or right. Data and scroll position persist in the browser.
+
+---
 
 ## Features
 
-- **Timeline grid** – Hour / Day / Week / Month zoom, scrollable grid, fixed work-center column, current period indicator
-- **Work order bars** – Name, status badge, three-dot menu (Edit/Delete); position and length driven by start/end dates
-- **Create/Edit panel** – Slide-out form (591×1024px) with Work Order Name, Status (ng-select), End date, Start date
-- **Status dropdown** – Styled options; selected option in primary blue; non-selected Open/In progress/Complete use default grey; Blocked uses darker default; custom box-shadow and border-radius
-- **Overlap detection** – Prevents overlapping orders on the same work center
-- **Click to create** – Click empty timeline area to open create panel with date from click; Escape and backdrop close
+- **Timeline view** — Work centers as rows, time as horizontal axis with columns for the selected zoom (hour, day, week, month).
+- **Infinite scroll** — More date columns load dynamically when you scroll near the left edge (past dates) or right edge (future dates). The visible range grows as you scroll; zoom resets the range to a window around today.
+- **Work order bars** — Name and status (Open, In Progress, Complete, Blocked) with distinct colors; bars are vertically centered in each row.
+- **Create** — Click an empty area on a row to open the create panel and add a new work order (name, work center, status, start/end dates). Overlap with existing orders on the same work center is prevented. “Click to add dates” tooltip and placeholder appear on hover; they sit above the current month/day/week/hour indicator.
+- **Edit / Delete** — Use the ⋯ menu on a bar to edit or delete; only one such menu is open at a time.
+- **Work order panel** — Tab through the form (name → status → start date → end date → Cancel → Save). Escape closes the panel. Closing uses a smooth slide-out (left to right) and backdrop fade.
+- **Zoom** — Switch between hour, day, week, and month. Default on load is **month**.
+- **Scroll** — Horizontal scroll is smooth (pixel-based). Scroll position is restored after refresh.
+- **Persistence** — Work orders are stored in `localStorage` and restored on refresh. Timeline scroll position is also saved and restored.
 
-## Prerequisites
+---
 
-- **Node.js** 18+ and **npm** (or use the project’s `packageManager`)
+## Tech stack
 
-## Quick start
+- **Angular 21** (standalone components, signals)
+- **SCSS** for styling; design tokens in `src/styles.scss` and `DESIGN_TOKENS.md`
+- **RxJS** for events (scroll, wheel)
+- **Bootstrap** and **ng-bootstrap** (as referenced in `angular.json`)
+
+---
+
+## Getting started
+
+### Prerequisites
+
+- Node.js (v18+ recommended)
+- npm (v9+)
+
+### Install and run
 
 ```bash
 npm install
 npm start
 ```
 
-Open [http://localhost:4200](http://localhost:4200).
+Open [http://localhost:4200](http://localhost:4200). The app loads with sample work centers and work orders (or your previously saved work orders from `localStorage`).
 
-## Scripts
+### Build
 
-| Command        | Description                |
-|----------------|----------------------------|
-| `npm start`    | Run dev server             |
-| `npm run build`| Production build           |
-| `npm run test` | Run unit tests             |
-
-## Tech stack
-
-- **Angular** 21 (standalone components)
-- **@ng-select/ng-select** – Status dropdown
-- **@ng-bootstrap/ng-bootstrap** – Date picker
-- **SCSS** – Styles and design tokens in `src/styles.scss`
-
-## Project structure
-
-```
-src/
-├── app/                    # App shell, timeline, work-order-panel
-├── core/                   # Models, services, constants
-├── features/timeline/      # Timeline page, grid, bars, header, work-order-panel
-├── shared/                 # Shared utilities (e.g. date utils)
-├── styles.scss             # Global tokens and reset
-└── index.html
+```bash
+npm run build
 ```
 
-## Documentation
+Production artifacts are in `dist/`.
 
-- **Implementation guide** – Step-by-step plan and architecture: see **Implementation guide** section below (or `README-IMPLEMENTATION.md` if split).
-- **AI prompts log** – All prompts used during development: **AIPROMPTS.md**.
+### Tests
+
+```bash
+npm test
+```
 
 ---
 
-## Implementation guide (summary)
+## Project structure (main app)
 
-### Setup and tooling
+```
+src/
+├── app/
+│   ├── app.ts              # Root component (renders <app-timeline />)
+│   ├── app.html
+│   ├── app.config.ts       # Providers (animations, NgbModule)
+│   ├── components/
+│   │   ├── timeline/       # Timeline grid, rows, columns, “click to add”, zoom
+│   │   ├── work-order-bar/ # Single work order bar + ⋯ menu (Edit/Delete)
+│   │   ├── work-order-panel/ # Create/Edit slide-in panel
+│   │   └── timescale-selector/ # Hour / Day / Week / Month
+│   ├── services/
+│   │   ├── work-order.service.ts  # Work centers + work orders, CRUD, persistence
+│   │   └── timeline.service.ts    # Dynamic range (infinite scroll), columns, zoom, date↔pixel
+│   ├── models/
+│   │   └── work-order.model.ts    # WorkCenterDocument, WorkOrderDocument, etc.
+│   ├── data/
+│   │   └── sample-data.ts         # Initial work centers and work orders
+│   └── utils/
+│       └── date.utils.ts          # parseDate, toISODate, addDays, addMonths
+├── styles.scss             # Global styles and design tokens
+└── main.ts                 # Bootstrap App
+```
 
-- Angular 17+ with strict TypeScript, SCSS, standalone components.
-- Libraries: `@ng-bootstrap/ng-bootstrap`, `@ng-select/ng-select`.
-- Global styles and Circular Std font in `index.html` and `styles.scss`.
+There is also a `src/features/timeline/` tree (timeline-page, schedule-sidebar, timeline-grid, etc.) used by an alternative page composition; the default entry point uses `src/app` and `<app-timeline />` as above.
 
-### Architecture
+---
 
-- **App**: Header (logo) + timeline page.
-- **Timeline**: Schedule header (title, timescale dropdown), work-center list, scrollable grid, work order bars, create/edit slide-out panel.
-- **Data**: `WorkOrderDataService` – work centers and work orders; CRUD for work orders; overlap validation.
+## Design and tokens
 
-### Status dropdown (Work Order Details panel)
+See **DESIGN_TOKENS.md** for colors, typography, layout (row height, panel width, etc.), and spacing. Prefer these tokens when changing styles.
 
-- **Selected value**: Pill per status (open, in-progress, complete, blocked).
-- **Dropdown list**: Tighter option spacing; custom box-shadow and border-radius; no default background highlight on selected option.
-- **Colors**: Selected option → primary blue; non-selected Open/In progress/Complete → `rgba(47, 48, 89, 1)`; non-selected Blocked → `rgba(3, 9, 41, 1)`.
+---
 
-### Key behaviours
+## Data and persistence
 
-- Bar position/length from `dateToPixel(startDate)` and `dateToPixel(addDays(endDate, 1))`; min bar width 24px.
-- Create: start date from click position, end date = start + 7 days.
-- Overlap: same work center, overlapping date ranges block create/update and show error in panel.
+- **Work centers** — Loaded from `src/app/data/sample-data.ts` (not persisted).
+- **Work orders** — Stored in `localStorage` under `work_order_timeline_work_orders`. Any create, edit, or delete updates this. On load, the app uses saved data if valid; otherwise it falls back to sample work orders.
+- **Timeline UI** — Scroll position is stored in `work_order_timeline_state`. Zoom is not restored; it always defaults to month on reload. The timeline uses a **dynamic date range** (infinite scroll); the range is extended when scrolling near the left or right edge.
 
-For the full step-by-step plan, data model, and testing strategy, see the long-form implementation guide previously maintained in this README or in separate docs.
+---
+
+## License and attribution
+
+Private / take-home project. Design tokens and layout follow the references cited in `DESIGN_TOKENS.md`.

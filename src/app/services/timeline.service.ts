@@ -8,6 +8,7 @@ import type { TimelineZoom } from '../models/work-order.model';
 import {
   addDays,
   addHours,
+  addMonths,
   diffDays,
   parseDate,
   startOfDay,
@@ -32,6 +33,80 @@ const TIMELINE_RANGE_END = new Date(2027, 0, 1, 0, 0, 0, 0);     // Jan 1, 2027 
 
 @Injectable({ providedIn: 'root' })
 export class TimelineService {
+  /**
+   * Initial range for infinite scroll: centered on today with default window.
+   */
+  getInitialRange(zoom: TimelineZoom): TimelineRange {
+    const now = new Date();
+    switch (zoom) {
+      case 'hour':
+        return {
+          start: startOfHour(addHours(now, -12 * 24)),
+          end: startOfHour(addHours(now, 12 * 24)),
+        };
+      case 'day':
+        return {
+          start: startOfDay(addDays(now, -90)),
+          end: startOfDay(addDays(now, 90)),
+        };
+      case 'week':
+        return {
+          start: startOfWeek(addDays(now, -52 * 7)),
+          end: startOfWeek(addDays(now, 52 * 7)),
+        };
+      case 'month':
+        return {
+          start: startOfMonth(addMonths(now, -12)),
+          end: startOfMonth(addMonths(now, 13)), // 13 so end is exclusive and we include +12
+        };
+      default:
+        return {
+          start: startOfDay(addDays(now, -90)),
+          end: startOfDay(addDays(now, 90)),
+        };
+    }
+  }
+
+  /**
+   * Extend range by N periods to the past (for prepend when scrolling left).
+   */
+  extendRangeStart(range: TimelineRange, zoom: TimelineZoom, periods: number): Date {
+    const start = new Date(range.start);
+    switch (zoom) {
+      case 'hour':
+        start.setTime(start.getTime() - periods * 60 * 60 * 1000);
+        return startOfHour(start);
+      case 'day':
+        return startOfDay(addDays(start, -periods));
+      case 'week':
+        return startOfWeek(addDays(start, -periods * 7));
+      case 'month':
+        return startOfMonth(addMonths(start, -periods));
+      default:
+        return startOfDay(addDays(start, -periods));
+    }
+  }
+
+  /**
+   * Extend range by N periods to the future (for append when scrolling right).
+   */
+  extendRangeEnd(range: TimelineRange, zoom: TimelineZoom, periods: number): Date {
+    const end = new Date(range.end);
+    switch (zoom) {
+      case 'hour':
+        end.setTime(end.getTime() + periods * 60 * 60 * 1000);
+        return startOfHour(end);
+      case 'day':
+        return startOfDay(addDays(end, periods));
+      case 'week':
+        return startOfWeek(addDays(end, periods * 7));
+      case 'month':
+        return startOfMonth(addMonths(end, periods));
+      default:
+        return startOfDay(addDays(end, periods));
+    }
+  }
+
   /**
    * Get visible date range: fixed Jan 2023 – Dec 2026 for all zoom levels.
    * Month view shows 48 columns (Jan 2023 … Dec 2026).

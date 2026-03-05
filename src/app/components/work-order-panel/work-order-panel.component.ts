@@ -8,6 +8,9 @@ import {
   effect,
   computed,
   HostListener,
+  ViewChild,
+  ElementRef,
+  afterNextRender,
 } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
@@ -99,10 +102,18 @@ export class WorkOrderPanelComponent {
   form!: FormGroup;
   overlapError = signal<string | null>(null);
   statusOptions = STATUS_OPTIONS;
+  /** True while the close animation (slide right) is running. */
+  closing = signal(false);
+
+  @ViewChild('firstFocusable') firstFocusableRef?: ElementRef<HTMLInputElement>;
+  @ViewChild('panelRef') panelRef?: ElementRef<HTMLElement>;
 
   isEditMode = computed(() => this.mode() === 'edit');
 
   constructor() {
+    afterNextRender(() => {
+      this.firstFocusableRef?.nativeElement?.focus();
+    });
     this.form = this.fb.group({
       name: ['', Validators.required],
       status: ['open' as WorkOrderStatus, Validators.required],
@@ -156,7 +167,22 @@ export class WorkOrderPanelComponent {
   }
 
   cancel(): void {
-    this.closed.emit();
+    this.startClosing();
+  }
+
+  /** Runs slide-out (left to right) transition, then emits closed. */
+  private startClosing(): void {
+    if (this.closing()) return;
+    this.closing.set(true);
+    requestAnimationFrame(() => {
+      const el = this.panelRef?.nativeElement;
+      if (el) {
+        const onEnd = () => this.closed.emit();
+        el.addEventListener('transitionend', onEnd, { once: true });
+      } else {
+        this.closed.emit();
+      }
+    });
   }
 
   save(): void {
@@ -210,7 +236,7 @@ export class WorkOrderPanelComponent {
   }
 
   onBackdropClick(): void {
-    this.closed.emit();
+    this.startClosing();
   }
 
   onPanelClick(event: Event): void {

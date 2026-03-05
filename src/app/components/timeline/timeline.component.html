@@ -77,28 +77,35 @@
           @for (wc of workCenters(); track wc.docId) {
             <div
               class="timeline-row"
+              [attr.data-work-center-id]="wc.docId"
               [class.first-row]="$first"
               [class.hovered]="hoveredRowId() === wc.docId"
-              [class.menu-open]="openMenuRowIds().includes(wc.docId)"
-              (mouseenter)="onRowMouseEnter(wc.docId, $event)"
-              (mousemove)="onRowMouseMove(wc.docId, $event)"
+              [class.menu-open]="openMenuBarId()?.startsWith(wc.docId + ':') ?? false"
+              (mouseenter)="onRowMouseEnter(wc.docId)"
               (mouseleave)="onRowMouseLeave()"
               (click)="onRowClick(wc.docId, $event)"
             >
               <div class="timeline-row-inner">
-                <!-- Add dates placeholder + tooltip: only in empty cells (never on top of bars) -->
-                @if (getCellHighlight(wc.docId); as cell) {
-                  @if (isCellEmpty(wc.docId, cell.left, cell.width)) {
-                    <div
-                      class="add-dates-placeholder-wrapper"
-                      [style.left.px]="cell.left"
-                      [style.width.px]="cell.width"
-                      aria-label="Click to add dates"
-                    >
-                      <div class="add-dates-tooltip">Click to add dates</div>
-                      <div class="add-dates-placeholder-slot" aria-label="Click to add dates"></div>
-                    </div>
-                  }
+                <!-- Cell layer: one cell per column; placeholder only in empty cells, moves with row on scroll -->
+                @for (col of columns(); track col.label; let i = $index) {
+                  <div
+                    class="timeline-cell"
+                    [style.left.px]="i * colWidth()"
+                    [style.width.px]="colWidth()"
+                    (mouseenter)="onCellMouseEnter(wc.docId, i)"
+                    (mouseleave)="onCellMouseLeave()"
+                  >
+                    @if (hoveredRowId() === wc.docId && hoveredCellIndex() === i) {
+                      <div
+                        #placeholderWrapperRef
+                        class="add-dates-placeholder-wrapper"
+                        aria-label="Click to add dates"
+                      >
+                        <div class="add-dates-tooltip">Click to add dates</div>
+                        <div class="add-dates-placeholder-slot" aria-label="Click to add dates"></div>
+                      </div>
+                    }
+                  </div>
                 }
                 @for (order of workOrderService.getOrdersForWorkCenter(wc.docId); track order.docId) {
                   <app-work-order-bar
@@ -106,7 +113,8 @@
                     [left]="getBarPosition(order).left"
                     [width]="getBarPosition(order).width"
                     [panelOpen]="panelOpen() !== null"
-                    (openChange)="onBarMenuOpenChange(wc.docId, $event)"
+                    [forceCloseMenu]="openMenuBarId() !== null && openMenuBarId() !== (wc.docId + ':' + order.docId)"
+                    (openChange)="onBarMenuOpenChange(wc.docId, order.docId, $event)"
                     (edit)="onEdit($event)"
                     (delete)="onDelete($event)"
                   />

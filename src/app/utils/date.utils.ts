@@ -92,6 +92,15 @@ export function startOfMonth(date: Date): Date {
 }
 
 /**
+ * Add months to a date (same day of month when possible)
+ */
+export function addMonths(date: Date, months: number): Date {
+  const result = new Date(date);
+  result.setMonth(result.getMonth() + months);
+  return result;
+}
+
+/**
  * Number of days in the month of the given date (28–31)
  */
 export function getDaysInMonth(date: Date): number {

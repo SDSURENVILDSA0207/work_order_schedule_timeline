@@ -64,10 +64,11 @@ const DROPDOWN_GAP_PX = 4;
   `,
   styles: `
     :host {
-      display: block;
+      display: flex;
+      align-items: center; /* vertical middle of row */
       position: absolute;
-      top: 6px;
-      height: calc(100% - 12px);
+      top: 0;
+      bottom: 0;
       min-width: 24px; /* flexible: bar shrinks to fit date range; small min keeps it clickable */
       box-sizing: border-box;
       z-index: 2; /* above placeholder so three-dot menu is always clickable */
@@ -273,6 +274,8 @@ export class WorkOrderBarComponent {
   width = input.required<number>();
   /** When true (Work Order Details panel is open), this bar closes its dropdown so it never overlaps the panel. */
   panelOpen = input<boolean>(false);
+  /** When true, another bar’s menu is open; this bar must close its menu so only one is open. */
+  forceCloseMenu = input<boolean>(false);
 
   edit = output<WorkOrderDocument>();
   delete = output<WorkOrderDocument>();
@@ -296,6 +299,11 @@ export class WorkOrderBarComponent {
 
     effect(() => {
       if (this.panelOpen()) {
+        this.closeMenu();
+      }
+    });
+    effect(() => {
+      if (this.forceCloseMenu() && this.menuOpen()) {
         this.closeMenu();
       }
     });
