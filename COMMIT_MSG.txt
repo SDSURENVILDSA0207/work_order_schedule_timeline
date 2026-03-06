@@ -1,0 +1,37 @@
+feat: timeline UX, persistence, infinite scroll, and panel improvements
+
+Timeline & click-to-add
+- Show "Click to add dates" on hover anywhere in a row (column-wise)
+- Style tooltip: 130×26px, rounded, shadow, rgba(104,113,150) background
+- Tooltip and placeholder move together; fixed positioning so they sit above
+  current month/day/week/hour (z-index 20)
+- Row hover highlight below current period badge/line (z-index 5); badge/line
+  at z-index 15
+- Smooth horizontal scroll: scroll-snap-type none, pixel-based wheel handler
+
+Persistence
+- Persist work orders in localStorage (work_order_timeline_work_orders);
+  load on init, save on create/update/delete
+- Persist timeline scroll position (work_order_timeline_state); default zoom
+  to month on reload, restore scroll only
+
+Edit/delete & panel
+- Only one edit/delete menu open at a time (openMenuBarId, forceCloseMenu)
+- Work order panel: Tab through form (name→status→start→end→Cancel→Save),
+  Escape to close, focus first field on open
+- Panel close: smooth slide-out right + backdrop fade, emit closed after
+  transitionend
+
+Layout & bar
+- Vertically center work order bars in the row (flex align-items center)
+
+Infinite scroll
+- Dynamic date range: getInitialRange(zoom), extendRangeStart/End in
+  TimelineService; addMonths in date.utils
+- Prepend past dates when scrolling left (with scroll position adjustment),
+  append future dates when scrolling right; zoom resets range to initial
+  window
+
+Docs
+- Add/update AIPROMPTS.md and README.md (conventions, behaviors, infinite
+  scroll, layering, persistence, keyboard, panel close)

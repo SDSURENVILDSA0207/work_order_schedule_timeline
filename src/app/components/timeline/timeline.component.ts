@@ -18,7 +18,7 @@ import type { WorkCenterDocument, WorkOrderDocument, TimelineZoom } from '../../
 import { WorkOrderService } from '../../services/work-order.service';
 import type { TimelineRange } from '../../services/timeline.service';
 import { TimelineService } from '../../services/timeline.service';
-import { parseDate, toISODate, addDays } from '../../utils/date.utils';
+import { parseDate, toISODate, addDays, startOfDay } from '../../utils/date.utils';
 import { TimescaleSelectorComponent } from '../timescale-selector/timescale-selector.component';
 import { WorkOrderBarComponent } from '../work-order-bar/work-order-bar.component';
 import { WorkOrderPanelComponent } from '../work-order-panel/work-order-panel.component';
@@ -68,7 +68,7 @@ export class TimelineComponent {
   protected timelineService = inject(TimelineService);
 
   /** Default timescale on load/reload. */
-  zoom = signal<TimelineZoom>('month');
+  zoom = signal<TimelineZoom>('day');
   hoveredRowId = signal<string | null>(null);
   /** Single open bar id "workCenterId:orderDocId"; when one menu opens, others close. */
   openMenuBarId = signal<string | null>(null);
@@ -134,6 +134,15 @@ export class TimelineComponent {
     const range = this.range();
     return today >= range.start && today <= range.end;
   });
+  /** Column index for the current day (placeholder shows in this column when hovering a row). */
+  currentDayColumnIndex = computed(() => {
+    if (!this.isTodayInRange()) return null;
+    const pos = this.todayPosition();
+    const cw = this.colWidth();
+    const cols = this.columns();
+    const idx = Math.floor(pos / cw);
+    return Math.max(0, Math.min(cols.length - 1, idx));
+  });
 
   setZoom(z: TimelineZoom): void {
     this.zoom.set(z);
@@ -149,21 +158,31 @@ export class TimelineComponent {
     return clientX - rowRect.left + scrollLeft;
   }
 
-  openCreatePanel(workCenterId: string, contentX: number): void {
+  /** Open create panel with start date from the clicked cell (so the date matches the block). */
+  onCellClick(workCenterId: string, cellIndex: number): void {
     this.draftOrderDates.set(null);
+    const columns = this.columns();
+    const col = columns[Math.max(0, Math.min(cellIndex, columns.length - 1))];
+    const raw = col?.date;
+    if (!raw) return;
+    const zoom = this.zoom();
+    const year = raw.getFullYear();
+    const month = raw.getMonth();
+    const day = zoom === 'month' ? 1 : raw.getDate();
+    const dateForPrefill = new Date(year, month, day);
+    const startDate = toISODate(dateForPrefill);
+    this.createContext.set({ workCenterId, startDate });
+    this.editOrder.set(null);
+    this.panelOpen.set('create');
+  }
+
+  openCreatePanel(workCenterId: string, contentX: number): void {
     const columns = this.columns();
     const colWidth = this.colWidth();
     const total = this.totalWidth();
     const clampedX = Math.max(0, Math.min(contentX, total - 1));
-    const cellIndex = Math.min(
-      Math.floor(clampedX / colWidth),
-      columns.length - 1
-    );
-    const cellDate = columns[Math.max(0, cellIndex)]?.date;
-    const startDate = cellDate ? toISODate(cellDate) : toISODate(this.timelineService.pixelToDate(clampedX, this.range().start, this.range().end, total));
-    this.createContext.set({ workCenterId, startDate });
-    this.editOrder.set(null);
-    this.panelOpen.set('create');
+    const cellIndex = Math.min(Math.floor(clampedX / colWidth), columns.length - 1);
+    this.onCellClick(workCenterId, cellIndex);
   }
 
   openEditPanel(order: WorkOrderDocument): void {
@@ -199,11 +218,12 @@ export class TimelineComponent {
     const startStr = useDraft ? draft.startDate : order.data.startDate;
     const endStr = useDraft ? draft.endDate : order.data.endDate;
 
-    let startDate = parseDate(startStr);
-    let endDate = parseDate(endStr);
+    let startDate = startOfDay(parseDate(startStr));
+    let endDate = startOfDay(parseDate(endStr));
     if (endDate.getTime() < startDate.getTime()) endDate = new Date(startDate.getTime());
 
-    // Bar length = exact date range: from start date (00:00) to end of end date (start of next day)
+    // Bar spans [startDate 00:00, end of endDate] = [startDate, start of next day after endDate]
+    const barEndExclusive = addDays(endDate, 1);
     const leftPx = this.timelineService.dateToPixel(
       startDate,
       range.start,
@@ -212,16 +232,19 @@ export class TimelineComponent {
       zoom
     );
     const rightPx = this.timelineService.dateToPixel(
-      addDays(endDate, 1),
+      barEndExclusive,
       range.start,
       range.end,
       total,
       zoom
     );
-    const width = Math.max(rightPx - leftPx, 24);
-    const left = Math.max(0, Math.min(leftPx, total - width));
-
-    return { left, width };
+    const widthPx = Math.max(rightPx - leftPx, 24);
+    const leftPxClamped = Math.max(0, Math.min(leftPx, total - widthPx));
+    // Round to whole pixels so bars align cleanly with the grid
+    return {
+      left: Math.round(leftPxClamped),
+      width: Math.round(widthPx),
+    };
   }
 
   onEdit(order: WorkOrderDocument): void {
@@ -323,7 +346,7 @@ export class TimelineComponent {
   constructor() {
     const saved = loadTimelineState();
     if (saved) {
-      /* Keep default zoom (month) on reload; only restore scroll position */
+      /* Keep default zoom (day) on reload; only restore scroll position */
       this.savedStateOnLoad = saved;
     }
     afterNextRender(() => {

@@ -49,6 +49,21 @@
   --panel-width: 400px;
 }
 
+// Responsiveness: don't break on smaller screens; horizontal scroll on timeline is acceptable
+@media (max-width: 768px) {
+  :root {
+    --timeline-left-width: 240px;
+    --panel-width: min(400px, 100vw - 24px);
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --timeline-left-width: 160px;
+    --timeline-row-height: 52px;
+  }
+}
+
 // ─── Global Reset ────────────────────────────────────────────────────────────
 *,
 *::before,
@@ -62,6 +77,7 @@ body {
   background: #ffffff;
   margin: 0;
   padding: 0;
+  min-width: 280px; /* avoid horizontal body scroll from min content */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

@@ -11,6 +11,7 @@ import {
   ViewChild,
   ElementRef,
   afterNextRender,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
@@ -21,7 +22,7 @@ import {
 } from '@ng-bootstrap/ng-bootstrap';
 import type { WorkOrderDocument, WorkOrderStatus } from '../../models/work-order.model';
 import { WorkOrderService } from '../../services/work-order.service';
-import { addDays, toISODate } from '../../utils/date.utils';
+import { addDays, toISODate, parseDate } from '../../utils/date.utils';
 
 const STATUS_OPTIONS: { value: WorkOrderStatus; label: string }[] = [
   { value: 'open', label: 'Open' },
@@ -30,8 +31,15 @@ const STATUS_OPTIONS: { value: WorkOrderStatus; label: string }[] = [
   { value: 'blocked', label: 'Blocked' },
 ];
 
+/** Parse ISO date string (YYYY-MM-DD only) to NgbDateStruct; uses first 10 chars so month/year/day are correct in local context. */
 function isoToNgb(iso: string): NgbDateStruct {
-  const [y, m, d] = iso.split('-').map(Number);
+  const s = iso.trim().slice(0, 10);
+  const parts = s.split('-');
+  if (parts.length !== 3) return { year: 0, month: 1, day: 1 };
+  const y = parseInt(parts[0], 10);
+  const m = parseInt(parts[1], 10);
+  const d = parseInt(parts[2], 10);
+  if (isNaN(y) || isNaN(m) || isNaN(d)) return { year: y || 0, month: m || 1, day: d || 1 };
   return { year: y, month: m, day: d };
 }
 
@@ -41,26 +49,26 @@ function ngbToIso(d: NgbDateStruct): string {
   return `${d.year}-${m}-${day}`;
 }
 
-/** Parser/formatter for date input: display and parse as dd.MM.yyyy with "." separator */
+/** Parser/formatter for date input: display and parse as MM.DD.YYYY (USA order, dot separator). */
 function padNum(v: number | null): string {
   if (v == null || isNaN(v)) return '';
   return `0${v}`.slice(-2);
 }
 
 @Injectable()
-class DotDateParserFormatter extends NgbDateParserFormatter {
+class UsaDateParserFormatter extends NgbDateParserFormatter {
   format(date: NgbDateStruct | null): string {
     if (!date || date.day == null || date.month == null || date.year == null) return '';
-    return `${padNum(date.day)}.${padNum(date.month)}.${date.year}`;
+    return `${padNum(date.month)}.${padNum(date.day)}.${date.year}`;
   }
   parse(value: string): NgbDateStruct | null {
     if (!value?.trim()) return null;
-    const parts = value.trim().split('.');
+    const parts = value.trim().split(/[.\/\-]/);
     if (parts.length !== 3) return null;
-    const day = parseInt(parts[0], 10);
-    const month = parseInt(parts[1], 10);
+    const month = parseInt(parts[0], 10);
+    const day = parseInt(parts[1], 10);
     const year = parseInt(parts[2], 10);
-    if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+    if (isNaN(month) || isNaN(day) || isNaN(year)) return null;
     return { year, month, day };
   }
 }
@@ -83,11 +91,12 @@ function endDateAfterStartValidator(getForm: () => FormGroup): (control: Abstrac
   imports: [ReactiveFormsModule, NgSelectModule, NgbInputDatepicker],
   templateUrl: './work-order-panel.component.html',
   styleUrl: './work-order-panel.component.scss',
-  providers: [{ provide: NgbDateParserFormatter, useClass: DotDateParserFormatter }],
+  providers: [{ provide: NgbDateParserFormatter, useClass: UsaDateParserFormatter }],
 })
 export class WorkOrderPanelComponent {
   private fb = inject(FormBuilder);
   private workOrderService = inject(WorkOrderService);
+  private cdr = inject(ChangeDetectorRef);
 
   mode = input<'create' | 'edit'>('create');
   workCenterId = input.required<string>();
@@ -148,20 +157,33 @@ export class WorkOrderPanelComponent {
 
       if (mode === 'create' && startPrefill) {
         const start = isoToNgb(startPrefill);
-        const endDate = addDays(new Date(startPrefill), 7);
+        const endNgb = isoToNgb(toISODate(addDays(parseDate(startPrefill), 7)));
         this.form.patchValue({
           name: '',
           status: 'open',
           startDate: start,
-          endDate: isoToNgb(toISODate(endDate)),
+          endDate: endNgb,
         });
+        // Re-apply dates next tick so datepicker displays them in MM.DD.YYYY via formatter
+        setTimeout(() => {
+          this.form.get('startDate')?.setValue(start);
+          this.form.get('endDate')?.setValue(endNgb);
+          this.cdr.detectChanges();
+        }, 0);
       } else if (mode === 'edit' && order) {
+        const start = isoToNgb(order.data.startDate);
+        const end = isoToNgb(order.data.endDate);
         this.form.patchValue({
           name: order.data.name,
           status: order.data.status,
-          startDate: isoToNgb(order.data.startDate),
-          endDate: isoToNgb(order.data.endDate),
+          startDate: start,
+          endDate: end,
         });
+        setTimeout(() => {
+          this.form.get('startDate')?.setValue(start);
+          this.form.get('endDate')?.setValue(end);
+          this.cdr.detectChanges();
+        }, 0);
       }
     });
   }

@@ -4,12 +4,22 @@
   min-height: 100vh;
   padding: 24px 24px 24px 102px;
   max-width: 100%;
-  overflow: visible;
-  background-color: #ffffff; /* white outside only; work center + timeline container unchanged inside */
+  overflow-x: hidden; /* contain horizontal scroll to timeline grid only */
+  overflow-y: visible;
+  background-color: #ffffff;
+
+  @media (max-width: 768px) {
+    padding: 16px 12px 16px 16px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 12px 8px 12px 12px;
+  }
 }
 
 .timeline-header {
   margin-bottom: 20px;
+  flex-shrink: 0;
 
   .header-controls {
     display: flex;
@@ -23,8 +33,8 @@
     height: 15px;
     object-fit: contain;
     object-position: left top;
-    margin-bottom: 45px; /* space between NAOLOGIC and Work Orders */
-    filter: brightness(1.3); /* light blue appearance to match expected */
+    margin-bottom: 45px;
+    filter: brightness(1.3);
   }
 
   .title {
@@ -32,6 +42,25 @@
     font-weight: 700;
     color: var(--color-text-primary);
     margin: 0 0 12px 0;
+    word-break: break-word;
+  }
+
+  @media (max-width: 768px) {
+    margin-bottom: 12px;
+
+    .logo {
+      margin-bottom: 24px;
+    }
+
+    .title {
+      font-size: 22px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .title {
+      font-size: 18px;
+    }
   }
 }
 
@@ -49,19 +78,21 @@
 .timeline-grid-wrapper {
   display: flex;
   flex: 1;
-  min-height: 0; /* allow flex child to shrink so scroll works */
+  min-height: 0;
+  min-width: 0; /* allow timeline grid to shrink and scroll horizontally on small screens */
 }
 
 .timeline-left {
   width: var(--timeline-left-width);
+  min-width: 120px; /* keep labels readable on very small screens */
   flex-shrink: 0;
   border-right: 1px solid var(--color-stroke);
-  background-color: #ffffff; /* keep Work Center column white against tinted grid background */
+  background-color: #ffffff;
 }
 
 .timeline-left-header {
   height: var(--timeline-header-height);
-  margin-bottom: 9px; /* gap so first work center aligns with first timeline row */
+  margin-bottom: 9px;
   padding: 0 16px 0 31px;
   display: flex;
   align-items: center;
@@ -71,8 +102,12 @@
   font-size: 14px;
   font-weight: 500;
   line-height: 16px;
-  /* Same border as .timeline-grid-header so the line is one continuous straight line */
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+
+  @media (max-width: 480px) {
+    padding: 0 8px 0 12px;
+    font-size: 12px;
+  }
 }
 
 .timeline-row-label {
@@ -87,20 +122,29 @@
   font-weight: 500;
   transition: background 0.15s ease;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   &.hovered {
     background: rgba(104, 113, 150, 0.06);
+  }
+
+  @media (max-width: 480px) {
+    padding: 0 8px 0 12px;
+    font-size: 12px;
   }
 }
 
 .timeline-grid-scroll {
   flex: 1;
   min-height: 0;
-  overflow-x: auto;
-  overflow-y: visible; /* allow tooltip above first row to show */
-  scroll-snap-type: none; /* continuous scroll, no column/cell snapping */
+  min-width: 0;
+  overflow-x: auto; /* horizontal scroll on mobile is acceptable per requirements */
+  overflow-y: visible;
+  scroll-snap-type: none;
   scroll-behavior: auto;
-  -webkit-overflow-scrolling: touch; /* smooth momentum on iOS */
+  -webkit-overflow-scrolling: touch;
 }
 
 .timeline-grid {
@@ -219,6 +263,11 @@
   &.hovered {
     z-index: 5; /* below current-day badge/indicator (15) so row highlight stays behind them */
     background-color: rgba(238, 240, 255, 0.85); /* row hover; semi-transparent so vertical lines still pass under */
+  }
+
+  /* When "Click to add dates" is shown over the current day cell, raise row so the placeholder is over the current day/month/week indicator */
+  &.placeholder-over-current {
+    z-index: 25;
   }
 }
 

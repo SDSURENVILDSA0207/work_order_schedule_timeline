@@ -18,7 +18,7 @@ $panel-close-duration: 0.25s;
 }
 
 .panel {
-  width: 591px;
+  width: min(591px, 100vw - 24px); /* full width on small screens with margin */
   height: 1024px;
   max-height: 100vh;
   max-width: 100%;

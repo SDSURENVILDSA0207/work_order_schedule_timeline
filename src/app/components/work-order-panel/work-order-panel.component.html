@@ -58,20 +58,6 @@
       </div>
 
       <div class="form-group form-group-date">
-        <label for="endDate">End date</label>
-        <input
-          id="endDate"
-          class="form-control form-control-date"
-          formControlName="endDate"
-          ngbDatepicker
-          tabindex="4"
-        />
-        @if (form.get('endDate')?.invalid && form.get('endDate')?.touched) {
-          <span class="field-error">End date must be after start date</span>
-        }
-      </div>
-
-      <div class="form-group form-group-date">
         <label for="startDate">Start date</label>
         <input
           id="startDate"
@@ -82,6 +68,20 @@
         />
         @if (form.get('startDate')?.invalid && form.get('startDate')?.touched) {
           <span class="field-error">Required</span>
+        }
+      </div>
+
+      <div class="form-group form-group-date">
+        <label for="endDate">End date</label>
+        <input
+          id="endDate"
+          class="form-control form-control-date"
+          formControlName="endDate"
+          ngbDatepicker
+          tabindex="4"
+        />
+        @if (form.get('endDate')?.invalid && form.get('endDate')?.touched) {
+          <span class="field-error">End date must be after start date</span>
         }
       </div>
       </div>

@@ -9,10 +9,10 @@ A single-page Angular application for viewing and managing work orders on a time
 - **Timeline view** — Work centers as rows, time as horizontal axis with columns for the selected zoom (hour, day, week, month).
 - **Infinite scroll** — More date columns load dynamically when you scroll near the left edge (past dates) or right edge (future dates). The visible range grows as you scroll; zoom resets the range to a window around today.
 - **Work order bars** — Name and status (Open, In Progress, Complete, Blocked) with distinct colors; bars are vertically centered in each row.
-- **Create** — Click an empty area on a row to open the create panel and add a new work order (name, work center, status, start/end dates). Overlap with existing orders on the same work center is prevented. “Click to add dates” tooltip and placeholder appear on hover; they sit above the current month/day/week/hour indicator.
+- **Create** — Click a cell (or the “click to add dates” placeholder) on a row to open the create panel; the start date is taken from the column you clicked (e.g. Jun 2024 block → 1st June 2024). Form order: name → status → start date → end date. Dates display as **MM.DD.YYYY** (USA, dots). Overlap on the same work center is prevented. The placeholder appears over the current day column when you hover a row and sits above the current day indicator.
 - **Edit / Delete** — Use the ⋯ menu on a bar to edit or delete; only one such menu is open at a time.
 - **Work order panel** — Tab through the form (name → status → start date → end date → Cancel → Save). Escape closes the panel. Closing uses a smooth slide-out (left to right) and backdrop fade.
-- **Zoom** — Switch between hour, day, week, and month. Default on load is **month**.
+- **Zoom** — Switch between hour, day, week, and month. Default on load is **day**.
 - **Scroll** — Horizontal scroll is smooth (pixel-based). Scroll position is restored after refresh.
 - **Persistence** — Work orders are stored in `localStorage` and restored on refresh. Timeline scroll position is also saved and restored.
 
@@ -68,7 +68,7 @@ src/
 │   ├── app.html
 │   ├── app.config.ts       # Providers (animations, NgbModule)
 │   ├── components/
-│   │   ├── timeline/       # Timeline grid, rows, columns, “click to add”, zoom
+│   │   ├── timeline/       # Grid, rows, columns, cell click → create (date = block), zoom
 │   │   ├── work-order-bar/ # Single work order bar + ⋯ menu (Edit/Delete)
 │   │   ├── work-order-panel/ # Create/Edit slide-in panel
 │   │   └── timescale-selector/ # Hour / Day / Week / Month
@@ -93,13 +93,17 @@ There is also a `src/features/timeline/` tree (timeline-page, schedule-sidebar, 
 
 See **DESIGN_TOKENS.md** for colors, typography, layout (row height, panel width, etc.), and spacing. Prefer these tokens when changing styles.
 
+## AI-assisted development
+
+See **AIPROMPTS.md** for conventions, key files, behaviors to preserve, and prompt ideas when working with an AI assistant on this codebase.
+
 ---
 
 ## Data and persistence
 
 - **Work centers** — Loaded from `src/app/data/sample-data.ts` (not persisted).
 - **Work orders** — Stored in `localStorage` under `work_order_timeline_work_orders`. Any create, edit, or delete updates this. On load, the app uses saved data if valid; otherwise it falls back to sample work orders.
-- **Timeline UI** — Scroll position is stored in `work_order_timeline_state`. Zoom is not restored; it always defaults to month on reload. The timeline uses a **dynamic date range** (infinite scroll); the range is extended when scrolling near the left or right edge.
+- **Timeline UI** — Scroll position is stored in `work_order_timeline_state`. Zoom is not restored; it always defaults to **day** on reload. The timeline uses a **dynamic date range** (infinite scroll); the range is extended when scrolling near the left or right edge.
 
 ---
 

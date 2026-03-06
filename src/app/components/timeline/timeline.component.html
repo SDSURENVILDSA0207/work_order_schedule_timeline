@@ -80,13 +80,13 @@
               [attr.data-work-center-id]="wc.docId"
               [class.first-row]="$first"
               [class.hovered]="hoveredRowId() === wc.docId"
+              [class.placeholder-over-current]="hoveredRowId() === wc.docId && hoveredCellIndex() === currentDayColumnIndex()"
               [class.menu-open]="openMenuBarId()?.startsWith(wc.docId + ':') ?? false"
               (mouseenter)="onRowMouseEnter(wc.docId)"
               (mouseleave)="onRowMouseLeave()"
-              (click)="onRowClick(wc.docId, $event)"
             >
               <div class="timeline-row-inner">
-                <!-- Cell layer: one cell per column; placeholder only in empty cells, moves with row on scroll -->
+                <!-- Cell layer: one cell per column; click on cell opens create panel with that column's date -->
                 @for (col of columns(); track col.label; let i = $index) {
                   <div
                     class="timeline-cell"
@@ -94,6 +94,7 @@
                     [style.width.px]="colWidth()"
                     (mouseenter)="onCellMouseEnter(wc.docId, i)"
                     (mouseleave)="onCellMouseLeave()"
+                    (click)="onCellClick(wc.docId, i)"
                   >
                     @if (hoveredRowId() === wc.docId && hoveredCellIndex() === i) {
                       <div

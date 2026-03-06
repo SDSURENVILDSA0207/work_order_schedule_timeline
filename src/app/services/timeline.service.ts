@@ -154,10 +154,11 @@ export class TimelineService {
   ): number {
     const d = typeof date === 'string' ? parseDate(date) : date;
     const totalDays = diffDays(rangeStart, rangeEnd);
+    if (totalDays <= 0) return 0;
     const daysFromStart = diffDays(rangeStart, d);
 
-    if (daysFromStart < 0) return 0;
-    if (daysFromStart > totalDays) return totalWidth;
+    if (daysFromStart <= 0) return 0;
+    if (daysFromStart >= totalDays) return totalWidth;
 
     return (daysFromStart / totalDays) * totalWidth;
   }
