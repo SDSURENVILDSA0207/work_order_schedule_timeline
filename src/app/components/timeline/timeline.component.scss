@@ -1,8 +1,10 @@
+@use 'timeline-tokens' as t;
+
 .timeline-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding: 24px 24px 24px 102px;
+  padding: 32px 32px 40px 64px;
   max-width: 100%;
   overflow-x: hidden; /* contain horizontal scroll to timeline grid only */
   overflow-y: visible;
@@ -18,42 +20,79 @@
 }
 
 .timeline-header {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
   flex-shrink: 0;
 
   .header-controls {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-top: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 0;
+  }
+
+  .btn-today {
+    height: 36px;
+    padding: 0 14px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: var(--font-heading);
+    color: #374151;
+    background: #ffffff;
+    border: 1px solid var(--color-stroke, #e5e7eb);
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    transition:
+      background 0.15s ease,
+      border-color 0.15s ease,
+      color 0.15s ease;
+
+    &:hover:not(:disabled) {
+      background: #f9fafb;
+      border-color: #d1d5db;
+      color: #111827;
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    &:focus-visible {
+      outline: 2px solid #818cf8;
+      outline-offset: 2px;
+    }
   }
 
   .logo {
-    width: 92px;
-    height: 15px;
+    width: 88px;
+    height: auto;
+    min-height: 14px;
     object-fit: contain;
     object-position: left top;
-    margin-bottom: 45px;
-    filter: brightness(1.3);
+    margin: 0 0 32px 0;
+    display: block;
   }
 
   .title {
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--color-text-primary);
-    margin: 0 0 12px 0;
+    font-size: 30px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: #111827;
+    margin: 0 0 20px 0;
     word-break: break-word;
   }
 
   @media (max-width: 768px) {
-    margin-bottom: 12px;
-
     .logo {
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     .title {
-      font-size: 22px;
+      font-size: 24px;
+      margin-bottom: 16px;
     }
   }
 
@@ -69,9 +108,9 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  background-color: rgba(244, 245, 255, 1); /* lavender tint – extends to bottom of card */
-  border-radius: 0;
-  border: 1px solid var(--color-stroke);
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid var(--color-grid-border);
   overflow: visible; /* allow "Click to add dates" tooltip to show above first row */
 }
 
@@ -86,23 +125,24 @@
   width: var(--timeline-left-width);
   min-width: 120px; /* keep labels readable on very small screens */
   flex-shrink: 0;
-  border-right: 1px solid var(--color-stroke);
+  border-right: 1px solid var(--color-grid-border);
   background-color: #ffffff;
 }
 
 .timeline-left-header {
   height: var(--timeline-header-height);
   margin-bottom: 9px;
-  padding: 0 16px 0 31px;
+  padding: 0 20px 0 24px;
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  color: rgba(104, 113, 150, 1);
-  font-family: 'CircularStd-Regular', 'Circular Std', sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  line-height: 16px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--color-grid-border);
 
   @media (max-width: 480px) {
     padding: 0 8px 0 12px;
@@ -112,22 +152,22 @@
 
 .timeline-row-label {
   height: var(--timeline-row-height);
-  padding: 0 16px 0 31px;
+  padding: 0 16px 0 24px;
   display: flex;
   align-items: center;
   position: relative;
-  color: rgba(3, 9, 41, 1);
-  font-family: 'CircularStd-Regular', 'Circular Std', sans-serif;
+  color: #111827;
   font-size: 14px;
   font-weight: 500;
-  transition: background 0.15s ease;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  line-height: 1.3;
+  transition: background 0.12s ease;
+  border-bottom: 1px solid var(--color-grid-border);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 
   &.hovered {
-    background: rgba(104, 113, 150, 0.06);
+    background: var(--color-row-hover);
   }
 
   @media (max-width: 480px) {
@@ -151,7 +191,7 @@
   min-width: 100%;
   min-height: 100%; /* fill scroll area so vertical line extends to bottom of screen */
   position: relative;
-  background-color: rgba(244, 245, 255, 1); /* same lavender as rows – stretches to bottom */
+  background-color: #ffffff;
 }
 
 .timeline-grid-header {
@@ -162,7 +202,7 @@
   box-sizing: border-box;
   background-color: #ffffff; /* match WORK CENTER column – first bar (week1, week2, …) */
   /* Same border as .timeline-left-header so the line is one continuous straight line */
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid var(--color-grid-border);
 }
 
 /* Row right below column head: badge 22px + 5px; total 27px so with first row margin-top -18px, first row starts at 44+27-18=53px (aligns with left) and 18px overlaps */
@@ -170,41 +210,46 @@
   position: relative;
   height: 27px;
   flex-shrink: 0;
-  background-color: rgba(244, 245, 255, 1);
+  background-color: #ffffff;
 }
 
-/* Badge: bottom-left of column header, no space between header bottom and badge top.
-   z-index above hovered row (10) so current day/week/hour is always visible. */
+/* “Current month” pill: centered on the active column, purple surface + light label (see mocks). */
 .current-day-badge {
   position: absolute;
   top: 0;
-  display: flex;
+  left: 0;
+  transform: translateX(-50%);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  width: 109px;
-  height: 22px;
-  border-radius: 5px;
-  background-color: rgba(212, 215, 255, 1);
+  min-width: 120px;
+  height: 24px;
+  padding: 0 12px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #6d71f8 0%, #5257ee 100%);
   white-space: nowrap;
-  color: rgba(62, 64, 219, 1);
-  font-family: 'Circular-Std', 'CircularStd-Book', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  font-style: normal;
-  line-height: 18px;
-  z-index: 15;
+  color: #f8f8ff;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  z-index: t.$z-current-period-ui;
   pointer-events: none;
 }
 
 .timeline-col-header {
   flex-shrink: 0;
   flex-grow: 0;
-  padding: 0 8px;
+  padding: 0 6px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  text-align: center;
   font-size: 12px;
-  color: var(--color-text-labels);
+  font-weight: 500;
+  color: #6b7280;
   white-space: nowrap;
   box-sizing: border-box;
 }
@@ -217,7 +262,7 @@
   right: 0;
   bottom: 0;
   pointer-events: none;
-  z-index: 1;
+  z-index: t.$z-column-lines;
 }
 
 .timeline-grid.has-badge .timeline-column-lines {
@@ -229,31 +274,32 @@
   top: 0;
   bottom: 0;
   width: 1px;
-  background-color: rgba(0, 0, 0, 0.06);
+  background-color: var(--color-grid-border);
 }
 
-/* Vertical line for current day/week/hour; above hovered row so it's always visible. */
+/* Current-period vertical rule: column start, light indigo. */
 .current-day-indicator {
   position: absolute;
   top: calc(var(--timeline-header-height) + 27px); /* start below column header + badge row */
   bottom: 0;
-  width: 2px;
-  background-color: rgba(101, 112, 255, 0.2);
-  z-index: 15;
+  width: 1px;
+  background-color: #9ca3ff;
+  z-index: t.$z-current-period-ui;
   pointer-events: none;
+  opacity: 0.9;
 }
 
 .timeline-row {
   height: var(--timeline-row-height);
   position: relative;
-  z-index: 2; /* above column lines so vertical grid lines pass under the bars */
-  cursor: pointer;
+  z-index: t.$z-timeline-row; /* above column lines so vertical grid lines pass under the bars */
+  cursor: default; /* child .timeline-cell sets pointer cursor for the grid */
   background-color: transparent; /* let vertical lines show in empty space; bars (opaque) hide lines where they sit */
-  transition: background 0.15s ease;
+  transition: background-color 0.15s ease; /* only background — avoids noisy layer transitions on z-index */
 
-  /* When the edit/delete menu is open on a bar in this row, raise row so dropdown always appears over all other bars */
+  /* Slight lift when a bar menu is open (dropdown is portaled to body; this keeps the bar above sibling rows) */
   &.menu-open {
-    z-index: 10000;
+    z-index: t.$z-menu-open;
   }
 
   &.first-row {
@@ -261,13 +307,13 @@
   }
 
   &.hovered {
-    z-index: 5; /* below current-day badge/indicator (15) so row highlight stays behind them */
-    background-color: rgba(238, 240, 255, 0.85); /* row hover; semi-transparent so vertical lines still pass under */
+    z-index: t.$z-row-hover; /* below current-day badge/indicator (15) so row highlight stays behind them */
+    background-color: var(--color-row-hover);
   }
 
   /* When "Click to add dates" is shown over the current day cell, raise row so the placeholder is over the current day/month/week indicator */
   &.placeholder-over-current {
-    z-index: 25;
+    z-index: t.$z-row-placeholder-over;
   }
 }
 
@@ -278,7 +324,8 @@
 
 .timeline-row-inner {
   position: relative;
-  z-index: 2; /* above column lines so bars/placeholder don't get covered */
+  z-index: t.$z-timeline-row-inner; /* above column lines so bars/placeholder don't get covered */
+  isolation: isolate; /* keep bar vs cell stacking predictable */
   width: 100%;
   min-width: 100%;
   height: 100%;
@@ -295,6 +342,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Add dates placeholder: inside cell, position relative so tooltip anchors to it */
@@ -320,9 +369,9 @@
   position: relative; /* tooltip is absolute relative to this, so it stays anchored on scroll */
   width: fit-content;
   height: fit-content;
-  z-index: 100; /* above work order bars and current period badge so tooltip is always visible */
-  cursor: pointer;
-  pointer-events: auto;
+  z-index: 1; /* within cell; bars are siblings above the cell — see :host in work-order-bar */
+  /* Pass clicks through: the cell (parent) handles the click; avoids fixed-overlay stealing hits */
+  pointer-events: none;
   animation: placeholder-box-in 0.12s ease-out forwards;
   display: flex;
   flex-direction: column;
@@ -332,14 +381,15 @@
 
 .add-dates-placeholder-slot {
   display: block;
-  width: 113px;
-  height: 38px;
-  border: 1px solid rgba(195, 199, 255, 1);
+  width: 112px;
+  height: 36px;
+  border: 1px solid #c7d2fe;
   border-radius: 8px;
-  background-color: rgba(101, 112, 255, 0.1);
+  background-color: rgba(99, 102, 241, 0.08);
   box-sizing: border-box;
   opacity: 1;
   flex-shrink: 0;
+  pointer-events: none;
 }
 
 /* Tooltip anchored to placeholder (above it); moves with the placeholder. */
@@ -383,7 +433,8 @@
   }
 }
 
-.add-dates-placeholder-wrapper:hover .add-dates-tooltip {
+/* Tooltip when hovering the cell (placeholder has pointer-events: none) */
+.timeline-cell:has(.add-dates-placeholder-wrapper):hover .add-dates-tooltip {
   opacity: 1;
   visibility: visible;
 }

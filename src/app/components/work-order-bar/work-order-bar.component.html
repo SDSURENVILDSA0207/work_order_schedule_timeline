@@ -1,0 +1,35 @@
+<div
+  class="work-order-bar"
+  [ngClass]="'status-' + order().data.status"
+  [class.menu-open]="menuOpen()"
+  [attr.title]="barDetailsTooltip()"
+  role="group"
+  [attr.aria-label]="barDetailsTooltip()"
+>
+  <span class="bar-name">{{ order().data.name }}</span>
+  @if (showStatusBadge()) {
+    <span
+      class="status-badge"
+      [ngClass]="'status-badge-' + order().data.status"
+    >{{ statusLabel() }}</span>
+  }
+  @if (showActions()) {
+  <div class="actions">
+    <button
+      #actionsTrigger
+      type="button"
+      class="actions-btn"
+      (click)="toggleMenu($event)"
+      [attr.aria-label]="'Actions for ' + order().data.name"
+      [attr.aria-haspopup]="'true'"
+      [attr.aria-expanded]="menuOpen()"
+    >
+      <svg class="actions-btn-dots" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <circle cx="3" cy="8" r="1.5" fill="currentColor" />
+        <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+        <circle cx="13" cy="8" r="1.5" fill="currentColor" />
+      </svg>
+    </button>
+  </div>
+  }
+</div>

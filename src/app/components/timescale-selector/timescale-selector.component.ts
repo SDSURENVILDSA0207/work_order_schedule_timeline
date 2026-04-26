@@ -1,9 +1,20 @@
-import { Component, input, output, signal, computed } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  input,
+  output,
+  signal,
+  computed,
+  inject,
+  ElementRef,
+  HostListener,
+} from '@angular/core';
 import type { TimelineZoom } from '../../models/work-order.model';
 
 @Component({
   selector: 'app-timescale-selector',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="timescale-control" aria-label="Timescale selector">
       <div class="timescale-label-wrap">
@@ -18,7 +29,7 @@ import type { TimelineZoom } from '../../models/work-order.model';
           [attr.aria-expanded]="menuOpen()"
         >
           <span class="timescale-trigger-label">{{ valueLabel() }}</span>
-          <span class="timescale-chevron" aria-hidden="true">▼</span>
+          <span class="timescale-chevron" aria-hidden="true"></span>
         </button>
       </div>
       @if (menuOpen()) {
@@ -67,29 +78,26 @@ import type { TimelineZoom } from '../../models/work-order.model';
     .timescale-control {
       position: relative;
       display: inline-flex;
-      align-items: center;
-      border-radius: 5px;
-      border: 1px solid rgba(216, 220, 235, 1);
-      box-shadow:
-        0 1px 0 rgba(216, 220, 235, 0.7),
-        0 4px 12px rgba(15, 23, 42, 0.04);
-      background-color: rgba(241, 243, 248, 0.75);
+      align-items: stretch;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+      background-color: #f9fafb;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
       overflow: visible;
     }
 
     .timescale-label-wrap {
-      height: 25px;
+      min-height: 32px;
       display: flex;
       align-items: center;
-      padding: 0 10px;
+      padding: 0 12px 0 14px;
     }
 
     .timescale-label {
-      color: rgba(104, 113, 150, 1);
-      font-family: 'Circular-Std', 'CircularStd-Book', sans-serif;
-      font-size: 13px;
-      font-weight: 400;
-      line-height: 16px;
+      color: #6b7280;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.25;
     }
 
     .timescale-dropdown-wrap {
@@ -99,78 +107,97 @@ import type { TimelineZoom } from '../../models/work-order.model';
     }
 
     .timescale-trigger {
+      position: relative;
       display: flex;
       align-items: center;
-      gap: 4px;
+      justify-content: flex-start;
+      gap: 6px;
       box-sizing: border-box;
-      min-width: 71px;
-      height: 25px;
-      min-height: 25px;
-      border-left: 1px solid rgba(216, 220, 235, 1);
-      border-top: none;
-      border-right: none;
-      border-bottom: none;
-      border-radius: 0 5px 5px 0;
-      padding: 0 18px 0 8px; /* space for chevron on the right */
-      font-family: 'Circular-Std', sans-serif;
-      font-size: 13px;
-      color: var(--color-primary);
+      min-width: 88px;
+      min-height: 32px;
+      padding: 0 24px 0 12px;
+      border: none;
+      border-left: 1px solid #e5e7eb;
+      border-radius: 0 6px 6px 0;
+      font-size: 14px;
+      font-weight: 500;
+      color: #4f46e5;
       background-color: #ffffff;
       cursor: pointer;
       outline: none;
     }
 
+    .timescale-trigger:hover {
+      background-color: #fafafa;
+    }
+
+    .timescale-trigger:focus-visible {
+      outline: 2px solid #818cf8;
+      outline-offset: 2px;
+    }
+
     .timescale-trigger-label {
-      line-height: 16px;
+      line-height: 1.25;
     }
 
     .timescale-menu {
       position: absolute;
-      top: calc(100% + 4px);
-      left: 0; /* start from the left edge of the timescale box (full control) */
+      top: calc(100% + 6px);
+      left: 0;
+      min-width: 100%;
       width: 200px;
-      height: 136px;
-      padding: 8px 0;
-      border-radius: 5px;
-      background-color: rgba(255, 255, 255, 1);
+      padding: 6px 0;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      background-color: #ffffff;
       box-shadow:
-        0 0 0 1px rgba(104, 113, 150, 0.1),
-        0 2.5px 3px -1.5px rgba(200, 207, 233, 1),
-        0 4.5px 5px -1px rgba(216, 220, 235, 1);
-      z-index: 20;
+        0 4px 6px -1px rgba(15, 23, 42, 0.08),
+        0 2px 4px -2px rgba(15, 23, 42, 0.05);
+      z-index: 40;
     }
 
     .timescale-option {
-      display: block;
+      display: flex;
+      align-items: center;
       width: 100%;
-      padding: 4px 14px;
+      min-height: 32px;
+      padding: 0 14px 0 12px;
       border: none;
       background: none;
       text-align: left;
-      font-family: 'Circular-Std', sans-serif;
-      font-size: 13px;
-      color: rgba(3, 9, 41, 1);
+      font-size: 14px;
+      font-weight: 400;
+      color: #111827;
       cursor: pointer;
     }
 
     .timescale-option:hover {
-      background-color: rgba(244, 245, 255, 1);
+      background-color: #f3f4ff;
     }
 
     .timescale-option.selected {
-      color: var(--color-primary);
+      color: #4f46e5;
+      font-weight: 500;
     }
 
     .timescale-chevron {
       position: absolute;
-      right: 6px;
-      font-size: 10px;
-      color: var(--color-primary);
+      right: 8px;
+      top: 50%;
+      display: block;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid #6366f1;
       pointer-events: none;
     }
   `,
 })
 export class TimescaleSelectorComponent {
+  private host = inject(ElementRef<HTMLElement>);
+
   value = input.required<TimelineZoom>();
   valueChange = output<TimelineZoom>();
 
@@ -190,6 +217,23 @@ export class TimescaleSelectorComponent {
 
   select(zoom: TimelineZoom): void {
     this.valueChange.emit(zoom);
+    this.menuOpen.set(false);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.menuOpen()) {
+      return;
+    }
+    const t = event.target as Node;
+    if (this.host.nativeElement.contains(t)) {
+      return;
+    }
+    this.menuOpen.set(false);
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
     this.menuOpen.set(false);
   }
 }

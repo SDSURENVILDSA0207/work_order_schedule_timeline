@@ -4,8 +4,11 @@
  * - 8+ work orders across different centers
  * - All 4 status types represented
  * - At least one work center with multiple non-overlapping orders
+ *
+ * Dates are in the 2026 calendar window so the default month (and day/week) range
+ * around “today” still shows these bars without extreme horizontal scrolling.
+ * @upgrade For a production seed, consider generating ranges relative to `new Date()` on deploy.
  */
-
 import type { WorkCenterDocument, WorkOrderDocument } from '../models/work-order.model';
 
 export const SAMPLE_WORK_CENTERS: WorkCenterDocument[] = [
@@ -25,8 +28,8 @@ export const SAMPLE_WORK_ORDERS: WorkOrderDocument[] = [
       name: 'entrix Ltd',
       workCenterId: 'wc-1',
       status: 'complete',
-      startDate: '2024-08-01',
-      endDate: '2024-09-30',
+      startDate: '2026-05-01',
+      endDate: '2026-06-30',
     },
   },
   {
@@ -36,8 +39,8 @@ export const SAMPLE_WORK_ORDERS: WorkOrderDocument[] = [
       name: 'TechFlow Solutions',
       workCenterId: 'wc-1',
       status: 'open',
-      startDate: '2024-11-15',
-      endDate: '2025-01-15',
+      startDate: '2026-08-15',
+      endDate: '2026-10-15',
     },
   },
   // 2. Rodriques Electrics (wc-2) – no overlap, gap between orders
@@ -48,8 +51,8 @@ export const SAMPLE_WORK_ORDERS: WorkOrderDocument[] = [
       name: 'Precision Parts Co',
       workCenterId: 'wc-2',
       status: 'complete',
-      startDate: '2024-08-01',
-      endDate: '2024-10-15',
+      startDate: '2026-04-01',
+      endDate: '2026-05-31',
     },
   },
   {
@@ -59,8 +62,8 @@ export const SAMPLE_WORK_ORDERS: WorkOrderDocument[] = [
       name: 'Rodriques Electrics',
       workCenterId: 'wc-2',
       status: 'in-progress',
-      startDate: '2024-12-01',
-      endDate: '2025-01-31',
+      startDate: '2026-07-01',
+      endDate: '2026-08-31',
     },
   },
   // 3. Konsulting Inc (wc-3) – no overlap, gap between orders
@@ -71,8 +74,8 @@ export const SAMPLE_WORK_ORDERS: WorkOrderDocument[] = [
       name: 'Konsulting Inc',
       workCenterId: 'wc-3',
       status: 'in-progress',
-      startDate: '2024-09-01',
-      endDate: '2024-10-31',
+      startDate: '2026-04-10',
+      endDate: '2026-05-20',
     },
   },
   {
@@ -82,8 +85,8 @@ export const SAMPLE_WORK_ORDERS: WorkOrderDocument[] = [
       name: 'Compleks Systems',
       workCenterId: 'wc-3',
       status: 'in-progress',
-      startDate: '2024-12-15',
-      endDate: '2025-01-31',
+      startDate: '2026-09-01',
+      endDate: '2026-10-31',
     },
   },
   // 4. McMarrow Distribution (wc-4) – single order
@@ -94,8 +97,8 @@ export const SAMPLE_WORK_ORDERS: WorkOrderDocument[] = [
       name: 'McMarrow Distribution',
       workCenterId: 'wc-4',
       status: 'blocked',
-      startDate: '2024-10-01',
-      endDate: '2024-12-15',
+      startDate: '2026-11-01',
+      endDate: '2026-12-15',
     },
   },
   // 5. Spartan Manufacturing (wc-5) – single order
@@ -106,8 +109,8 @@ export const SAMPLE_WORK_ORDERS: WorkOrderDocument[] = [
       name: 'Acme Inc',
       workCenterId: 'wc-5',
       status: 'open',
-      startDate: '2025-01-15',
-      endDate: '2025-02-28',
+      startDate: '2026-03-01',
+      endDate: '2026-04-15',
     },
   },
 ];

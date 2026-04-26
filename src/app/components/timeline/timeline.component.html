@@ -3,102 +3,117 @@
     <img src="/naologic-logo.png" alt="NAOLOGIC" class="logo" />
     <h1 class="title">Work Orders</h1>
     <div class="header-controls">
+      <button
+        type="button"
+        class="btn-today"
+        (click)="view.scrollToCurrentPeriod()"
+        title="Scroll to center the current time on the timeline"
+        aria-label="Scroll to center the current time on the timeline"
+      >
+        Today
+      </button>
       <app-timescale-selector
-        [value]="zoom()"
-        (valueChange)="setZoom($event)"
+        [value]="view.zoom()"
+        (valueChange)="view.setZoom($event)"
       />
     </div>
   </header>
 
   <div class="timeline-body">
     <div class="timeline-grid-wrapper">
-      <!-- Left panel: Work Center names (fixed) -->
       <div class="timeline-left">
         <div class="timeline-left-header">Work Center</div>
-        @for (wc of workCenters(); track wc.docId) {
+        @for (wc of view.workCenters(); track trackWorkCenter($index, wc)) {
           <div
             class="timeline-row-label"
-            [class.hovered]="hoveredRowId() === wc.docId"
-            (mouseenter)="hoveredRowId.set(wc.docId)"
-            (mouseleave)="hoveredRowId.set(null)"
+            [attr.data-work-center-id]="wc.docId"
+            [class.hovered]="view.hoveredRowId() === wc.docId"
+            (mouseenter)="view.onRowEnter(wc.docId)"
+            (mouseleave)="onLabelMouseLeave(wc.docId, $event)"
           >
             {{ wc.data.name }}
           </div>
         }
       </div>
 
-      <!-- Right panel: Scrollable timeline grid -->
-      <div class="timeline-grid-scroll" #gridScroll>
+      <div
+        class="timeline-grid-scroll"
+        #gridScroll
+        role="region"
+        aria-label="Work order schedule"
+      >
         <div
           class="timeline-grid"
-          [class.has-badge]="isTodayInRange()"
-          [style.width.px]="totalWidth()"
+          [class.has-badge]="view.isTodayInRange()"
+          [style.width.px]="view.totalWidth()"
         >
-          <!-- Column headers -->
           <div class="timeline-grid-header">
-            @for (col of columns(); track col.label) {
-              <div class="timeline-col-header" [style.width.px]="timelineService.getColumnWidth(zoom())">
+            @for (col of view.columns(); track colTrackId($index, col)) {
+              <div
+                class="timeline-col-header"
+                [style.width.px]="timelineService.getColumnWidth(view.zoom())"
+              >
                 {{ col.label }}
               </div>
             }
           </div>
 
-          <!-- Badge row: right below column head, badge at left edge of current date cell -->
-          @if (isTodayInRange()) {
+          @if (view.isTodayInRange()) {
             <div class="timeline-badge-row">
               <div
                 class="current-day-badge"
-                [style.left.px]="todayCellLeft()"
+                [style.left.px]="view.currentPeriodBadgeCenterX()"
               >
-                {{ zoom() === 'hour' ? 'Current hour' : zoom() === 'day' ? 'Current day' : zoom() === 'week' ? 'Current week' : 'Current month' }}
+                {{ view.currentPeriodLabel() }}
               </div>
             </div>
           }
 
-          <!-- Vertical column lines: full height from below header/badge to bottom of screen -->
           <div class="timeline-column-lines">
-            @for (col of columns(); track col.label; let i = $index) {
+            @for (col of view.columns(); track colTrackId($index, col)) {
               <div
                 class="timeline-col-line"
-                [style.left.px]="i * colWidth()"
+                [style.left.px]="$index * view.colWidth()"
               ></div>
             }
           </div>
 
-          <!-- Current day vertical line: at left edge of current date cell -->
-          @if (isTodayInRange()) {
+          @if (view.isTodayInRange()) {
             <div
               class="current-day-indicator"
-              [style.left.px]="todayCellLeft()"
+              [style.left.px]="view.todayCellLeft()"
             ></div>
           }
 
-          <!-- Work center rows -->
-          @for (wc of workCenters(); track wc.docId) {
+          @for (wc of view.workCenters(); track trackWorkCenter($index, wc)) {
             <div
               class="timeline-row"
               [attr.data-work-center-id]="wc.docId"
               [class.first-row]="$first"
-              [class.hovered]="hoveredRowId() === wc.docId"
-              [class.placeholder-over-current]="hoveredRowId() === wc.docId && hoveredCellIndex() === currentDayColumnIndex()"
-              [class.menu-open]="openMenuBarId()?.startsWith(wc.docId + ':') ?? false"
-              (mouseenter)="onRowMouseEnter(wc.docId)"
-              (mouseleave)="onRowMouseLeave()"
+              [class.hovered]="view.hoveredRowId() === wc.docId"
+              [class.placeholder-over-current]="
+                view.isRowRaisedForCurrentPeriodPlaceholder(wc.docId)
+              "
+              [class.menu-open]="view.openMenuBarId()?.startsWith(wc.docId + ':') ?? false"
+              (mouseenter)="view.onRowEnter(wc.docId)"
+              (mouseleave)="view.onRowLeaveToLabel(wc.docId, $event)"
             >
               <div class="timeline-row-inner">
-                <!-- Cell layer: one cell per column; click on cell opens create panel with that column's date -->
-                @for (col of columns(); track col.label; let i = $index) {
+                @for (col of view.columns(); track colTrackId($index, col); let i = $index) {
                   <div
                     class="timeline-cell"
-                    [style.left.px]="i * colWidth()"
-                    [style.width.px]="colWidth()"
-                    (mouseenter)="onCellMouseEnter(wc.docId, i)"
-                    (mouseleave)="onCellMouseLeave()"
-                    (click)="onCellClick(wc.docId, i)"
+                    [style.left.px]="i * view.colWidth()"
+                    [style.width.px]="view.colWidth()"
+                    (mouseenter)="view.onCellEnter(wc.docId, i)"
+                    (mouseleave)="view.onCellLeave()"
+                    (click)="view.handleCellPointerCreate($event, wc.docId)"
                   >
-                    @if (hoveredRowId() === wc.docId && hoveredCellIndex() === i) {
+                    @if (
+                      view.hoveredRowId() === wc.docId &&
+                        view.hoveredCellIndex() === i &&
+                        view.isCellEmptyForWorkCenter(wc.docId, i * view.colWidth(), view.colWidth())
+                    ) {
                       <div
-                        #placeholderWrapperRef
                         class="add-dates-placeholder-wrapper"
                         aria-label="Click to add dates"
                       >
@@ -108,16 +123,26 @@
                     }
                   </div>
                 }
-                @for (order of workOrderService.getOrdersForWorkCenter(wc.docId); track order.docId) {
+                @for (
+                  order of workOrderService.getOrdersForWorkCenter(wc.docId);
+                  track trackOrder($index, order)
+                ) {
+                  @let bar = view.barLayoutForOrder(order);
                   <app-work-order-bar
                     [order]="order"
-                    [left]="getBarPosition(order).left"
-                    [width]="getBarPosition(order).width"
-                    [panelOpen]="panelOpen() !== null"
-                    [forceCloseMenu]="openMenuBarId() !== null && openMenuBarId() !== (wc.docId + ':' + order.docId)"
-                    (openChange)="onBarMenuOpenChange(wc.docId, order.docId, $event)"
-                    (edit)="onEdit($event)"
-                    (delete)="onDelete($event)"
+                    [workCenterName]="wc.data.name"
+                    [left]="bar.left"
+                    [width]="bar.width"
+                    [panelOpen]="view.panelMode() !== null"
+                    [forceCloseMenu]="
+                      view.openMenuBarId() !== null &&
+                      view.openMenuBarId() !== wc.docId + ':' + order.docId
+                    "
+                    (openChange)="
+                      view.onBarMenuOpenChange(wc.docId, order.docId, $event)
+                    "
+                    (edit)="view.openEditPanel($event)"
+                    (delete)="onBarDelete($event)"
                   />
                 }
               </div>
@@ -128,15 +153,17 @@
     </div>
   </div>
 
-  @if (panelOpen(); as mode) {
+  @if (view.panelMode(); as mode) {
     <app-work-order-panel
       [mode]="mode"
-      [workCenterId]="(createContext()?.workCenterId ?? editOrder()?.data?.workCenterId) ?? ''"
-      [startDatePrefill]="createContext()?.startDate ?? null"
-      [editOrder]="editOrder()"
-      (closed)="onPanelClosed()"
-      (saved)="onPanelClosed()"
-      (datesChange)="onPanelDatesChange($event)"
+      [workCenterId]="
+        (view.createContext()?.workCenterId ?? view.editOrder()?.data?.workCenterId) ?? ''
+      "
+      [startDatePrefill]="view.createContext()?.startDate ?? null"
+      [editOrder]="view.editOrder()"
+      (closed)="view.onPanelClosed()"
+      (saved)="view.onPanelClosed()"
+      (datesChange)="view.onDraftDatesChange($event)"
     />
   }
 </div>

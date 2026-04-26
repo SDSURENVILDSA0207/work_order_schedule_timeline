@@ -106,3 +106,40 @@ export function addMonths(date: Date, months: number): Date {
 export function getDaysInMonth(date: Date): number {
   return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 }
+
+/**
+ * Whole calendar days between two **local** calendar dates (ignores time-of-day
+ * in `a` and `b`). Use for day/week column index math; avoids off-by-one when
+ * `diff` in milliseconds is not a multiple of 24h (DST transitions between
+ * local midnights are still 1 calendar day apart when measured via YMD).
+ */
+/** Short locale date for tooltips (e.g. Jan 15, 2024). */
+export function formatIsoDateForDisplay(
+  iso: string,
+  locale: string = 'en-US',
+  options: Intl.DateTimeFormatOptions = {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  },
+): string {
+  return startOfDay(parseDate(iso)).toLocaleDateString(locale, options);
+}
+
+/** e.g. "Jan 1, 2024 – Feb 2, 2024" for bar hover tooltips. */
+export function formatIsoDateRangeForDisplay(
+  startIso: string,
+  endIso: string,
+  locale = 'en-US',
+): string {
+  return `${formatIsoDateForDisplay(startIso, locale)} – ${formatIsoDateForDisplay(
+    endIso,
+    locale,
+  )}`;
+}
+
+export function diffLocalCalendarDays(earlier: Date, later: Date): number {
+  const e0 = Date.UTC(earlier.getFullYear(), earlier.getMonth(), earlier.getDate());
+  const e1 = Date.UTC(later.getFullYear(), later.getMonth(), later.getDate());
+  return Math.round((e1 - e0) / 86400000);
+}

@@ -36,22 +36,11 @@ export class TimelineRowComponent {
       return { left: AXIS_OFFSET_PX + 'px', width: '80px' };
     }
     // Start: beginning of start date (inclusive)
-    const startPx = this.timelineService.dateToPixel(
-      order.data.startDate,
-      this.range.start,
-      this.range.end,
-      this.totalWidth,
-      this.zoom
-    );
+    const r = { start: this.range.start, end: this.range.end };
+    const startPx = this.timelineService.dateToPixel(order.data.startDate, r, this.totalWidth);
     // End: beginning of day after end date so the bar spans the full end date (inclusive)
     const endDateExclusive = addDays(parseDate(order.data.endDate), 1);
-    const endPx = this.timelineService.dateToPixel(
-      endDateExclusive,
-      this.range.start,
-      this.range.end,
-      this.totalWidth,
-      this.zoom
-    );
+    const endPx = this.timelineService.dateToPixel(endDateExclusive, r, this.totalWidth);
     const leftPx = AXIS_OFFSET_PX + startPx;
     const widthPx = Math.max(381, endPx - startPx); /* generic bar min-width 381px */
     return { left: leftPx + 'px', width: widthPx + 'px' };

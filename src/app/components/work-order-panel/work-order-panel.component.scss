@@ -1,16 +1,18 @@
-$panel-close-duration: 0.25s;
+$panel-close-duration: 0.32s;
+$panel-ease: cubic-bezier(0.4, 0, 0.2, 1);
 
 .panel-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(247, 249, 252, 0.5);
-  backdrop-filter: blur(0.4px);
-  -webkit-backdrop-filter: blur(0.4px);
+  background: rgba(249, 250, 251, 0.6);
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
   z-index: 1000;
   display: flex;
+  align-items: stretch;
   justify-content: flex-end;
-  animation: fadeIn 0.2s ease;
-  transition: opacity $panel-close-duration ease;
+  animation: fadeIn 0.24s $panel-ease;
+  transition: opacity $panel-close-duration $panel-ease;
 
   &.panel-closing {
     opacity: 0;
@@ -18,25 +20,23 @@ $panel-close-duration: 0.25s;
 }
 
 .panel {
-  width: min(591px, 100vw - 24px); /* full width on small screens with margin */
-  height: 1024px;
-  max-height: 100vh;
+  width: min(520px, 100vw - 24px);
+  height: 100%;
+  min-height: 0;
+  max-height: 100dvh;
   max-width: 100%;
-  background-color: rgba(255, 255, 255, 1);
+  background-color: #ffffff;
   border-top-left-radius: 12px;
   border-top-right-radius: 0;
   border-bottom-right-radius: 12px;
   border-bottom-left-radius: 12px;
-  box-shadow:
-    0 5px 15px 0 rgba(216, 220, 235, 1),
-    0 2.5px 3px -1.5px rgba(200, 207, 233, 1),
-    0 4.5px 5px -1px rgba(216, 220, 235, 1);
+  box-shadow: -6px 0 32px rgba(15, 23, 42, 0.08);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   isolation: isolate;
-  animation: slideIn 0.25s ease;
-  transition: transform $panel-close-duration ease;
+  animation: slideIn 0.3s $panel-ease;
+  transition: transform $panel-close-duration $panel-ease;
 
   &.panel-closing {
     transform: translateX(100%);
@@ -54,10 +54,10 @@ $panel-close-duration: 0.25s;
 
 @keyframes slideIn {
   from {
-    transform: translateX(100%);
+    transform: translate3d(100%, 0, 0);
   }
   to {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -72,7 +72,7 @@ $panel-close-duration: 0.25s;
 }
 
 .panel-header {
-  padding: 16px 24px 0 24px;
+  padding: 20px 24px 0 24px;
   flex-shrink: 0;
 }
 
@@ -80,14 +80,17 @@ $panel-close-duration: 0.25s;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 12px;
 }
 
 .panel-title {
-  width: 253px;
+  flex: 1;
+  min-width: 0;
   font-size: 20px;
-  font-weight: 500;
-  line-height: 24px;
-  color: rgba(47, 48, 89, 1);
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: #111827;
   margin: 0;
   font-family: var(--font-heading);
 }
@@ -99,11 +102,12 @@ $panel-close-duration: 0.25s;
 }
 
 .panel-subtitle {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 400;
-  line-height: 19px;
-  color: rgba(104, 113, 150, 1);
-  margin: 5px 0 0 0;
+  line-height: 1.45;
+  color: #6b7280;
+  margin: 6px 0 0 0;
+  max-width: 40ch;
   font-family: var(--font-heading);
 }
 
@@ -115,13 +119,13 @@ $panel-close-duration: 0.25s;
   margin-left: -24px;
   margin-right: -24px;
   border: none;
-  border-top: 1px solid rgba(230, 235, 240, 1);
+  border-top: 1px solid #e5e7eb;
   box-sizing: border-box;
 }
 
-/* 24px between separator line and first field (Work Order Name) */
+/* Space between separator and first field */
 .panel-form {
-  padding: 24px 24px 24px 24px;
+  padding: 20px 24px 28px 24px;
   flex: 1;
   overflow-x: hidden;
   overflow-y: auto;
@@ -131,82 +135,168 @@ $panel-close-duration: 0.25s;
 }
 
 .error-message {
-  background: #fee;
-  color: #c00;
-  padding: 12px;
+  position: relative;
+  padding: 12px 14px 12px 40px;
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
   border-radius: 8px;
   font-size: 14px;
+  line-height: 1.4;
   margin-bottom: 16px;
 }
 
+.error-message::before {
+  content: '';
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  width: 18px;
+  height: 18px;
+  background-color: #b91c1c;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' y1='8' x2='12' y2='12'/%3E%3Ccircle cx='12' cy='16' r='0.5' fill='black' stroke='none'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' y1='8' x2='12' y2='12'/%3E%3Ccircle cx='12' cy='16' r='0.5' fill='black' stroke='none'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   position: relative;
 
   label {
     display: block;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 500;
-    color: var(--color-text-labels);
-    margin-bottom: 6px;
+    color: #6b7280;
+    margin-bottom: 8px;
+    letter-spacing: 0.01em;
   }
 
   .form-control {
     width: 100%;
     padding: 10px 12px;
-    border: 1px solid var(--color-stroke);
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
     font-size: 14px;
+    color: #111827;
     font-family: var(--font-heading);
   }
 
   .form-control:focus {
     outline: none;
-    border-color: var(--color-primary);
+    border-color: #818cf8;
+    box-shadow: 0 0 0 1px #818cf8;
+  }
+
+  .form-control.has-error {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.25);
+  }
+
+  .form-control.has-error:focus {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.35);
   }
 
   /* End Date / Start Date: section and field specs */
   &.form-group-date {
-    width: 542px;
-    height: 62px;
+    width: 100%;
+    max-width: 100%;
+    min-height: 64px;
     box-sizing: border-box;
   }
 
   &.form-group-date label {
-    width: 542px;
-    height: 16px;
-    color: rgba(104, 113, 150, 1);
-    font-family: var(--font-heading);
-    font-size: 14px;
-    font-weight: 500;
+    color: #6b7280;
+    font-size: 12px;
   }
 
   /* Rectangle 7: End date / Start date input field */
   .form-control-date {
-    width: 542px;
-    height: 38px;
+    max-width: 100%;
+    width: 100%;
+    height: 40px;
     padding: 0 12px;
-    border: none;
-    border-radius: 5px;
-    background-color: rgba(255, 255, 255, 1);
-    box-shadow:
-      0 0 0 1px rgba(216, 220, 235, 1),
-      0 1.5px 3px -1.5px rgba(200, 207, 233, 1),
-      0 1px 0.5px -1px rgba(216, 220, 235, 1);
-    color: rgba(164, 170, 192, 1);
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: none;
+    color: #111827;
     font-family: var(--font-heading);
     font-size: 14px;
-    font-weight: 500;
-    line-height: 38px;
+    font-weight: 400;
+    line-height: 40px;
     box-sizing: border-box;
+  }
+
+  .form-control-date::placeholder {
+    color: #9ca3af;
   }
 
   .form-control-date:focus {
     outline: none;
-    box-shadow:
-      0 0 0 2px var(--color-primary-light),
-      0 1.5px 3px -1.5px rgba(200, 207, 233, 1),
-      0 1px 0.5px -1px rgba(216, 220, 235, 1);
+    border-color: #818cf8;
+    box-shadow: 0 0 0 1px #a5b4fc;
+  }
+
+  .form-control-date.has-error,
+  .form-control-date.has-error:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.25);
+  }
+
+  .date-field {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .date-field .form-control-date {
+    flex: 1;
+    min-width: 0;
+    padding-right: 44px;
+  }
+
+  .date-toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 44px;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0 8px 8px 0;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s ease, background 0.15s ease;
+  }
+
+  .date-toggle:hover {
+    color: #4f46e5;
+    background: rgba(99, 102, 241, 0.06);
+  }
+
+  .date-toggle:focus-visible {
+    outline: 2px solid #818cf8;
+    outline-offset: -2px;
+  }
+
+  .date-toggle-icon {
+    display: block;
+    width: 20px;
+    height: 20px;
+    background-color: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000' stroke-width='2'%3E%3Cpath d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3E%3C/svg%3E")
+      center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23000' stroke-width='2'%3E%3Cpath d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3E%3C/svg%3E")
+      center / contain no-repeat;
   }
 
   /* Status dropdown: selected value and options styled per status (rectangle bg + border for open) */
@@ -258,30 +348,7 @@ $panel-close-duration: 0.25s;
     background-color: rgba(252, 238, 181, 1);
   }
 
-  /* Status dropdown open panel: styled via panelClass="status-dropdown-panel" in global styles.scss (panel is appended to body) */
-
-  /* Status dropdown panel: custom box shadow, radius, background */
-  ::ng-deep .status-select .ng-dropdown-panel {
-    box-shadow:
-      0 5px 15px 0 rgba(216, 220, 235, 1),
-      0 2.5px 3px -1.5px rgba(200, 207, 233, 1),
-      0 4.5px 5px -1px rgba(216, 220, 235, 1);
-    border-radius: 5px 5px 5px 5px;
-    background-color: rgba(255, 255, 255, 1);
-    margin-top:3px;
-  }
-
-  /* Tighter spacing between status options in dropdown (default theme uses 8px 10px) */
-  ::ng-deep .status-select .ng-dropdown-panel .ng-dropdown-panel-items .ng-option {
-    padding-top: 4px;
-    padding-bottom: 4px;
-  }
-
-  /* No highlight background on selected option */
-  ::ng-deep .status-select .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected,
-  ::ng-deep .status-select .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected.ng-option-marked {
-    background-color: transparent;
-  }
+  /* Dropdown list is appended to body with panelClass="wo-status-select-panel" (see styles.scss) */
 
   /* Dropdown list options: plain text on white, status-specific colors when not selected */
   .status-option-label {
@@ -305,21 +372,7 @@ $panel-close-duration: 0.25s;
     color: rgba(3, 9, 41, 1);
   }
 
-  /* In dropdown: non-selected options use default dark color (only selected option gets primary blue) */
-  ::ng-deep .status-select .ng-dropdown-panel .ng-dropdown-panel-items .ng-option:not(.ng-option-selected) .status-option-open,
-  ::ng-deep .status-select .ng-dropdown-panel .ng-dropdown-panel-items .ng-option:not(.ng-option-selected) .status-option-in-progress,
-  ::ng-deep .status-select .ng-dropdown-panel .ng-dropdown-panel-items .ng-option:not(.ng-option-selected) .status-option-complete {
-    color: rgba(47, 48, 89, 1);
-  }
-  ::ng-deep .status-select .ng-dropdown-panel .ng-dropdown-panel-items .ng-option:not(.ng-option-selected) .status-option-blocked {
-    color: rgba(3, 9, 41, 1);
-  }
-
-  /* Selected option in dropdown: primary color for all (including Blocked) */
-  ::ng-deep .status-select .ng-dropdown-panel .ng-dropdown-panel-items .ng-option.ng-option-selected .status-option-label {
-    color: rgba(62, 64, 219, 1) !important;
-  }
-
+  /* Option colors in body-appended panel: global .wo-status-select-panel rules */
 }
 
 .field-error {
@@ -330,52 +383,67 @@ $panel-close-duration: 0.25s;
 }
 
 .btn-cancel {
-  width: 66px;
-  height: 32px;
-  padding: 0;
-  display: flex;
+  min-width: 72px;
+  height: 36px;
+  padding: 0 14px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: none;
-  border-radius: 7px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
   background: #ffffff;
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 1),
-    0 1px 3px 0 rgba(200, 207, 233, 1);
   font-family: var(--font-heading);
-  font-size: 15px;
-  font-weight: 400;
-  letter-spacing: 0.33px;
-  line-height: 18px;
-  color: rgba(47, 48, 89, 1);
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
   cursor: pointer;
 }
 
 .btn-cancel:hover {
-  background: #f5f5f5;
+  background: #f9fafb;
+  border-color: #d1d5db;
 }
 
 .btn-primary {
-  width: 66px;
-  height: 32px;
-  padding: 0;
-  display: flex;
+  min-width: 72px;
+  height: 36px;
+  padding: 0 16px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 7px;
-  background: rgba(86, 89, 255, 1);
-  box-shadow:
-    0 0 0 1px rgba(86, 89, 255, 1),
-    0 1px 3px 0 rgba(200, 207, 233, 1);
+  border-radius: 8px;
+  background: #4f46e5;
   font-family: var(--font-heading);
-  font-size: 15px;
-  font-weight: 400;
-  line-height: 18px;
+  font-size: 14px;
+  font-weight: 500;
   color: #ffffff;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
 }
 
 .btn-primary:hover {
-  background: var(--color-primary-dark);
+  background: #4338ca;
+}
+
+.btn-cancel:focus-visible,
+.btn-primary:focus-visible {
+  outline: 2px solid #818cf8;
+  outline-offset: 2px;
+}
+
+:host ::ng-deep .status-select .ng-select-container {
+  min-height: 40px;
+  border-radius: 8px;
+  border-color: #e5e7eb !important;
+  align-items: center;
+}
+
+:host ::ng-deep .status-select .ng-value-container {
+  padding-left: 4px;
+}
+
+:host ::ng-deep .status-select.ng-select-error .ng-select-container {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.25) !important;
 }

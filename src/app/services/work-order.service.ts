@@ -1,9 +1,14 @@
 /**
- * Work Order Service - State management, CRUD, overlap validation, local persistence
+ * Work order CRUD, overlap checks, and **localStorage persistence** (`work_order_timeline_work_orders`).
+ * Create / update / delete all refresh storage; an empty `[]` is a valid stored state.
  */
 
 import { Injectable, signal } from '@angular/core';
-import type { WorkCenterDocument, WorkOrderDocument, WorkOrderStatus } from '../models/work-order.model';
+import {
+  isWorkOrderStatus,
+  type WorkCenterDocument,
+  type WorkOrderDocument,
+} from '../models/work-order.model';
 import { SAMPLE_WORK_CENTERS, SAMPLE_WORK_ORDERS } from '../data/sample-data';
 import { parseDate } from '../utils/date.utils';
 
@@ -15,7 +20,6 @@ function loadWorkOrdersFromStorage(): WorkOrderDocument[] | null {
     if (!raw) return null;
     const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed)) return null;
-    const statuses: WorkOrderStatus[] = ['open', 'in-progress', 'complete', 'blocked'];
     const result: WorkOrderDocument[] = [];
     for (const item of parsed) {
       if (
@@ -27,14 +31,15 @@ function loadWorkOrdersFromStorage(): WorkOrderDocument[] | null {
         typeof (item as WorkOrderDocument).data === 'object' &&
         typeof (item as WorkOrderDocument).data.name === 'string' &&
         typeof (item as WorkOrderDocument).data.workCenterId === 'string' &&
-        statuses.includes((item as WorkOrderDocument).data.status) &&
+        isWorkOrderStatus((item as WorkOrderDocument).data.status) &&
         typeof (item as WorkOrderDocument).data.startDate === 'string' &&
         typeof (item as WorkOrderDocument).data.endDate === 'string'
       ) {
         result.push(item as WorkOrderDocument);
       }
     }
-    return result.length > 0 ? result : null;
+    // Persisted `[]` is valid (user cleared all orders) — do not fall back to sample data
+    return result;
   } catch {
     return null;
   }
@@ -68,8 +73,9 @@ export class WorkOrderService {
   }
 
   /**
-   * Check if a date range overlaps with existing orders on the same work center.
-   * Overlap formula: startA < endB AND endA > startB
+   * Inclusive date ranges on the same work center: interval intersection in the usual sense.
+   * Ranges are inclusive calendar days: [startDate, endDate] at local midnight (see parseDate).
+   * Overlap iff: newStart <= existingEnd && newEnd >= existingStart.
    * @param excludeId - When editing, exclude this order from the check
    */
   hasOverlap(
@@ -89,7 +95,7 @@ export class WorkOrderService {
     return orders.some((o) => {
       const existingStart = parseDate(o.data.startDate);
       const existingEnd = parseDate(o.data.endDate);
-      return newStart < existingEnd && newEnd > existingStart;
+      return newStart <= existingEnd && newEnd >= existingStart;
     });
   }
 

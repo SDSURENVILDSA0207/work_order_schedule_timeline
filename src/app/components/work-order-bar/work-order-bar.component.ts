@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   input,
   output,
@@ -7,269 +8,42 @@ import {
   computed,
   ViewChild,
   ElementRef,
-  afterNextRender,
   inject,
   effect,
+  OnDestroy,
 } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { fromEvent, type Subscription } from 'rxjs';
-import type { WorkOrderDocument, WorkOrderStatus } from '../../models/work-order.model';
+import {
+  WORK_ORDER_STATUS_LABELS,
+  type WorkOrderDocument,
+} from '../../models/work-order.model';
+import { formatIsoDateRangeForDisplay } from '../../utils/date.utils';
 
-const STATUS_LABELS: Record<WorkOrderStatus, string> = {
-  open: 'Open',
-  'in-progress': 'In Progress',
-  complete: 'Complete',
-  blocked: 'Blocked',
-};
-
-const DROPDOWN_GAP_PX = 4;
+const DROPDOWN_GAP_PX = 6;
+const DROPDOWN_WIDTH_PX = 152;
+const DROPDOWN_EST_HEIGHT_PX = 80;
+const MIN_WIDTH_PX_FOR_ACTIONS = 48;
+const MIN_WIDTH_PX_FOR_STATUS_BADGE = 100;
 
 @Component({
   selector: 'app-work-order-bar',
   standalone: true,
+  imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '(click)': 'onBarClick($event)',
     '[style.left.px]': 'left()',
     '[style.width.px]': 'width()',
     '[class.dropdown-open]': 'menuOpen()',
   },
-  template: `
-    <div
-      class="work-order-bar"
-      [class]="'status-' + order().data.status"
-      [class.menu-open]="menuOpen()"
-    >
-      <span class="bar-name">{{ order().data.name }}</span>
-      <span
-        class="status-badge"
-        [class]="'status-badge-' + order().data.status"
-      >{{ statusLabel() }}</span>
-        <div class="actions">
-        <button
-          #actionsTrigger
-          type="button"
-          class="actions-btn"
-          (click)="toggleMenu($event)"
-          aria-label="Actions"
-          [attr.aria-expanded]="menuOpen()"
-        >
-          ⋯
-        </button>
-        <!-- Dropdown is rendered in body overlay so it always appears over all bars -->
-        @if (menuOpen()) {
-          <!-- Invisible placeholder keeps layout; real panel is in body -->
-        }
-      </div>
-    </div>
-  `,
-  styles: `
-    :host {
-      display: flex;
-      align-items: center; /* vertical middle of row */
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      min-width: 24px; /* flexible: bar shrinks to fit date range; small min keeps it clickable */
-      box-sizing: border-box;
-      z-index: 2; /* above placeholder so three-dot menu is always clickable */
-    }
-
-    :host.dropdown-open {
-      z-index: 10001; /* above all other bars in the row so Edit/Delete panel always displays on top */
-    }
-
-    /* Bar size is driven by timeline (date range); no fixed min so it can shrink */
-    .work-order-bar {
-      position: relative;
-      width: 100%;
-      height: 38px;
-      min-width: 0;
-      border-radius: 8px;
-      background-color: rgba(237, 238, 255, 1);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 0 8px 0 12px;
-      box-sizing: border-box;
-      cursor: default;
-      opacity: 1;
-      overflow: hidden;
-    }
-
-    .work-order-bar.status-open {
-      box-shadow: 0 0 0 1px rgba(198, 226, 255, 1);
-      background-color: rgba(239, 246, 255, 1);
-      border: none;
-    }
-
-    .work-order-bar.status-in-progress {
-      box-shadow: 0 0 0 1px rgba(222, 224, 255, 1);
-      background-color: rgba(237, 238, 255, 1);
-      border: none;
-    }
-
-    .work-order-bar.status-complete {
-      box-shadow: 0 0 0 1px rgba(209, 250, 179, 1);
-      background-color: rgba(248, 255, 243, 1);
-      border: none;
-    }
-
-    .work-order-bar.status-blocked {
-      box-shadow: 0 0 0 1px rgba(255, 245, 207, 1);
-      background-color: rgba(255, 252, 241, 1);
-      border: none;
-    }
-
-    .bar-name {
-      flex: 1;
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--color-text-primary);
-    }
-
-    .status-badge {
-      flex-shrink: 0;
-      padding: 4px 12px;
-      border-radius: 999px;
-      white-space: nowrap;
-      font-family: 'Circular-Std', 'CircularStd-Book', sans-serif;
-      font-size: 14px;
-      font-weight: 400;
-      line-height: 17px;
-      letter-spacing: normal;
-      opacity: 1;
-    }
-
-    .status-badge-open {
-      width: 87px;
-      height: 22px;
-      border-radius: 5px;
-      background-color: rgba(209, 242, 255, 1);
-      color: rgba(0, 176, 191, 1);
-      text-align: center;
-      line-height: 22px;
-      padding: 0;
-    }
-
-    .status-badge-in-progress {
-      width: 87px;
-      height: 22px;
-      border-radius: 5px;
-      background-color: rgba(214, 216, 255, 1);
-      color: rgba(62, 64, 219, 1);
-      text-align: center;
-      line-height: 22px;
-      padding: 0;
-    }
-
-    .status-badge-complete {
-      width: 87px;
-      height: 22px;
-      border-radius: 5px;
-      background-color: rgba(209, 250, 179, 1);
-      color: rgba(8, 162, 104, 1);
-      text-align: center;
-      line-height: 22px;
-      padding: 0;
-    }
-
-    .status-badge-blocked {
-      width: 87px;
-      height: 22px;
-      border-radius: 5px;
-      background-color: rgba(255, 235, 207, 1);
-      color: rgba(177, 54, 0, 1);
-      text-align: center;
-      line-height: 22px;
-      padding: 0;
-    }
-
-    .actions {
-      position: relative;
-      flex-shrink: 0;
-      opacity: 0;
-      transition: opacity 0.15s ease;
-    }
-
-    .work-order-bar:hover .actions,
-    .work-order-bar.menu-open .actions {
-      opacity: 1;
-    }
-
-    .actions-btn {
-      width: 24px;
-      height: 22px;
-      border-radius: 5px;
-      background-color: rgba(241, 243, 248, 1);
-      border: none;
-      padding: 0;
-      cursor: pointer;
-      font-size: 16px;
-      line-height: 1;
-      color: var(--color-text-labels);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .actions-btn:hover {
-      background-color: rgba(228, 230, 238, 1);
-      color: var(--color-text-primary);
-    }
-
-    .actions-dropdown {
-      position: fixed;
-      width: 200px;
-      height: 80px;
-      box-shadow: 0 0 0 1px rgba(104, 113, 150, 0.1),
-        0 2.5px 3px -1.5px rgba(200, 207, 233, 1),
-        0 4.5px 5px -1px rgba(216, 220, 235, 1);
-      border-radius: 5px;
-      background-color: rgba(255, 255, 255, 1);
-      border: none;
-      z-index: 999999; /* above Work Center column and all work order bars */
-      display: flex;
-      flex-direction: column;
-      isolation: isolate; /* own stacking context so it always paints on top */
-    }
-
-    .actions-dropdown button {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      width: 100%;
-      padding: 0 12px;
-      border: none;
-      background: none;
-      text-align: left;
-      font-size: 14px;
-      cursor: pointer;
-      font-family: var(--font-heading);
-    }
-
-    .actions-dropdown-edit {
-      color: rgba(47, 48, 89, 1);
-    }
-
-    .actions-dropdown-edit:hover {
-      background: rgba(241, 243, 248, 1);
-    }
-
-    .actions-dropdown-delete {
-      color: rgba(62, 64, 219, 1);
-    }
-
-    .actions-dropdown-delete:hover {
-      background: rgba(241, 243, 248, 1);
-    }
-  `,
+  templateUrl: './work-order-bar.component.html',
+  styleUrl: './work-order-bar.component.scss',
 })
-export class WorkOrderBarComponent {
+export class WorkOrderBarComponent implements OnDestroy {
   order = input.required<WorkOrderDocument>();
+  /** Shown in hover details (row context has the work center name). */
+  workCenterName = input<string>('');
   left = input.required<number>();
   width = input.required<number>();
   /** When true (Work Order Details panel is open), this bar closes its dropdown so it never overlaps the panel. */
@@ -284,19 +58,59 @@ export class WorkOrderBarComponent {
   @ViewChild('actionsTrigger') actionsTrigger?: ElementRef<HTMLButtonElement>;
 
   menuOpen = signal(false);
-  dropdownTop = signal(0);
-  dropdownLeft = signal(0);
 
   private scrollSub: Subscription | null = null;
-
-  statusLabel = computed(() => STATUS_LABELS[this.order().data.status]);
+  private resizeSub: Subscription | null = null;
 
   private readonly doc = inject(DOCUMENT);
   private overlayEl: HTMLElement | null = null;
+  private firstMenuItemEl: HTMLButtonElement | null = null;
 
-  constructor(private readonly elementRef: ElementRef<HTMLElement>) {
-    afterNextRender(() => {});
+  /** Pointer capture phase: close on outside without fighting menu item clicks. */
+  private readonly onDocumentPointerDown = (ev: Event) => {
+    if (!this.menuOpen()) {
+      return;
+    }
+    const t = ev.target as Node | null;
+    if (!t) {
+      return;
+    }
+    if (this.actionsTrigger?.nativeElement.contains(t)) {
+      return;
+    }
+    if (this.overlayEl?.contains(t)) {
+      return;
+    }
+    this.closeMenu();
+  };
 
+  statusLabel = computed(() => WORK_ORDER_STATUS_LABELS[this.order().data.status]);
+
+  /** Native `title` tooltip: name, range, status, work center. */
+  barDetailsTooltip = computed(() => {
+    const o = this.order().data;
+    const wc = this.workCenterName().trim();
+    const range = formatIsoDateRangeForDisplay(o.startDate, o.endDate);
+    return [o.name, range, WORK_ORDER_STATUS_LABELS[o.status], wc || undefined]
+      .filter(Boolean)
+      .join(' · ');
+  });
+
+  showActions = computed(
+    () => this.width() >= MIN_WIDTH_PX_FOR_ACTIONS || this.menuOpen(),
+  );
+
+  /** On narrow bars, prefer name + kebab over the status chip. */
+  showStatusBadge = computed(() => {
+    if (this.width() < MIN_WIDTH_PX_FOR_STATUS_BADGE) {
+      return false;
+    }
+    return true;
+  });
+
+  private readonly elementRef = inject(ElementRef<HTMLElement>);
+
+  constructor() {
     effect(() => {
       if (this.panelOpen()) {
         this.closeMenu();
@@ -309,80 +123,97 @@ export class WorkOrderBarComponent {
     });
   }
 
-  private updateDropdownPosition(): void {
-    const btn = this.actionsTrigger?.nativeElement;
-    if (!btn) return;
-    const rect = btn.getBoundingClientRect();
-    this.dropdownTop.set(rect.bottom + DROPDOWN_GAP_PX);
-    this.dropdownLeft.set(rect.left);
-    if (this.overlayEl) {
-      this.overlayEl.style.top = `${rect.bottom + DROPDOWN_GAP_PX}px`;
-      this.overlayEl.style.left = `${rect.left}px`;
+  ngOnDestroy(): void {
+    this.removeOutsidePointerListener();
+    this.clearScrollListener();
+    this.clearResizeListener();
+    this.destroyBodyOverlay();
+    if (this.menuOpen()) {
+      this.openChange.emit(false);
     }
+    this.menuOpen.set(false);
+  }
+
+  private applyOverlayPosition(): void {
+    if (!this.overlayEl) {
+      return;
+    }
+    const { top, left } = this.computeMenuPosition();
+    this.overlayEl.style.top = `${top}px`;
+    this.overlayEl.style.left = `${left}px`;
+  }
+
+  private computeMenuPosition(): { top: number; left: number } {
+    const btn = this.actionsTrigger?.nativeElement;
+    if (!btn) {
+      return { top: 0, left: 0 };
+    }
+    const rect = btn.getBoundingClientRect();
+    const gap = DROPDOWN_GAP_PX;
+    const w = DROPDOWN_WIDTH_PX;
+    const h = DROPDOWN_EST_HEIGHT_PX;
+    const vw = this.doc.defaultView?.innerWidth ?? 1000;
+    const vh = this.doc.defaultView?.innerHeight ?? 800;
+
+    let left = rect.right - w;
+    left = Math.max(6, Math.min(left, vw - w - 6));
+
+    let top = rect.bottom + gap;
+    if (top + h > vh - 6) {
+      const above = rect.top - gap - h;
+      if (above >= 6) {
+        top = above;
+      } else {
+        top = Math.max(6, Math.min(top, vh - h - 6));
+      }
+    }
+    return { top, left };
   }
 
   private createBodyOverlay(): void {
     this.destroyBodyOverlay();
-    const top = this.dropdownTop();
-    const left = this.dropdownLeft();
+    const { top, left } = this.computeMenuPosition();
     const el = this.doc.createElement('div');
-    el.className = 'actions-dropdown';
     el.setAttribute('data-work-order-dropdown', '');
-    Object.assign(el.style, {
-      position: 'fixed',
-      top: `${top}px`,
-      left: `${left}px`,
-      width: '200px',
-      height: '80px',
-      boxShadow: '0 0 0 1px rgba(104, 113, 150, 0.1), 0 2.5px 3px -1.5px rgba(200, 207, 233, 1), 0 4.5px 5px -1px rgba(216, 220, 235, 1)',
-      borderRadius: '5px',
-      backgroundColor: '#fff',
-      zIndex: '999999',
-      display: 'flex',
-      flexDirection: 'column',
-    });
+    el.setAttribute('role', 'menu');
+    el.setAttribute('aria-label', 'Work order actions');
+    el.className = 'wo-bar-dropdown';
+    el.style.top = `${top}px`;
+    el.style.left = `${left}px`;
+
     const editBtn = this.doc.createElement('button');
     editBtn.type = 'button';
+    editBtn.setAttribute('role', 'menuitem');
+    editBtn.setAttribute('tabindex', '0');
+    editBtn.className = 'wo-bar-dropdown__item wo-bar-dropdown__item--edit';
     editBtn.textContent = 'Edit';
-    Object.assign(editBtn.style, {
-      flex: '1',
-      display: 'flex',
-      alignItems: 'center',
-      padding: '0 12px',
-      border: 'none',
-      background: 'transparent',
-      cursor: 'pointer',
-      fontFamily: 'inherit',
-      fontSize: '14px',
-      color: 'rgba(3, 9, 41, 1)',
-      textAlign: 'left',
+    editBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.onEdit();
     });
-    editBtn.addEventListener('click', () => this.onEdit());
+
     const deleteBtn = this.doc.createElement('button');
     deleteBtn.type = 'button';
+    deleteBtn.setAttribute('role', 'menuitem');
+    deleteBtn.setAttribute('tabindex', '0');
+    deleteBtn.className = 'wo-bar-dropdown__item wo-bar-dropdown__item--delete';
     deleteBtn.textContent = 'Delete';
-    Object.assign(deleteBtn.style, {
-      flex: '1',
-      display: 'flex',
-      alignItems: 'center',
-      padding: '0 12px',
-      border: 'none',
-      background: 'transparent',
-      cursor: 'pointer',
-      fontFamily: 'inherit',
-      fontSize: '14px',
-      color: 'rgba(62, 64, 219, 1)',
-      textAlign: 'left',
+    deleteBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.onDelete();
     });
-    deleteBtn.addEventListener('click', () => this.onDelete());
+
     el.addEventListener('click', (e) => e.stopPropagation());
+    el.addEventListener('pointerdown', (e) => e.stopPropagation());
     el.appendChild(editBtn);
     el.appendChild(deleteBtn);
     this.doc.body.appendChild(el);
     this.overlayEl = el;
+    this.firstMenuItemEl = editBtn;
   }
 
   private destroyBodyOverlay(): void {
+    this.firstMenuItemEl = null;
     if (this.overlayEl?.parentNode) {
       this.overlayEl.parentNode.removeChild(this.overlayEl);
     }
@@ -391,10 +222,14 @@ export class WorkOrderBarComponent {
 
   private attachScrollListener(): void {
     this.clearScrollListener();
-    const scrollEl = this.elementRef.nativeElement.closest('.timeline-grid-scroll') as HTMLElement | null;
-    if (!scrollEl) return;
+    const scrollEl = this.elementRef.nativeElement.closest('.timeline-grid-scroll') as
+      | HTMLElement
+      | null;
+    if (!scrollEl) {
+      return;
+    }
     this.scrollSub = fromEvent(scrollEl, 'scroll', { passive: true }).subscribe(() =>
-      this.updateDropdownPosition(),
+      this.applyOverlayPosition(),
     );
   }
 
@@ -403,39 +238,105 @@ export class WorkOrderBarComponent {
     this.scrollSub = null;
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    if (!this.menuOpen()) return;
-    const target = event.target as Element;
-    if (target.closest('.actions-btn, .actions-dropdown, [data-work-order-dropdown]')) return;
-    this.closeMenu();
+  private attachRepositionListener(): void {
+    this.clearResizeListener();
+    this.resizeSub = fromEvent(this.doc.defaultView as Window, 'resize', { passive: true }).subscribe(
+      () => {
+        if (this.menuOpen()) {
+          this.applyOverlayPosition();
+        }
+      },
+    );
+  }
+
+  private clearResizeListener(): void {
+    this.resizeSub?.unsubscribe();
+    this.resizeSub = null;
+  }
+
+  private addOutsidePointerListener(): void {
+    this.removeOutsidePointerListener();
+    this.doc.addEventListener('pointerdown', this.onDocumentPointerDown, true);
+  }
+
+  private removeOutsidePointerListener(): void {
+    this.doc.removeEventListener('pointerdown', this.onDocumentPointerDown, true);
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onDocumentKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && this.menuOpen()) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.closeMenu();
+      return;
+    }
+    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') {
+      return;
+    }
+    if (!this.menuOpen() || !this.overlayEl) {
+      return;
+    }
+    const focusRoot = this.doc.activeElement;
+    if (!focusRoot || !this.overlayEl.contains(focusRoot)) {
+      return;
+    }
+    const items = Array.from(
+      this.overlayEl.querySelectorAll<HTMLButtonElement>('.wo-bar-dropdown__item'),
+    );
+    if (items.length === 0) {
+      return;
+    }
+    const cur = items.indexOf(focusRoot as HTMLButtonElement);
+    const i = cur < 0 ? 0 : cur;
+    event.preventDefault();
+    if (event.key === 'ArrowDown') {
+      items[Math.min(i + 1, items.length - 1)]?.focus();
+    } else {
+      items[Math.max(i - 1, 0)]?.focus();
+    }
   }
 
   onBarClick(event: Event): void {
     event.stopPropagation();
   }
 
+  private focusTrigger(): void {
+    this.actionsTrigger?.nativeElement?.focus();
+  }
+
   private closeMenu(): void {
+    this.removeOutsidePointerListener();
     this.clearScrollListener();
+    this.clearResizeListener();
     this.destroyBodyOverlay();
+    const wasOpen = this.menuOpen();
     this.menuOpen.set(false);
-    this.openChange.emit(false);
+    if (wasOpen) {
+      this.openChange.emit(false);
+      queueMicrotask(() => this.focusTrigger());
+    }
   }
 
   toggleMenu(event: Event): void {
     event.stopPropagation();
-    const next = !this.menuOpen();
-    if (!next) {
+    if (this.menuOpen()) {
       this.closeMenu();
-      this.menuOpen.set(false);
-      this.openChange.emit(false);
-    } else {
-      this.updateDropdownPosition();
-      this.menuOpen.set(true);
-      this.openChange.emit(true);
-      this.createBodyOverlay();
-      this.attachScrollListener();
+      return;
     }
+    this.menuOpen.set(true);
+    this.openChange.emit(true);
+    this.createBodyOverlay();
+    this.attachScrollListener();
+    this.attachRepositionListener();
+    this.addOutsidePointerListener();
+    this.queueMenuFocus();
+  }
+
+  private queueMenuFocus(): void {
+    requestAnimationFrame(() => {
+      this.firstMenuItemEl?.focus();
+    });
   }
 
   onEdit(): void {
@@ -447,5 +348,4 @@ export class WorkOrderBarComponent {
     this.closeMenu();
     this.delete.emit(this.order());
   }
-
 }
